@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="uroz.cristina.chroma_app.ChooseActivity">
+
+    <Button
+        android:id="@+id/previous_button_chroma"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignTop="@+id/next_button_chroma"
+        android:layout_marginLeft="32dp"
+        android:layout_marginStart="32dp"
+        android:text="@string/previous" />
+
+    <Button
+        android:id="@+id/next_button_chroma"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
+        android:layout_marginRight="24dp"
+        android:text="@string/next"
+        android:layout_marginTop="25dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:id="@+id/tolerance_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/tolerance_bar"
+        android:layout_alignLeft="@+id/tolerance_bar"
+        android:layout_alignStart="@+id/tolerance_bar"
+        android:layout_marginBottom="11dp"
+        android:text="@string/tolerance" />
+
+    <SeekBar
+        android:id="@+id/tolerance_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/hsl_button"
+        android:layout_alignEnd="@+id/next_button_chroma"
+        android:layout_alignLeft="@+id/previous_button_chroma"
+        android:layout_alignRight="@+id/next_button_chroma"
+        android:layout_alignStart="@+id/previous_button_chroma"
+        android:layout_marginBottom="26dp" />
+
+    <Button
+        android:id="@+id/hsl_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="79dp"
+        android:layout_marginEnd="39dp"
+        android:layout_marginRight="39dp"
+        android:layout_toLeftOf="@+id/palette_button"
+        android:layout_toStartOf="@+id/palette_button"
+        android:text="HSL"
+        android:textSize="14sp" />
+
+    <Button
+        android:id="@+id/palette_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/hsl_button"
+        android:layout_alignBottom="@+id/hsl_button"
+        android:layout_alignEnd="@+id/next_button_chroma"
+        android:layout_alignRight="@+id/next_button_chroma"
+        android:layout_marginEnd="69dp"
+        android:layout_marginRight="69dp"
+        android:text="@string/palette"
+        android:textSize="14sp" />
+
+</RelativeLayout>

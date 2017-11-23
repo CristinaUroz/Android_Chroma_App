@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="uroz.cristina.chroma_app.ChooseActivity">
+
+    <Button
+        android:id="@+id/previous_button_edit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/next_button_edit"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="17dp"
+        android:layout_marginStart="17dp"
+        android:text="@string/previous" />
+
+    <Button
+        android:id="@+id/next_button_edit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginEnd="18dp"
+        android:layout_marginRight="18dp"
+        android:layout_marginTop="17dp"
+        android:text="@string/next" />
+
+    <Button
+        android:id="@+id/foreground_button_edit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/background_button_edit"
+        android:layout_alignBottom="@+id/background_button_edit"
+        android:layout_marginEnd="24dp"
+        android:layout_marginRight="24dp"
+        android:layout_toLeftOf="@+id/background_button_edit"
+        android:layout_toStartOf="@+id/background_button_edit"
+        android:text="@string/foreground" />
+
+    <Button
+        android:id="@+id/background_button_edit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="48dp"
+        android:layout_marginRight="48dp"
+        android:layout_marginTop="18dp"
+        android:text="@string/foreground"
+        android:layout_below="@+id/next_button_edit"
+        android:layout_alignRight="@+id/next_button_edit"
+        android:layout_alignEnd="@+id/next_button_edit" />
+
+    <TextView
+        android:id="@+id/selection_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/previous_button_edit"
+        android:layout_alignStart="@+id/previous_button_edit"
+        android:layout_below="@+id/foreground_button_edit"
+        android:layout_marginTop="177dp"
+        tools:text="Selection" />
+
+    <SeekBar
+        android:id="@+id/selection_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/selection_text"
+        android:layout_alignStart="@+id/selection_text"
+        android:layout_below="@+id/selection_text"
+        android:layout_marginTop="13dp"
+        android:layout_alignRight="@+id/next_button_edit"
+        android:layout_alignEnd="@+id/next_button_edit" />
+
+    <Button
+        android:id="@+id/contrast_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="19dp"
+        android:text="@string/contrast"
+        android:layout_below="@+id/selection_bar"
+        android:layout_alignRight="@+id/previous_button_edit"
+        android:layout_alignEnd="@+id/previous_button_edit" />
+
+    <Button
+        android:id="@+id/brightness_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/brightness"
+        android:layout_alignBaseline="@+id/contrast_button"
+        android:layout_alignBottom="@+id/contrast_button"
+        android:layout_toRightOf="@+id/contrast_button"
+        android:layout_toEndOf="@+id/contrast_button"
+        android:layout_marginLeft="18dp"
+        android:layout_marginStart="18dp" />
+
+    <Button
+        android:id="@+id/temperature_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/temperature"
+        android:layout_alignBaseline="@+id/brightness_button"
+        android:layout_alignBottom="@+id/brightness_button"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <Button
+        android:id="@+id/rotation_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/contrast_button"
+        android:layout_alignStart="@+id/contrast_button"
+        android:layout_below="@+id/contrast_button"
+        android:layout_marginTop="18dp"
+        android:text="@string/rotation" />
+
+    <Button
+        android:id="@+id/saturation_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/rotation_button"
+        android:layout_alignEnd="@+id/brightness_button"
+        android:layout_alignRight="@+id/brightness_button"
+        android:text="@string/saturation" />
+
+    <Button
+        android:id="@+id/opacity_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/saturation_button"
+        android:layout_alignLeft="@+id/temperature_button"
+        android:layout_alignStart="@+id/temperature_button"
+        android:text="@string/opacity" />
+</RelativeLayout>
+

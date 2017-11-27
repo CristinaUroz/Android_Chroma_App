@@ -20,13 +20,13 @@
         android:id="@+id/share_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginBottom="98dp"
+        android:layout_marginBottom="12dp"
         android:layout_marginLeft="46dp"
         android:layout_marginStart="46dp"
-        android:text="@string/share" />
+        android:text="@string/share"
+        android:layout_above="@+id/restart_button"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <Button
         android:id="@+id/save_button"
@@ -43,11 +43,10 @@
         android:id="@+id/restart_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/share_button"
+        android:text="@string/restart"
         android:layout_alignParentBottom="true"
-        android:layout_alignStart="@+id/share_button"
-        android:layout_marginBottom="22dp"
-        android:text="@string/restart" />
+        android:layout_alignLeft="@+id/share_button"
+        android:layout_alignStart="@+id/share_button" />
 
     <Button
         android:id="@+id/finish_button"

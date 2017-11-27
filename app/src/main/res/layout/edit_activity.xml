@@ -81,10 +81,10 @@
         android:id="@+id/temperature_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/temperature"
         android:layout_above="@+id/opacity_button"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:text="@string/warmth" />
 
     <Button
         android:id="@+id/rotation_button"
@@ -103,8 +103,8 @@
         android:layout_height="wrap_content"
         android:text="@string/saturation"
         android:layout_alignParentBottom="true"
-        android:layout_alignLeft="@+id/brightness_button"
-        android:layout_alignStart="@+id/brightness_button" />
+        android:layout_alignRight="@+id/brightness_button"
+        android:layout_alignEnd="@+id/brightness_button" />
 
     <Button
         android:id="@+id/opacity_button"

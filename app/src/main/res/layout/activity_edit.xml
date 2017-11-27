@@ -46,13 +46,13 @@
         android:id="@+id/background_button_edit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/next_button_edit"
+        android:layout_alignRight="@+id/next_button_edit"
+        android:layout_below="@+id/next_button_edit"
         android:layout_marginEnd="48dp"
         android:layout_marginRight="48dp"
         android:layout_marginTop="18dp"
-        android:text="@string/foreground"
-        android:layout_below="@+id/next_button_edit"
-        android:layout_alignRight="@+id/next_button_edit"
-        android:layout_alignEnd="@+id/next_button_edit" />
+        android:text="@string/background" />
 
     <TextView
         android:id="@+id/selection_text"
@@ -92,10 +92,7 @@
         android:text="@string/brightness"
         android:layout_alignBaseline="@+id/contrast_button"
         android:layout_alignBottom="@+id/contrast_button"
-        android:layout_toRightOf="@+id/contrast_button"
-        android:layout_toEndOf="@+id/contrast_button"
-        android:layout_marginLeft="18dp"
-        android:layout_marginStart="18dp" />
+        android:layout_centerHorizontal="true" />
 
     <Button
         android:id="@+id/temperature_button"
@@ -104,8 +101,8 @@
         android:text="@string/temperature"
         android:layout_alignBaseline="@+id/brightness_button"
         android:layout_alignBottom="@+id/brightness_button"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignRight="@+id/selection_bar"
+        android:layout_alignEnd="@+id/selection_bar" />
 
     <Button
         android:id="@+id/rotation_button"

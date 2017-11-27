@@ -1,15 +1,15 @@
 <resources>
     <string name="app_name">Chroma_App</string>
-    <string name="foreground">foreground</string>
-    <string name="background">background</string>
+    <string name="foreground">Foreground</string>
+    <string name="background">Background</string>
     <string name="delete">delete</string>
     <string name="next">next</string>
     <string name="previous">previous</string>
     <string name="palette">palette</string>
-    <string name="tolerance">tolerance</string>
+    <string name="tolerance">Tolerance</string>
     <string name="contrast">contrast</string>
     <string name="brightness">brightness</string>
-    <string name="temperature">temperature</string>
+    <string name="temperature">temp.</string>
     <string name="rotation">rotation</string>
     <string name="saturation">saturation</string>
     <string name="opacity">opacity</string>

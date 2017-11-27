@@ -50,14 +50,13 @@
         android:id="@+id/hsl_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="31dp"
         android:text="HSL"
         android:textSize="14sp"
+        android:layout_marginLeft="13dp"
+        android:layout_marginStart="13dp"
         android:layout_alignParentBottom="true"
         android:layout_toRightOf="@+id/tolerance_text"
-        android:layout_toEndOf="@+id/tolerance_text"
-        android:layout_marginLeft="11dp"
-        android:layout_marginStart="11dp" />
+        android:layout_toEndOf="@+id/tolerance_text" />
 
     <Button
         android:id="@+id/palette_button"

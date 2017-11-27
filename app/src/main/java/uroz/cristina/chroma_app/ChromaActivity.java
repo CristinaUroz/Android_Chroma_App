@@ -8,6 +8,6 @@ public class ChromaActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chroma);
+        setContentView(R.layout.chroma_activity);
     }
 }

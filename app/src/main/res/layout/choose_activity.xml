@@ -34,7 +34,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/background"
-        android:layout_below="@+id/foreground_delete"
+        android:layout_alignBottom="@+id/foreground_delete"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 

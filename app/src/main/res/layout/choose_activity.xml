@@ -95,4 +95,14 @@
         android:layout_alignTop="@+id/background_add"
         android:text="Button" />
 
+    <EditText
+        android:id="@+id/text1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/foreground_add"
+        android:layout_alignRight="@+id/foreground_add"
+        android:layout_below="@+id/foreground_text"
+        android:ems="10"
+        android:inputType="textPersonName" />
+
 </RelativeLayout>

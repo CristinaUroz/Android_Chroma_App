@@ -78,12 +78,21 @@
         android:layout_alignParentEnd="true" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/prova1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/foreground_add"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:text="Button" />
+
+    <Button
+        android:id="@+id/prova2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_alignTop="@+id/foreground_add"
+        android:layout_alignTop="@+id/background_add"
         android:text="Button" />
 
 </RelativeLayout>

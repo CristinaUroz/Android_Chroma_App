@@ -29,10 +29,11 @@
         android:id="@+id/tolerance_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="11dp"
-        android:text="@string/tolerance"
         android:layout_above="@+id/tolerance_bar"
-        android:layout_centerHorizontal="true" />
+        android:layout_alignLeft="@+id/tolerance_bar"
+        android:layout_alignStart="@+id/tolerance_bar"
+        android:layout_marginBottom="11dp"
+        android:text="@string/tolerance" />
 
     <SeekBar
         android:id="@+id/tolerance_bar"
@@ -51,9 +52,11 @@
         android:layout_height="wrap_content"
         android:text="HSL"
         android:textSize="14sp"
+        android:layout_marginLeft="13dp"
+        android:layout_marginStart="13dp"
         android:layout_alignParentBottom="true"
-        android:layout_toLeftOf="@+id/tolerance_text"
-        android:layout_toStartOf="@+id/tolerance_text" />
+        android:layout_toRightOf="@+id/tolerance_text"
+        android:layout_toEndOf="@+id/tolerance_text" />
 
     <Button
         android:id="@+id/palette_button"

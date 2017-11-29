@@ -34,75 +34,35 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/background"
-        android:layout_alignBottom="@+id/foreground_delete"
+
+        android:layout_centerVertical="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
-    <Button
-        android:id="@+id/foreground_add"
+    <ImageView
+        android:id="@+id/ima_fore"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="+"
-        android:textSize="24sp"
-        android:layout_above="@+id/foreground_delete"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="56dp" />
 
-    <Button
-        android:id="@+id/background_add"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="+"
-        android:textSize="24sp"
-        android:layout_above="@+id/background_delete"
-        android:layout_alignLeft="@+id/foreground_add"
-        android:layout_alignStart="@+id/foreground_add"
-        android:layout_marginBottom="45dp" />
-
-    <Button
-        android:id="@+id/foreground_delete"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/delete"
-        android:layout_centerVertical="true"
+        app:srcCompat="@android:drawable/ic_menu_camera"
+        android:layout_above="@+id/background_text"
+        android:layout_below="@+id/foreground_text"
+        android:layout_alignLeft="@+id/foreground_text"
+        android:layout_alignStart="@+id/foreground_text"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
 
-    <Button
-        android:id="@+id/background_delete"
+    <ImageView
+        android:id="@+id/ima_back"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/delete"
+
+        app:srcCompat="@android:drawable/ic_menu_camera"
+        android:layout_below="@+id/background_text"
+        android:layout_alignLeft="@+id/background_text"
+        android:layout_alignStart="@+id/background_text"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
-
-    <Button
-        android:id="@+id/prova1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/foreground_add"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:text="Button" />
-
-    <Button
-        android:id="@+id/prova2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignTop="@+id/background_add"
-        android:text="Button" />
-
-    <EditText
-        android:id="@+id/text1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignEnd="@+id/foreground_add"
-        android:layout_alignRight="@+id/foreground_add"
-        android:layout_below="@+id/foreground_text"
-        android:ems="10"
-        android:inputType="textPersonName" />
 
 </RelativeLayout>

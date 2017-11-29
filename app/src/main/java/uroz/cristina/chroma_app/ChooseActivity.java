@@ -1,5 +1,6 @@
 package uroz.cristina.chroma_app;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -36,6 +37,8 @@ public class ChooseActivity extends AppCompatActivity {
         btn2.setVisibility(View.INVISIBLE);
 
 
+        // Boto delete foreground
+        //
         // En lloc d'executarse al fer click al boto, s'ha d'executar quan hi ha una imatge carregada
         btn_del_fore.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -45,6 +48,8 @@ public class ChooseActivity extends AppCompatActivity {
             }
         });
 
+        // Boto delete background
+        //
         // En lloc d'executarse al fer click al boto, s'ha d'executar quan hi ha una imatge carregada
         btn_del_back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,6 +81,37 @@ public class ChooseActivity extends AppCompatActivity {
         /*
 
          */
+
+        //////////////////////////
+
+        // Boto next
+        // Passar a la seguent activitat
+        btn_next.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ChooseActivity.this, ChromaActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+
+        // Boto add foreground
+        //
+        btn_add_fore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+        // Boto add background
+        //
+        btn_add_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
     }
 
     private void cambiaVisivilitatForeground(boolean b) {

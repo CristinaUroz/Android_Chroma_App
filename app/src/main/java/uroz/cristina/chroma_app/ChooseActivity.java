@@ -70,14 +70,14 @@ public class ChooseActivity extends AppCompatActivity {
         btn_next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-     /*           primera_vegada = true;
+                primera_vegada = true;
                 Intent intent = new Intent(ChooseActivity.this, ChromaActivity.class);
                 // Proba passar dades entre dues activitats
-                String nom = text.getText().toString();
+                String nom = "0"; //text.getText().toString();
                 intent.putExtra(ChromaActivity.KEY_NOM, nom);
                 intent.putExtra(ChromaActivity.KEY_B, primera_vegada);
                 ///////////////////////////////////////////
-                startActivity(intent);*/
+                startActivity(intent);
              //   finish();
             }
         });

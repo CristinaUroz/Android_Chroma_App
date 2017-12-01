@@ -1,7 +1,10 @@
 package uroz.cristina.chroma_app;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.provider.MediaStore;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -109,12 +112,9 @@ public class ChooseActivity extends AppCompatActivity {
         fore_ima.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                //startActivityForResult(takePicture, 0);//zero can be replaced with any action code
-
-                Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(pickPhoto , 1);//one can be replaced with any action code
                 codi_imatge=1;
+
+                chooseCameraGallery();
             }
         });
 
@@ -123,14 +123,18 @@ public class ChooseActivity extends AppCompatActivity {
         back_ima.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                codi_imatge=0;
+
+                chooseCameraGallery();
                 //Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 //startActivityForResult(takePicture, 0);//zero can be replaced with any action code
 
-                Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(pickPhoto , 1);//one can be replaced with any action code
-                codi_imatge=0;
+
             }
         });
+
+
         //////////////////////////////////////////////////////////////////////////////////////
         // FOREGROUND
         // Agafar imatge de la galeria i mostrarla
@@ -156,6 +160,32 @@ public class ChooseActivity extends AppCompatActivity {
         //////////////////////////////////////////////////////////////////////////////////////
 
 
+    }
+
+
+    private void chooseCameraGallery() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.choose);
+        builder.setMessage(R.string.choose_from);
+        builder.setCancelable(false);
+
+
+        builder.setNegativeButton(R.string.camera, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                startActivityForResult(takePicture, 0);//zero can be replaced with any action code
+            }
+        });
+
+        builder.setPositiveButton(R.string.gallery, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Intent pickPhoto = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(pickPhoto , 1);//one can be replaced with any action code
+            }
+        });
+        builder.create().show();
     }
 
     private void cambiaVisivilitatForeground(boolean b) {

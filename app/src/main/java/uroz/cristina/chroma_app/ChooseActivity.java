@@ -7,6 +7,7 @@ import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -29,6 +30,9 @@ public class ChooseActivity extends AppCompatActivity {
     // Proba passar dades entre dues activitats
     public static String KEY_NOM = "KEY_NOM";
     public static String KEY_B = "KEY_B";
+
+    private ImageView fore_ima;
+    private ImageView back_ima;
     ///////////////////////////////////////////
 
     @Override
@@ -39,8 +43,8 @@ public class ChooseActivity extends AppCompatActivity {
 
         // Obtencio de referencies a elements de la pantalla
 
-        ImageView fore_ima = (ImageView)findViewById(R.id.ima_fore);
-        ImageView back_ima = (ImageView)findViewById(R.id.ima_back);
+        fore_ima = (ImageView)findViewById(R.id.ima_fore);
+        back_ima = (ImageView)findViewById(R.id.ima_back);
 /*        btn1 = (Button) findViewById(R.id.prova1);
         btn2 = (Button) findViewById(R.id.prova2);
         btn_add_fore = (Button) findViewById(R.id.foreground_add);
@@ -216,26 +220,49 @@ public class ChooseActivity extends AppCompatActivity {
         ImageView imageview = (ImageView)findViewById(R.id.ima_fore);
 
         if (codi_imatge==1){
-        imageview = (ImageView)findViewById(R.id.ima_fore);}
-        else if (codi_imatge==0){
-        imageview = (ImageView)findViewById(R.id.ima_back);
+            super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
+            switch(requestCode) {
+                case 0:
+                    if(resultCode == RESULT_OK){
+                        Uri selectedImage = imageReturnedIntent.getData();
+                        fore_ima.setImageURI(selectedImage);
+                        String aux=fore_ima.toString();
+                        Log.d("Cris",aux);
+                    }
+
+                    break;
+                case 1:
+                    if(resultCode == RESULT_OK){
+                        Uri selectedImage = imageReturnedIntent.getData();
+                        fore_ima.setImageURI(selectedImage);
+                        String aux=fore_ima.toString();
+                        Log.d("Cris",aux);
+
+                    }
+                    break;
+            }
         }
+        else if (codi_imatge==0){
+            super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
+            switch(requestCode) {
+                case 0:
+                    if(resultCode == RESULT_OK){
+                        Uri selectedImage = imageReturnedIntent.getData();
+                        back_ima.setImageURI(selectedImage);
+                        String aux=back_ima.toString();
+                        Log.d("Cris",aux);
+                    }
 
-        super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
-        switch(requestCode) {
-            case 0:
-                if(resultCode == RESULT_OK){
-                    Uri selectedImage = imageReturnedIntent.getData();
-                    imageview.setImageURI(selectedImage);
-                }
-
-                break;
-            case 1:
-                if(resultCode == RESULT_OK){
-                    Uri selectedImage = imageReturnedIntent.getData();
-                    imageview.setImageURI(selectedImage);
-                }
-                break;
+                    break;
+                case 1:
+                    if(resultCode == RESULT_OK){
+                        Uri selectedImage = imageReturnedIntent.getData();
+                        back_ima.setImageURI(selectedImage);
+                        String aux=back_ima.toString();
+                        Log.d("Cris",aux);
+                    }
+                    break;
+            }
         }
     }
 }

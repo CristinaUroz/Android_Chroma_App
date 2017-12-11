@@ -49,8 +49,8 @@ public class ChromaActivity extends AppCompatActivity {
                 Intent intent = new Intent(ChromaActivity.this, ChooseActivity.class);
                 // Proba passar dades entre dues activitats
                 String nom = text.getText().toString();
-                intent.putExtra(ChooseActivity.KEY_NOM, nom);
-                intent.putExtra(ChooseActivity.KEY_B, primera_vegada);
+                //intent.putExtra(ChooseActivity.KEY_NOM, nom);
+                //intent.putExtra(ChooseActivity.KEY_B, primera_vegada);
                 ///////////////////////////////////////////
                 startActivity(intent);
                 finish();

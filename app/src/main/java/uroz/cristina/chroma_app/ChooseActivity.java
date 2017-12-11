@@ -2,7 +2,10 @@ package uroz.cristina.chroma_app;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -10,47 +13,54 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 
-//TODO: Borrar buttons
+import java.io.File;
+import java.io.IOException;
+import java.util.Calendar;
+
 //TODO: posar previus i next a dalt
 
 public class ChooseActivity extends AppCompatActivity {
     // Declaracio de referencies a elements de la pantalla
-    private Button btn_add_fore, btn_add_back, btn_del_fore, btn_del_back, btn_next;
-    private Button btn1, btn2;
-    private EditText text;
+    private Button btn_next;
     private int codi_imatge=1;
 
     // Variables globals
-    private boolean visibilitatF = true; // Visibilitat del boto + i de la imatge foreground
-    private boolean visibilitatB = true; // Visibilitat del boto + i de la imatge background
     private boolean primera_vegada;
-    // Proba passar dades entre dues activitats
-    public static String KEY_NOM = "KEY_NOM";
-    public static String KEY_B = "KEY_B";
 
     private ImageView fore_ima;
     private ImageView back_ima;
+    private Uri fore_uri;
+    private Uri back_uri;
+
     ///////////////////////////////////////////
+  //  private static final String photosPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/ChromAppPhotos/";
+ //   private static final String photosPath = Environment.getExternalStorageDirectory()+ "/ChromAppPhotos/";
+    private String fileName;
+    private File dir;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.choose_activity);
 
+        // Creació del directori
+        dir=new File (Environment.getExternalStorageDirectory(), "/ChromAppPhotos/");
+        if (!dir.exists()){
+            dir.mkdirs();
+            Log.i("Cristina","sha creat el directori");
+        }
 
         // Obtencio de referencies a elements de la pantalla
-
         fore_ima = (ImageView)findViewById(R.id.ima_fore);
+        if(fore_uri!=null){
+            fore_ima.setImageURI(fore_uri);
+        }
         back_ima = (ImageView)findViewById(R.id.ima_back);
-/*        btn1 = (Button) findViewById(R.id.prova1);
-        btn2 = (Button) findViewById(R.id.prova2);
-        btn_add_fore = (Button) findViewById(R.id.foreground_add);
-        btn_add_back = (Button) findViewById(R.id.background_add);
-        btn_del_fore = (Button) findViewById(R.id.foreground_delete);
-        btn_del_back = (Button) findViewById(R.id.background_delete);*/
+        if(back_uri!=null){
+            back_ima.setImageURI(back_uri);
+        }
         btn_next = (Button) findViewById(R.id.next_button_choose);
 
        // text = (EditText) findViewById(R.id.text1);
@@ -58,19 +68,12 @@ public class ChooseActivity extends AppCompatActivity {
         // Proba passar dades entre dues activitats
 
         // getIntent().getExtras().isEmpty()
-        if (primera_vegada) {
+    /*    if (primera_vegada) {
             String nom = getIntent().getExtras().getString(KEY_NOM);
             text.setText(nom);
             primera_vegada = getIntent().getExtras().getBoolean(KEY_B);
-        }
+        }*/
         ///////////////////////////////////////////
-
-     /*   btn_add_fore.setVisibility(View.VISIBLE);
-        btn_add_back.setVisibility(View.VISIBLE);*/
-
-        // Botons de prova, es reemplaçaran per les imatges que es carregaran
-//        btn1.setVisibility(View.INVISIBLE);
-  //      btn2.setVisibility(View.INVISIBLE);
 
         // Boto next
         // Passar a la seguent activitat
@@ -89,96 +92,69 @@ public class ChooseActivity extends AppCompatActivity {
             }
         });
 
-        // Boto delete foreground
-        //
-        // En lloc d'executarse al fer click al boto, s'ha d'executar quan hi ha una imatge carregada
-    /*    btn_del_fore.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                visibilitatF = !visibilitatF;
-                cambiaVisivilitatForeground(visibilitatF);
-            }
-        });
-
-        // Boto delete background
-        //
-        // En lloc d'executarse al fer click al boto, s'ha d'executar quan hi ha una imatge carregada
-        btn_del_back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                visibilitatB = !visibilitatB;
-                cambiaVisivilitatBackground(visibilitatB);
-            }
-        });*/
-
-        // Boto add foreground
-        //
+        //Add foreground
         fore_ima.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 codi_imatge=1;
-
                 chooseCameraGallery();
             }
         });
 
-        // Boto add background
-        //
+        // Add background
         back_ima.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 codi_imatge=0;
-
                 chooseCameraGallery();
-                //Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                //startActivityForResult(takePicture, 0);//zero can be replaced with any action code
-
-
             }
         });
-
-
-        //////////////////////////////////////////////////////////////////////////////////////
-        // FOREGROUND
-        // Agafar imatge de la galeria i mostrarla
-        /*
-
-         */
-
-
-        // Agafar una imatge amb la camera i mostrarla
-        /*
-
-         */
-
-        // Mostrar quadre de dialeg per triar si volem agafar la imatge le la galeria o de la camera
-        /*
-
-         */
-
-        // BACKGROUND
-        /*
-
-         */
-        //////////////////////////////////////////////////////////////////////////////////////
-
-
     }
-
 
     private void chooseCameraGallery() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.choose);
         builder.setMessage(R.string.choose_from);
-        builder.setCancelable(false);
+        builder.setCancelable(true);
 
 
         builder.setNegativeButton(R.string.camera, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivityForResult(takePicture, 0);//zero can be replaced with any action code
+                Calendar calendar= Calendar.getInstance();
+                int day = calendar.get(Calendar.DAY_OF_MONTH);
+                int month = calendar.get(Calendar.MONTH);
+                int year = calendar.get(Calendar.YEAR);
+                int hour = calendar.get(Calendar.HOUR);
+                int minute = calendar.get(Calendar.MINUTE);
+                int second = calendar.get(Calendar.SECOND);
+
+                String today = Integer.toString(hour)+ Integer.toString(minute)+ Integer.toString(second)+ Integer.toString(year)+ Integer.toString(month)+ Integer.toString(day);
+
+                fileName = dir + "/" + today + ".jpg";
+
+                //fileName = photosPath + "photo.jpg";
+                Log.i("Cristina",fileName);
+                File photoFile = new File(fileName);
+                try {
+                    photoFile.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return;
+                }
+                if (codi_imatge==0) {
+                    back_uri = Uri.fromFile(photoFile);
+                    Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, back_uri);
+                    startActivityForResult(cameraIntent, 1);
+                }
+                if (codi_imatge==1) {
+                    fore_uri = Uri.fromFile(photoFile);
+                    Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, fore_uri);
+                    startActivityForResult(cameraIntent, 1);
+                }
+
             }
         });
 
@@ -186,58 +162,35 @@ public class ChooseActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 Intent pickPhoto = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(pickPhoto , 1);//one can be replaced with any action code
+                startActivityForResult(pickPhoto , 0);//one can be replaced with any action code
             }
         });
+
         builder.create().show();
-    }
-
-    private void cambiaVisivilitatForeground(boolean b) {
-
-        if (b) {
-            btn1.setVisibility(View.INVISIBLE);
-            btn_add_fore.setVisibility(View.VISIBLE);
-        } else {
-            btn1.setVisibility(View.VISIBLE);
-            btn_add_fore.setVisibility(View.INVISIBLE);
-        }
-    }
-
-    private void cambiaVisivilitatBackground(boolean b) {
-
-        if (b) {
-            btn2.setVisibility(View.INVISIBLE);
-            btn_add_back.setVisibility(View.VISIBLE);
-        } else {
-            btn2.setVisibility(View.VISIBLE);
-            btn_add_back.setVisibility(View.INVISIBLE);
-        }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
-
-        ImageView imageview = (ImageView)findViewById(R.id.ima_fore);
-
         if (codi_imatge==1){
             super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
             switch(requestCode) {
                 case 0:
                     if(resultCode == RESULT_OK){
-                        Uri selectedImage = imageReturnedIntent.getData();
-                        fore_ima.setImageURI(selectedImage);
-                        String aux=fore_ima.toString();
-                        Log.d("Cris",aux);
+                        fore_uri = imageReturnedIntent.getData();
+                       // fore_ima.setImageURI(selectedImage);
+                       // String aux=fore_ima.toString();
+                        if (fore_uri==null){
+                            Log.d("Cris","null");}
+                        else{Log.d("Cris","No null");
+                            fore_ima.setImageURI(fore_uri);
+                        }
                     }
 
                     break;
                 case 1:
                     if(resultCode == RESULT_OK){
-                        Uri selectedImage = imageReturnedIntent.getData();
-                        fore_ima.setImageURI(selectedImage);
-                        String aux=fore_ima.toString();
-                        Log.d("Cris",aux);
-
+                        Bitmap bMap = BitmapFactory.decodeFile(fileName);
+                        fore_ima.setImageBitmap(bMap);
                     }
                     break;
             }
@@ -247,19 +200,21 @@ public class ChooseActivity extends AppCompatActivity {
             switch(requestCode) {
                 case 0:
                     if(resultCode == RESULT_OK){
-                        Uri selectedImage = imageReturnedIntent.getData();
-                        back_ima.setImageURI(selectedImage);
-                        String aux=back_ima.toString();
-                        Log.d("Cris",aux);
+                        back_uri = imageReturnedIntent.getData();
+                       // back_ima.setImageURI(selectedImage);
+                        //String aux=back_ima.toString();
+                        if (back_uri==null){
+                            Log.d("Cris","null");}
+                        else{Log.d("Cris","No null");
+                            back_ima.setImageURI(back_uri);
+                        }
                     }
 
                     break;
                 case 1:
                     if(resultCode == RESULT_OK){
-                        Uri selectedImage = imageReturnedIntent.getData();
-                        back_ima.setImageURI(selectedImage);
-                        String aux=back_ima.toString();
-                        Log.d("Cris",aux);
+                        Bitmap bMap = BitmapFactory.decodeFile(fileName);
+                        back_ima.setImageBitmap(bMap);
                     }
                     break;
             }

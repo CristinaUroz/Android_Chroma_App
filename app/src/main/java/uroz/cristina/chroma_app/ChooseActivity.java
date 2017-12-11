@@ -15,12 +15,13 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 
-//TODO: posar previus i next a dalt
+//TODO: posar previous i next a dalt
 
 public class ChooseActivity extends AppCompatActivity {
     // Declaracio de referencies a elements de la pantalla
@@ -34,73 +35,75 @@ public class ChooseActivity extends AppCompatActivity {
     private Uri back_uri;
     private String fileName;
     private File dir;
-    public static String fore_uri1 = "fore_uri2";
-    public static String back_uri1 = "back_uri2";
+    public static String KEY_FORE_URI1 = "KEY_FORE_URI1";
+    public static String KEY_BACK_URI1 = "KEY_BACK_URI1";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.choose_activity);
 
-        // Creació del directori
-        dir = new File (Environment.getExternalStorageDirectory(), "/ChromAppPhotos/");
-        if (!dir.exists()){
+        // Creació del directori on es guarden les fotos que es fan
+        dir = new File(Environment.getExternalStorageDirectory(), "/ChromAppPhotos/");
+
+        if (!dir.exists()) {
             dir.mkdirs();
-            Log.i("Cristina","sha creat el directori");
         }
 
         // Obtencio de referencies a elements de la pantalla
-        fore_ima = (ImageView)findViewById(R.id.ima_fore);
-        back_ima = (ImageView)findViewById(R.id.ima_back);
+        fore_ima = (ImageView) findViewById(R.id.ima_fore);
+        back_ima = (ImageView) findViewById(R.id.ima_back);
         btn_next = (Button) findViewById(R.id.next_button_choose);
 
-        if(getIntent() != null && getIntent().getExtras() != null) {
 
-            fore_uri = Uri.parse(getIntent().getExtras().getString(fore_uri1));
-            back_uri = Uri.parse(getIntent().getExtras().getString(back_uri1));
+        if (getIntent() != null && getIntent().getExtras() != null) {
+            fore_uri = Uri.parse(getIntent().getExtras().getString(KEY_FORE_URI1));
+            back_uri = Uri.parse(getIntent().getExtras().getString(KEY_BACK_URI1));
 
-            if (back_uri1 != null) {
+
+            /// ???????????????????? no entenc perque cal aquests ifs
+            if (KEY_BACK_URI1 != null) {
                 back_ima.setImageURI(back_uri);
             }
 
-            if (fore_uri1 != null) {
+            if (KEY_FORE_URI1 != null) {
                 fore_ima.setImageURI(fore_uri);
             }
         }
 
         // Boto next
-        // Passar a la seguent activitat
         btn_next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(ChooseActivity.this, ChromaActivity.class);
-
                 // Passar dades entre dues activitats
-                String back=back_uri.toString();
-                String fore=fore_uri.toString();
-                intent.putExtra(ChromaActivity.back_uri2, back);
-                intent.putExtra(ChromaActivity.fore_uri2, fore);
-                ///////////////////////////////////////////
-
-                startActivity(intent);
-                finish();
+                Intent intent = new Intent(ChooseActivity.this, ChromaActivity.class);
+                try {
+                    String back = back_uri.toString();
+                    String fore = fore_uri.toString();
+                    intent.putExtra(ChromaActivity.KEY_BACK_URI2, back);
+                    intent.putExtra(ChromaActivity.KEY_FORE_URI2, fore);
+                    startActivity(intent);
+                    finish();
+                } catch (Exception e) {
+                    Toast.makeText(ChooseActivity.this, e.toString(), Toast.LENGTH_LONG).show();
+                }
             }
         });
 
-        //Add foreground
+        // Afegeix la imatge foreground
         fore_ima.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                codi_imatge=1;
+                codi_imatge = 1;
                 chooseCameraGallery();
             }
         });
 
-        // Add background
+        // Afegeix la imatge background
         back_ima.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                codi_imatge=0;
+                codi_imatge = 0;
                 chooseCameraGallery();
             }
         });
@@ -112,12 +115,11 @@ public class ChooseActivity extends AppCompatActivity {
         builder.setMessage(R.string.choose_from);
         builder.setCancelable(true);
 
-
+        // Agafa la imatge de la camera
         builder.setNegativeButton(R.string.camera, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                fileName = dir + "/" +  getPhotoName() + ".jpg";
-
+                fileName = dir + "/" + getPhotoName() + ".jpg";
                 File photoFile = new File(fileName);
                 try {
                     photoFile.createNewFile();
@@ -125,88 +127,86 @@ public class ChooseActivity extends AppCompatActivity {
                     e.printStackTrace();
                     return;
                 }
-                if (codi_imatge==0) {
+                if (codi_imatge == 0) {
                     back_uri = Uri.fromFile(photoFile);
                     Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                     cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, back_uri);
                     startActivityForResult(cameraIntent, 1);
-                }
-                if (codi_imatge==1) {
+                } else if (codi_imatge == 1) {
                     fore_uri = Uri.fromFile(photoFile);
                     Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                     cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, fore_uri);
                     startActivityForResult(cameraIntent, 1);
                 }
-
             }
         });
+
+        // Agafa la imatge de la galeria
         builder.setPositiveButton(R.string.gallery, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 Intent pickPhoto = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(pickPhoto , 0);//one can be replaced with any action code
+                startActivityForResult(pickPhoto, 0);
             }
         });
+
         builder.create().show();
     }
 
     @NonNull
     private String getPhotoName() {
-        Calendar calendar= Calendar.getInstance();
+        Calendar calendar = Calendar.getInstance();
         int day = calendar.get(Calendar.DAY_OF_MONTH);
-        int month = calendar.get(Calendar.MONTH);
+        int month = calendar.get(Calendar.MONTH) + 1;
         int year = calendar.get(Calendar.YEAR);
         int hour = calendar.get(Calendar.HOUR);
         int minute = calendar.get(Calendar.MINUTE);
         int second = calendar.get(Calendar.SECOND);
 
-        return Integer.toString(year) +"_" + Integer.toString(month) + "_" + Integer.toString(day) + "_" + Integer.toString(hour)+ ":"+ Integer.toString(minute)+":" +Integer.toString(second);
+        return Integer.toString(year) + "_" + Integer.toString(month) + "_" + Integer.toString(day) + "_" + Integer.toString(hour) + Integer.toString(minute) + Integer.toString(second);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
-        if (codi_imatge==1){
+        if (codi_imatge == 1) {
             super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
-            switch(requestCode) {
+            switch (requestCode) {
                 case 0:
-                    if(resultCode == RESULT_OK){
+                    if (resultCode == RESULT_OK) {
                         fore_uri = imageReturnedIntent.getData();
-                       // fore_ima.setImageURI(selectedImage);
-                       // String aux=fore_ima.toString();
-                        if (fore_uri==null){
-                            Log.d("Cris","null");}
-                        else{Log.d("Cris","No null");
+                        if (fore_uri == null) {
+                            Log.d("Cris", "null");
+                        } else {
+                            Log.d("Cris", "No null");
                             fore_ima.setImageURI(fore_uri);
                         }
                     }
 
                     break;
                 case 1:
-                    if(resultCode == RESULT_OK){
+                    if (resultCode == RESULT_OK) {
                         Bitmap bMap = BitmapFactory.decodeFile(fileName);
                         fore_ima.setImageBitmap(bMap);
                     }
                     break;
             }
-        }
-        else if (codi_imatge==0){
+        } else if (codi_imatge == 0) {
             super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
-            switch(requestCode) {
+            switch (requestCode) {
                 case 0:
-                    if(resultCode == RESULT_OK){
+                    if (resultCode == RESULT_OK) {
                         back_uri = imageReturnedIntent.getData();
-                       // back_ima.setImageURI(selectedImage);
-                        //String aux=back_ima.toString();
-                        if (back_uri==null){
-                            Log.d("Cris","null");}
-                        else{Log.d("Cris","No null");
+                        if (back_uri == null) {
+                            Log.d("Cris", "null");
+                        } else {
+                            Log.d("Cris", "No null");
                             back_ima.setImageURI(back_uri);
                         }
                     }
 
                     break;
                 case 1:
-                    if(resultCode == RESULT_OK){
+                    if (resultCode == RESULT_OK) {
                         Bitmap bMap = BitmapFactory.decodeFile(fileName);
                         back_ima.setImageBitmap(bMap);
                     }

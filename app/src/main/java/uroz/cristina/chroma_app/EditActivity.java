@@ -6,20 +6,16 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 
 public class EditActivity extends AppCompatActivity {
     // Declaracio de referencies a elements de la pantalla
     private Button btn_prev, btn_next, btn_fore, btn_back, btn_contrast, btn_brillo, btn_temp, btn_rot, btn_satu, btn_opac;
     private SeekBar barra_edit;
-    private EditText text;
+    private ImageView ima_mixed;
 
     // Variables globals
-    private boolean primera_vegada;
-    // Proba passar dades entre dues activitats
-    public static String KEY_NOM = "KEY_NOM";
-    public static String KEY_B = "KEY_B";
-    ///////////////////////////////////////////
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,42 +34,25 @@ public class EditActivity extends AppCompatActivity {
         btn_satu = (Button) findViewById(R.id.saturation_button);
         btn_opac = (Button) findViewById(R.id.opacity_button);
         barra_edit = (SeekBar) findViewById(R.id.selection_bar);
-
-        text = (EditText) findViewById(R.id.text3);
-
-        // Proba passar dades entre dues activitats
-        String nom = getIntent().getExtras().getString(KEY_NOM);
-        text.setText(nom);
-        primera_vegada = getIntent().getExtras().getBoolean(KEY_B);
-        ///////////////////////////////////////////
+        ima_mixed = (ImageView) findViewById(R.id.ima_mixed);
 
         // Boto prev
-        // Passar a l'activitat anterior
         btn_prev.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(EditActivity.this, ChromaActivity.class);
-                // Proba passar dades entre dues activitats
-                String nom = text.getText().toString();
-                intent.putExtra(ChromaActivity.KEY_NOM, nom);
-                intent.putExtra(ChromaActivity.KEY_B, primera_vegada);
-                ///////////////////////////////////////////
+
                 startActivity(intent);
                 finish();
             }
         });
 
         // Boto next
-        // Passar a l'activitat seguent
         btn_next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(EditActivity.this, ShareActivity.class);
-                // Proba passar dades entre dues activitats
-                String nom = text.getText().toString();
-                intent.putExtra(ShareActivity.KEY_NOM, nom);
-                intent.putExtra(ShareActivity.KEY_B, primera_vegada);
-                ///////////////////////////////////////////
+
                 startActivity(intent);
                 finish();
             }

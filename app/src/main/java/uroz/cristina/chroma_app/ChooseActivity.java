@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -24,7 +25,7 @@ import java.util.Calendar;
 public class ChooseActivity extends AppCompatActivity {
     // Declaracio de referencies a elements de la pantalla
     private Button btn_next;
-    private int codi_imatge=1;
+    private int codi_imatge = 1;
 
     // Variables globals
     private boolean primera_vegada;
@@ -33,10 +34,6 @@ public class ChooseActivity extends AppCompatActivity {
     private ImageView back_ima;
     private Uri fore_uri;
     private Uri back_uri;
-
-    ///////////////////////////////////////////
-  //  private static final String photosPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/ChromAppPhotos/";
- //   private static final String photosPath = Environment.getExternalStorageDirectory()+ "/ChromAppPhotos/";
     private String fileName;
     private File dir;
 
@@ -46,7 +43,7 @@ public class ChooseActivity extends AppCompatActivity {
         setContentView(R.layout.choose_activity);
 
         // Creació del directori
-        dir=new File (Environment.getExternalStorageDirectory(), "/ChromAppPhotos/");
+        dir = new File (Environment.getExternalStorageDirectory(), "/ChromAppPhotos/");
         if (!dir.exists()){
             dir.mkdirs();
             Log.i("Cristina","sha creat el directori");
@@ -54,26 +51,17 @@ public class ChooseActivity extends AppCompatActivity {
 
         // Obtencio de referencies a elements de la pantalla
         fore_ima = (ImageView)findViewById(R.id.ima_fore);
-        if(fore_uri!=null){
-            fore_ima.setImageURI(fore_uri);
-        }
         back_ima = (ImageView)findViewById(R.id.ima_back);
+        btn_next = (Button) findViewById(R.id.next_button_choose);
+
+
         if(back_uri!=null){
             back_ima.setImageURI(back_uri);
         }
-        btn_next = (Button) findViewById(R.id.next_button_choose);
 
-       // text = (EditText) findViewById(R.id.text1);
-
-        // Proba passar dades entre dues activitats
-
-        // getIntent().getExtras().isEmpty()
-    /*    if (primera_vegada) {
-            String nom = getIntent().getExtras().getString(KEY_NOM);
-            text.setText(nom);
-            primera_vegada = getIntent().getExtras().getBoolean(KEY_B);
-        }*/
-        ///////////////////////////////////////////
+        if(fore_uri!=null){
+            fore_ima.setImageURI(fore_uri);
+        }
 
         // Boto next
         // Passar a la seguent activitat
@@ -82,11 +70,13 @@ public class ChooseActivity extends AppCompatActivity {
             public void onClick(View view) {
                 primera_vegada = true;
                 Intent intent = new Intent(ChooseActivity.this, ChromaActivity.class);
+
                 // Proba passar dades entre dues activitats
                 String nom = "0"; //text.getText().toString();
                 intent.putExtra(ChromaActivity.KEY_NOM, nom);
                 intent.putExtra(ChromaActivity.KEY_B, primera_vegada);
                 ///////////////////////////////////////////
+
                 startActivity(intent);
              //   finish();
             }
@@ -121,20 +111,8 @@ public class ChooseActivity extends AppCompatActivity {
         builder.setNegativeButton(R.string.camera, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                Calendar calendar= Calendar.getInstance();
-                int day = calendar.get(Calendar.DAY_OF_MONTH);
-                int month = calendar.get(Calendar.MONTH);
-                int year = calendar.get(Calendar.YEAR);
-                int hour = calendar.get(Calendar.HOUR);
-                int minute = calendar.get(Calendar.MINUTE);
-                int second = calendar.get(Calendar.SECOND);
+                fileName = dir + "/" +  getPhotoName() + ".jpg";
 
-                String today = Integer.toString(hour)+ Integer.toString(minute)+ Integer.toString(second)+ Integer.toString(year)+ Integer.toString(month)+ Integer.toString(day);
-
-                fileName = dir + "/" + today + ".jpg";
-
-                //fileName = photosPath + "photo.jpg";
-                Log.i("Cristina",fileName);
                 File photoFile = new File(fileName);
                 try {
                     photoFile.createNewFile();
@@ -157,7 +135,6 @@ public class ChooseActivity extends AppCompatActivity {
 
             }
         });
-
         builder.setPositiveButton(R.string.gallery, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
@@ -165,8 +142,20 @@ public class ChooseActivity extends AppCompatActivity {
                 startActivityForResult(pickPhoto , 0);//one can be replaced with any action code
             }
         });
-
         builder.create().show();
+    }
+
+    @NonNull
+    private String getPhotoName() {
+        Calendar calendar= Calendar.getInstance();
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        int month = calendar.get(Calendar.MONTH);
+        int year = calendar.get(Calendar.YEAR);
+        int hour = calendar.get(Calendar.HOUR);
+        int minute = calendar.get(Calendar.MINUTE);
+        int second = calendar.get(Calendar.SECOND);
+
+        return Integer.toString(year) +"_" + Integer.toString(month) + "_" + Integer.toString(day) + "_" + Integer.toString(hour)+ ":"+ Integer.toString(minute)+":" +Integer.toString(second);
     }
 
     @Override

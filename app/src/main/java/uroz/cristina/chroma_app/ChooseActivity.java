@@ -28,14 +28,14 @@ public class ChooseActivity extends AppCompatActivity {
     private int codi_imatge = 1;
 
     // Variables globals
-    private boolean primera_vegada;
-
     private ImageView fore_ima;
     private ImageView back_ima;
     private Uri fore_uri;
     private Uri back_uri;
     private String fileName;
     private File dir;
+    public static String fore_uri1 = "fore_uri2";
+    public static String back_uri1 = "back_uri2";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,13 +54,18 @@ public class ChooseActivity extends AppCompatActivity {
         back_ima = (ImageView)findViewById(R.id.ima_back);
         btn_next = (Button) findViewById(R.id.next_button_choose);
 
+        if(getIntent() != null && getIntent().getExtras() != null) {
 
-        if(back_uri!=null){
-            back_ima.setImageURI(back_uri);
-        }
+            fore_uri = Uri.parse(getIntent().getExtras().getString(fore_uri1));
+            back_uri = Uri.parse(getIntent().getExtras().getString(back_uri1));
 
-        if(fore_uri!=null){
-            fore_ima.setImageURI(fore_uri);
+            if (back_uri1 != null) {
+                back_ima.setImageURI(back_uri);
+            }
+
+            if (fore_uri1 != null) {
+                fore_ima.setImageURI(fore_uri);
+            }
         }
 
         // Boto next
@@ -68,17 +73,17 @@ public class ChooseActivity extends AppCompatActivity {
         btn_next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                primera_vegada = true;
                 Intent intent = new Intent(ChooseActivity.this, ChromaActivity.class);
 
-                // Proba passar dades entre dues activitats
-                String nom = "0"; //text.getText().toString();
-                intent.putExtra(ChromaActivity.KEY_NOM, nom);
-                intent.putExtra(ChromaActivity.KEY_B, primera_vegada);
+                // Passar dades entre dues activitats
+                String back=back_uri.toString();
+                String fore=fore_uri.toString();
+                intent.putExtra(ChromaActivity.back_uri2, back);
+                intent.putExtra(ChromaActivity.fore_uri2, fore);
                 ///////////////////////////////////////////
 
                 startActivity(intent);
-             //   finish();
+                finish();
             }
         });
 

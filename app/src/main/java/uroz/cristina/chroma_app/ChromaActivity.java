@@ -1,11 +1,14 @@
 package uroz.cristina.chroma_app;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 
 public class ChromaActivity extends AppCompatActivity {
@@ -19,6 +22,12 @@ public class ChromaActivity extends AppCompatActivity {
     // Proba passar dades entre dues activitats
     public static String KEY_NOM = "KEY_NOM";
     public static String KEY_B = "KEY_B";
+    public static String fore_uri2 = "fore_uri2";
+    public static String back_uri2 = "back_uri2";
+
+    private ImageView fore_ima;
+    private Uri fore_uri;
+    private Uri back_uri;
     ///////////////////////////////////////////
 
     @Override
@@ -33,12 +42,14 @@ public class ChromaActivity extends AppCompatActivity {
         btn_palete = (Button) findViewById(R.id.palette_button);
         barra_chroma = (SeekBar) findViewById(R.id.tolerance_bar);
 
-        text = (EditText) findViewById(R.id.text2);
+        fore_ima = (ImageView)findViewById(R.id.ima_fore2);
 
         // Proba passar dades entre dues activitats
-        String nom = getIntent().getExtras().getString(KEY_NOM);
-        text.setText(nom);
-        primera_vegada = getIntent().getExtras().getBoolean(KEY_B);
+        Log.i("cristina", getIntent().getExtras().getString(fore_uri2));
+        fore_uri = Uri.parse(getIntent().getExtras().getString(fore_uri2));
+        back_uri = Uri.parse(getIntent().getExtras().getString(back_uri2));
+
+        fore_ima.setImageURI(fore_uri);
         ///////////////////////////////////////////
 
         // Boto prev
@@ -48,12 +59,22 @@ public class ChromaActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(ChromaActivity.this, ChooseActivity.class);
                 // Proba passar dades entre dues activitats
-                String nom = text.getText().toString();
+//                String nom = text.getText().toString();
                 //intent.putExtra(ChooseActivity.KEY_NOM, nom);
                 //intent.putExtra(ChooseActivity.KEY_B, primera_vegada);
                 ///////////////////////////////////////////
+             //   startActivity(intent);
+            //    finish();
+
+                String back=back_uri.toString();
+                String fore=fore_uri.toString();
+                intent.putExtra(ChooseActivity.back_uri1, back);
+                intent.putExtra(ChooseActivity.fore_uri1, fore);
+                ///////////////////////////////////////////
+
                 startActivity(intent);
                 finish();
+
             }
         });
 

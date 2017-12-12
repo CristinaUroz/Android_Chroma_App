@@ -156,14 +156,20 @@ public class ChooseActivity extends AppCompatActivity {
     @NonNull
     private String getPhotoName() {
         Calendar calendar = Calendar.getInstance();
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-        int month = calendar.get(Calendar.MONTH) + 1;
-        int year = calendar.get(Calendar.YEAR);
-        int hour = calendar.get(Calendar.HOUR);
-        int minute = calendar.get(Calendar.MINUTE);
-        int second = calendar.get(Calendar.SECOND);
+        String day = Integer.toString(calendar.get(Calendar.DAY_OF_MONTH));
+        String month = Integer.toString(calendar.get(Calendar.MONTH) + 1);
+        String year = Integer.toString(calendar.get(Calendar.YEAR));
+        String hour = Integer.toString(calendar.get(Calendar.HOUR_OF_DAY));
+        String minute = Integer.toString(calendar.get(Calendar.MINUTE));
+        String second = Integer.toString(calendar.get(Calendar.SECOND));
 
-        return Integer.toString(year) + "_" + Integer.toString(month) + "_" + Integer.toString(day) + "_" + Integer.toString(hour) + Integer.toString(minute) + Integer.toString(second);
+        day = (day.length() == 1) ? "0" + day : day;
+        month = (month.length() == 1) ? "0" + month : month;
+        hour = (hour.length() == 1) ? "0" + hour : hour;
+        minute = (minute.length() == 1) ? "0" + minute : minute;
+        second = (second.length() == 1) ? "0" + second : second;
+
+        return year + "." + month + "." + day + "_" + hour + "." + minute + "." + second;
     }
 
     @Override

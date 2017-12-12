@@ -5,7 +5,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 
@@ -59,7 +58,6 @@ public class EditActivity extends AppCompatActivity {
         });
 
         // Boto foreground
-        //
         btn_fore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -68,7 +66,6 @@ public class EditActivity extends AppCompatActivity {
         });
 
         // Boto background
-        //
         btn_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -77,7 +74,6 @@ public class EditActivity extends AppCompatActivity {
         });
 
         // Boto contrast
-        //
         btn_contrast.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -86,7 +82,6 @@ public class EditActivity extends AppCompatActivity {
         });
 
         // Boto brillo
-        //
         btn_brillo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -95,7 +90,6 @@ public class EditActivity extends AppCompatActivity {
         });
 
         // Boto temperatura
-        //
         btn_temp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -104,7 +98,6 @@ public class EditActivity extends AppCompatActivity {
         });
 
         // Boto rotacio
-        //
         btn_rot.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -113,7 +106,6 @@ public class EditActivity extends AppCompatActivity {
         });
 
         // Boto saturacio
-        //
         btn_satu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -122,7 +114,6 @@ public class EditActivity extends AppCompatActivity {
         });
 
         // Boto opacitat
-        //
         btn_opac.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

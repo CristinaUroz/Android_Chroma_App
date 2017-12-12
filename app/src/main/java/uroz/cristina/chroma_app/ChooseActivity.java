@@ -16,7 +16,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
@@ -55,17 +54,14 @@ public class ChooseActivity extends AppCompatActivity {
         back_ima = (ImageView) findViewById(R.id.ima_back);
         btn_next = (Button) findViewById(R.id.next_button_choose);
 
-
         if (getIntent() != null && getIntent().getExtras() != null) {
             fore_uri = Uri.parse(getIntent().getExtras().getString(KEY_FORE_URI1));
             back_uri = Uri.parse(getIntent().getExtras().getString(KEY_BACK_URI1));
-
 
             /// ???????????????????? no entenc perque cal aquests ifs
             if (KEY_BACK_URI1 != null) {
                 back_ima.setImageURI(back_uri);
             }
-
             if (KEY_FORE_URI1 != null) {
                 fore_ima.setImageURI(fore_uri);
             }

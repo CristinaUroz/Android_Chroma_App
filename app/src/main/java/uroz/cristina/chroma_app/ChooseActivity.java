@@ -1,13 +1,17 @@
 package uroz.cristina.chroma_app;
 
+import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -36,11 +40,31 @@ public class ChooseActivity extends AppCompatActivity {
     private File dir;
     public static String KEY_FORE_URI1 = "KEY_FORE_URI1";
     public static String KEY_BACK_URI1 = "KEY_BACK_URI1";
+    private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 0;
+    private static final int MY_PERMISSIONS_REQUEST_CAMERA = 1;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.choose_activity);
+
+        ////////////////////////////////////////// Permisos
+
+
+
+        // Demana permisos de camera
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
+                Log.i("kike","demana camera 1");
+            } else {
+                Log.i("kike","demana camera 2");
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, MY_PERMISSIONS_REQUEST_CAMERA);
+            }
+        }
+
+        ////////////////////////////////////////////////////
 
         // Creació del directori on es guarden les fotos que es fan
         dir = new File(Environment.getExternalStorageDirectory(), "/ChromAppPhotos/");
@@ -214,6 +238,39 @@ public class ChooseActivity extends AppCompatActivity {
                     }
                     break;
             }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_CAMERA: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.i("kike","permis camera concedit");
+                    // Demana permisos d'escriptura
+                    if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                            Log.i("kike","demana escriure 1");
+                        } else {
+                            Log.i("kike","demana escriure 2");
+                            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+                        }
+                    }
+                } else {
+                    Log.i("kike","permis camera denegat");
+                }
+                return;
+            }
+
+            case MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.i("kike","permis escriure concedit");
+                } else {
+                    Log.i("kike","permis escriure denegat");
+                }
+                return;
+            }
+            // Altres permisos, fer un case
         }
     }
 }

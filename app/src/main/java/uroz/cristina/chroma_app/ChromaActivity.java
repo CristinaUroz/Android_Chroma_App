@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
+import android.widget.Toast;
 
 public class ChromaActivity extends AppCompatActivity {
     // Declaracio de referencies a elements de la pantalla
@@ -17,7 +18,7 @@ public class ChromaActivity extends AppCompatActivity {
     // Variables globals
     public static String KEY_FORE_URI2 = "KEY_FORE_URI2";
     public static String KEY_BACK_URI2 = "KEY_BACK_URI2";
-
+    private int valor_barra;
     private ImageView fore_ima;
     private Uri fore_uri;
     private Uri back_uri;
@@ -40,6 +41,27 @@ public class ChromaActivity extends AppCompatActivity {
         back_uri = Uri.parse(getIntent().getExtras().getString(KEY_BACK_URI2));
 
         fore_ima.setImageURI(fore_uri);
+
+        // Configuracio de la barra
+        barra_chroma.setMax(100);
+        barra_chroma.setProgress(50);
+
+        // Accions que s'executaran quan es mogui la barra
+        barra_chroma.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                valor_barra = i;
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                Toast.makeText(ChromaActivity.this, String.valueOf(valor_barra), Toast.LENGTH_SHORT).show();
+            }
+        });
 
         // Boto prev
         btn_prev.setOnClickListener(new View.OnClickListener() {

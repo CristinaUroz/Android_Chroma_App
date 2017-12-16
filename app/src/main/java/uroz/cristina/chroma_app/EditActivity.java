@@ -1,12 +1,15 @@
 package uroz.cristina.chroma_app;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
+import android.widget.Toast;
 
 public class EditActivity extends AppCompatActivity {
     // Declaracio de referencies a elements de la pantalla
@@ -14,7 +17,21 @@ public class EditActivity extends AppCompatActivity {
     private SeekBar barra_edit;
     private ImageView ima_mixed;
 
+
     // Variables globals
+    private Uri fore_uri;
+    private Uri back_uri;
+    public static String KEY_FORE_URI3 = "KEY_FORE_URI3";
+    public static String KEY_BACK_URI3 = "KEY_BACK_URI3";
+    private int valor_barra;
+    private int EDIT_IMAGE_CODE = 0;
+    private int EDIT_VARIABLE_CODE = 0;
+
+    // On es guarden els valors de la seekbar per cada efecte i imatge (fore i back)
+    private int[][] valors_editables = new int[2][6];
+    // Al acabar les probes, es poden borrar
+    private String[] edit_image = {"Foreground", "Background"};
+    private String[] edit_variable = {"Contrast", "Bright", "Warmth", "Rotation", "Saturation", "Opacity"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +51,35 @@ public class EditActivity extends AppCompatActivity {
         btn_opac = (Button) findViewById(R.id.opacity_button);
         barra_edit = (SeekBar) findViewById(R.id.selection_bar);
         ima_mixed = (ImageView) findViewById(R.id.ima_mixed);
+
+        // Configuracio de la barra
+        barra_edit.setMax(100);
+        barra_edit.setProgress(50);
+
+        // Inicialitzacio del vector dels valors
+        for (int i = 0; i < 2; i++) {
+            //valors_editables[i] = new int[6];
+            for (int j = 0; j < 6; j++) {
+                valors_editables[i][j] = 50;
+            }
+        }
+
+        // Accions que s'executaran quan es mogui la barra
+        barra_edit.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                valors_editables[EDIT_IMAGE_CODE][EDIT_VARIABLE_CODE] = i;
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                edit_image();
+            }
+        });
 
         // Boto prev
         btn_prev.setOnClickListener(new View.OnClickListener() {
@@ -61,7 +107,8 @@ public class EditActivity extends AppCompatActivity {
         btn_fore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                EDIT_IMAGE_CODE = 0;
+                barra_edit.setProgress(valors_editables[EDIT_IMAGE_CODE][EDIT_VARIABLE_CODE]);
             }
         });
 
@@ -69,7 +116,8 @@ public class EditActivity extends AppCompatActivity {
         btn_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                EDIT_IMAGE_CODE = 1;
+                barra_edit.setProgress(valors_editables[EDIT_IMAGE_CODE][EDIT_VARIABLE_CODE]);
             }
         });
 
@@ -77,7 +125,8 @@ public class EditActivity extends AppCompatActivity {
         btn_contrast.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                EDIT_VARIABLE_CODE = 0;
+                barra_edit.setProgress(valors_editables[EDIT_IMAGE_CODE][EDIT_VARIABLE_CODE]);
             }
         });
 
@@ -85,7 +134,8 @@ public class EditActivity extends AppCompatActivity {
         btn_brillo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                EDIT_VARIABLE_CODE = 1;
+                barra_edit.setProgress(valors_editables[EDIT_IMAGE_CODE][EDIT_VARIABLE_CODE]);
             }
         });
 
@@ -93,7 +143,8 @@ public class EditActivity extends AppCompatActivity {
         btn_temp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                EDIT_VARIABLE_CODE = 2;
+                barra_edit.setProgress(valors_editables[EDIT_IMAGE_CODE][EDIT_VARIABLE_CODE]);
             }
         });
 
@@ -101,7 +152,8 @@ public class EditActivity extends AppCompatActivity {
         btn_rot.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                EDIT_VARIABLE_CODE = 3;
+                barra_edit.setProgress(valors_editables[EDIT_IMAGE_CODE][EDIT_VARIABLE_CODE]);
             }
         });
 
@@ -109,7 +161,8 @@ public class EditActivity extends AppCompatActivity {
         btn_satu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                EDIT_VARIABLE_CODE = 4;
+                barra_edit.setProgress(valors_editables[EDIT_IMAGE_CODE][EDIT_VARIABLE_CODE]);
             }
         });
 
@@ -117,8 +170,17 @@ public class EditActivity extends AppCompatActivity {
         btn_opac.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                EDIT_VARIABLE_CODE = 5;
+                barra_edit.setProgress(valors_editables[EDIT_IMAGE_CODE][EDIT_VARIABLE_CODE]);
             }
         });
+    }
+
+    private void edit_image() {
+        String msg = String.format(edit_image[EDIT_IMAGE_CODE] + " " + edit_variable[EDIT_VARIABLE_CODE] + " " + valors_editables[EDIT_IMAGE_CODE][EDIT_VARIABLE_CODE]);
+        // Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+        Toast t = Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT);
+        t.setGravity(Gravity.CENTER_VERTICAL|Gravity.CENTER_HORIZONTAL, 0, 0);
+        t.show();
     }
 }

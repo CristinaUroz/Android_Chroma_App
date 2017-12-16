@@ -51,9 +51,7 @@ public class ChooseActivity extends AppCompatActivity {
         setContentView(R.layout.choose_activity);
 
         ////////////////////////////////////////// Permisos
-
-
-
+        // Es demana el permis per a utilitzar la camera, i quan s'acepta, es demana el permis per escriure fitxers
         // Demana permisos de camera
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
@@ -105,7 +103,9 @@ public class ChooseActivity extends AppCompatActivity {
                     startActivity(intent);
                     finish();
                 } catch (Exception e) {
-                    Toast.makeText(ChooseActivity.this, e.toString(), Toast.LENGTH_LONG).show();
+                    //String msg = e.toString();
+                    String msg = "Falta triar alguna imatge!";
+                    Toast.makeText(ChooseActivity.this, msg, Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -270,7 +270,7 @@ public class ChooseActivity extends AppCompatActivity {
                 }
                 return;
             }
-            // Altres permisos, fer un case
+            // Altres permisos, fer un 'case'
         }
     }
 }

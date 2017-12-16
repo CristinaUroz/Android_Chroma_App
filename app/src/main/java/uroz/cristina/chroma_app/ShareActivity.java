@@ -1,6 +1,7 @@
 package uroz.cristina.chroma_app;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -12,7 +13,12 @@ public class ShareActivity extends AppCompatActivity {
     private Button btn_share, btn_save, btn_restart, btn_finish, btn_prev;
     private ImageView ima_final;
 
+
     // Variables globals
+    private Uri fore_uri;
+    private Uri back_uri;
+    public static String KEY_FORE_URI4 = "KEY_FORE_URI4";
+    public static String KEY_BACK_URI4 = "KEY_BACK_URI4";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -20,6 +20,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
@@ -44,7 +45,6 @@ public class ChooseActivity extends AppCompatActivity {
     private static final int MY_PERMISSIONS_REQUEST_CAMERA = 1;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,9 +55,9 @@ public class ChooseActivity extends AppCompatActivity {
         // Demana permisos de camera
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
-                Log.i("kike","demana camera 1");
+                Log.i("kike", "demana camera 1");
             } else {
-                Log.i("kike","demana camera 2");
+                Log.i("kike", "demana camera 2");
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, MY_PERMISSIONS_REQUEST_CAMERA);
             }
         }
@@ -65,7 +65,7 @@ public class ChooseActivity extends AppCompatActivity {
         ////////////////////////////////////////////////////
 
         // Creació del directori on es guarden les fotos que es fan
-        dir = new File(Environment.getExternalStorageDirectory(), "/ChromAppPhotos/");
+        dir = new File(Environment.getExternalStorageDirectory(), "/ChromAppPhotos/data/");
 
         if (!dir.exists()) {
             dir.mkdirs();
@@ -79,14 +79,8 @@ public class ChooseActivity extends AppCompatActivity {
         if (getIntent() != null && getIntent().getExtras() != null) {
             fore_uri = Uri.parse(getIntent().getExtras().getString(KEY_FORE_URI1));
             back_uri = Uri.parse(getIntent().getExtras().getString(KEY_BACK_URI1));
-
-            /// ???????????????????? no entenc perque cal aquests ifs
-            if (KEY_BACK_URI1 != null) {
-                back_ima.setImageURI(back_uri);
-            }
-            if (KEY_FORE_URI1 != null) {
-                fore_ima.setImageURI(fore_uri);
-            }
+            back_ima.setImageURI(back_uri);
+            fore_ima.setImageURI(fore_uri);
         }
 
         // Boto next
@@ -246,27 +240,27 @@ public class ChooseActivity extends AppCompatActivity {
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_CAMERA: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.i("kike","permis camera concedit");
+                    Log.i("kike", "permis camera concedit");
                     // Demana permisos d'escriptura
                     if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                         if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                            Log.i("kike","demana escriure 1");
+                            Log.i("kike", "demana escriure 1");
                         } else {
-                            Log.i("kike","demana escriure 2");
+                            Log.i("kike", "demana escriure 2");
                             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
                         }
                     }
                 } else {
-                    Log.i("kike","permis camera denegat");
+                    Log.i("kike", "permis camera denegat");
                 }
                 return;
             }
 
             case MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.i("kike","permis escriure concedit");
+                    Log.i("kike", "permis escriure concedit");
                 } else {
-                    Log.i("kike","permis escriure denegat");
+                    Log.i("kike", "permis escriure denegat");
                 }
                 return;
             }

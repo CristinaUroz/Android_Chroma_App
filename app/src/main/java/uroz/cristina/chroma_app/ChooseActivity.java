@@ -25,8 +25,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 
-//TODO: posar previous i next a dalt
-
 public class ChooseActivity extends AppCompatActivity {
     // Declaracio de referencies a elements de la pantalla
     private Button btn_next;
@@ -75,14 +73,14 @@ public class ChooseActivity extends AppCompatActivity {
         fore_ima = (ImageView) findViewById(R.id.ima_fore);
         back_ima = (ImageView) findViewById(R.id.ima_back);
         btn_next = (Button) findViewById(R.id.next_button_choose);
-
+/* DESCOMENTAR
         if (getIntent() != null && getIntent().getExtras() != null) {
             fore_uri = Uri.parse(getIntent().getExtras().getString(KEY_FORE_URI1));
             back_uri = Uri.parse(getIntent().getExtras().getString(KEY_BACK_URI1));
             back_ima.setImageURI(back_uri);
             fore_ima.setImageURI(fore_uri);
         }
-
+*/
         // Boto next
         btn_next.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -195,9 +193,7 @@ public class ChooseActivity extends AppCompatActivity {
                     if (resultCode == RESULT_OK) {
                         fore_uri = imageReturnedIntent.getData();
                         if (fore_uri == null) {
-                            Log.d("Cris", "null");
                         } else {
-                            Log.d("Cris", "No null");
                             fore_ima.setImageURI(fore_uri);
                         }
                     }
@@ -217,9 +213,7 @@ public class ChooseActivity extends AppCompatActivity {
                     if (resultCode == RESULT_OK) {
                         back_uri = imageReturnedIntent.getData();
                         if (back_uri == null) {
-                            Log.d("Cris", "null");
                         } else {
-                            Log.d("Cris", "No null");
                             back_ima.setImageURI(back_uri);
                         }
                     }

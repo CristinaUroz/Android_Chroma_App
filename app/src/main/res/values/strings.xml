@@ -22,4 +22,9 @@
     <string name="gallery">gallery</string>
     <string name="choose">Choose</string>
     <string name="choose_from">Choose from where you want to take the pickture</string>
+    <array name="colors">
+        <item>1aaa</item>
+        <item>2bbb</item>
+        <item>3ccc</item>
+    </array>
 </resources>

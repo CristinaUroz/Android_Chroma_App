@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,6 +45,14 @@ public class ShareActivity extends AppCompatActivity {
         // Variables
 
 
+        /////
+        //// Dades activitat anterior
+        fore_uri = Uri.parse(getIntent().getExtras().getString(KEY_FORE_URI4));
+        back_uri = Uri.parse(getIntent().getExtras().getString(KEY_BACK_URI4));
+
+        ima_final.setImageURI(fore_uri);
+
+
         // Carpeta on es guarden les imatges finals
         dir = new File(Environment.getExternalStorageDirectory(), "/ChromAppPhotos/SavedPhotos/");
         if (!dir.exists()) {
@@ -55,7 +64,10 @@ public class ShareActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(ShareActivity.this, EditActivity.class);
-
+                String back = back_uri.toString();
+                String fore = fore_uri.toString();
+                intent.putExtra(EditActivity.KEY_FORE_URI3, fore);
+                intent.putExtra(EditActivity.KEY_BACK_URI3, back);
                 startActivity(intent);
                 finish();
             }
@@ -65,7 +77,7 @@ public class ShareActivity extends AppCompatActivity {
         btn_share.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Toast.makeText(ShareActivity.this, "no fet encara", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -77,11 +89,14 @@ public class ShareActivity extends AppCompatActivity {
                 File photoFile = new File(fileName);
                 try {
                     photoFile.createNewFile();
+                    // Es crea l'arxiu, pero no es guarden les dades
+                    // ...
+                    Toast.makeText(ShareActivity.this, R.string.image_saved, Toast.LENGTH_SHORT).show();
                 } catch (IOException e) {
                     e.printStackTrace();
                     return;
                 }
-                // Es crea l'arxiu, pero no es guarden les dades
+
             }
         });
 

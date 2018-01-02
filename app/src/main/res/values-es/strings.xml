@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Chroma_App</string>
+    <string name="camera">Cámara</string>
+    <string name="choose">Escoge la imagen</string>
+    <string name="choose_from">¿De donde quieres coger la imagen?</string>
+    <string name="contrast">Contraste</string>
+    <string name="delete">Borrar</string>
+    <string name="finish">Finalizar</string>
+    <string name="foreground">Principal</string>
+    <string name="gallery">Galeria</string>
+    <string name="missing_data">Falta escoger alguna imagen!</string>
+    <string name="next">Siguiente</string>
+    <string name="opacity">Opacidad</string>
+    <string name="palette">Paleta</string>
+    <string name="previous">Atrás</string>
+    <string name="restart">Reiniciar</string>
+    <string name="rotation">Rotación</string>
+    <string name="saturation">Saturación</string>
+    <string name="save">Guardar</string>
+    <string name="share">Compartir</string>
+    <string name="tolerance">Tolerancia</string>
+    <string name="warmth">Calidez</string>
+    <string name="brightness">Brillo</string>
+    <string name="background">Fondo</string>
+    <string name="image_saved">Imagen guardada! no fet</string>
+</resources>

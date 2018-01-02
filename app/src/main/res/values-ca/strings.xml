@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Chroma_App</string>
+    <string name="background">Fons</string>
+    <string name="brightness">Brillantor</string>
+    <string name="camera">Càmera</string>
+    <string name="choose">Tria l\'imatge</string>
+    <string name="choose_from">D\'on vols agafar la foto?</string>
+    <string name="contrast">Contrast</string>
+    <string name="delete">Esborrar</string>
+    <string name="finish">Finalitzar</string>
+    <string name="foreground">Principal</string>
+    <string name="gallery">Galeria</string>
+    <string name="missing_data">Falta triar alguna imatge</string>
+    <string name="next">Següent</string>
+    <string name="opacity">Opacitat</string>
+    <string name="palette">Paleta</string>
+    <string name="previous">Endarrere</string>
+    <string name="restart">Reinicia</string>
+    <string name="rotation">Rotació</string>
+    <string name="saturation">Saturació</string>
+    <string name="save">Guardar</string>
+    <string name="share">Compartir</string>
+    <string name="tolerance">Tolerància</string>
+    <string name="warmth">Calidesa</string>
+    <string name="image_saved">Imatge guardada! no fet</string>
+</resources>

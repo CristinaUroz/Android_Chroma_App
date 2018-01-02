@@ -56,6 +56,12 @@ public class EditActivity extends AppCompatActivity {
         barra_edit.setMax(100);
         barra_edit.setProgress(50);
 
+        //// Dades activitat anterior
+        fore_uri = Uri.parse(getIntent().getExtras().getString(KEY_FORE_URI3));
+        back_uri = Uri.parse(getIntent().getExtras().getString(KEY_BACK_URI3));
+
+        ima_mixed.setImageURI(fore_uri);
+
         // Inicialitzacio del vector dels valors
         for (int i = 0; i < 2; i++) {
             //valors_editables[i] = new int[6];
@@ -86,7 +92,10 @@ public class EditActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(EditActivity.this, ChromaActivity.class);
-
+                String back = back_uri.toString();
+                String fore = fore_uri.toString();
+                intent.putExtra(ChromaActivity.KEY_FORE_URI2, fore);
+                intent.putExtra(ChromaActivity.KEY_BACK_URI2, back);
                 startActivity(intent);
                 finish();
             }
@@ -97,9 +106,18 @@ public class EditActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(EditActivity.this, ShareActivity.class);
-
-                startActivity(intent);
-                finish();
+                try {
+                    String back = back_uri.toString();
+                    String fore = fore_uri.toString();
+                    intent.putExtra(ShareActivity.KEY_BACK_URI4, back);
+                    intent.putExtra(ShareActivity.KEY_FORE_URI4, fore);
+                    startActivity(intent);
+                    finish();
+                } catch (Exception e) {
+                    //String msg = e.toString();
+                    String msg = getString(R.string.missing_data);
+                    Toast.makeText(EditActivity.this, msg, Toast.LENGTH_LONG).show();
+                }
             }
         });
 

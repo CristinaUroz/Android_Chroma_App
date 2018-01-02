@@ -4,30 +4,30 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
+    android:padding="10dp"
     tools:context="uroz.cristina.chroma_app.ChooseActivity">
 
     <Button
         android:id="@+id/previous_button_edit"
-        android:layout_width="wrap_content"
+        android:layout_width="@dimen/tam_normal"
         android:layout_height="wrap_content"
-        android:text="@string/previous"
-        android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:text="@string/previous" />
 
     <Button
         android:id="@+id/next_button_edit"
-        android:layout_width="wrap_content"
+        android:layout_width="@dimen/tam_normal"
         android:layout_height="wrap_content"
-        android:text="@string/next"
-        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentTop="true"
+        android:text="@string/next" />
 
     <Button
         android:id="@+id/foreground_button_edit"
-        android:layout_width="wrap_content"
+        android:layout_width="@dimen/tam_normal"
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/background_button_edit"
         android:layout_alignBottom="@+id/background_button_edit"
@@ -39,13 +39,13 @@
 
     <Button
         android:id="@+id/background_button_edit"
-        android:layout_width="wrap_content"
+        android:layout_width="@dimen/tam_normal"
         android:layout_height="wrap_content"
-        android:layout_alignEnd="@+id/next_button_edit"
-        android:layout_alignRight="@+id/next_button_edit"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
         android:layout_below="@+id/next_button_edit"
-        android:layout_marginEnd="48dp"
-        android:layout_marginRight="48dp"
+        android:layout_marginEnd="63dp"
+        android:layout_marginRight="63dp"
         android:layout_marginTop="18dp"
         android:text="@string/background" />
 
@@ -63,69 +63,67 @@
 
     <SeekBar
         android:id="@+id/selection_bar"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/contrast_button"
-        android:layout_marginBottom="15dp"
-        android:layout_alignRight="@+id/background_button_edit"
-        android:layout_alignEnd="@+id/background_button_edit"
-        android:layout_alignLeft="@+id/foreground_button_edit"
-        android:layout_alignStart="@+id/foreground_button_edit" />
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="14dp" />
 
     <Button
         android:id="@+id/contrast_button"
-        android:layout_width="wrap_content"
+        android:layout_width="110dp"
         android:layout_height="wrap_content"
-        android:text="@string/contrast"
-        android:layout_above="@+id/saturation_button"
+        android:layout_above="@+id/rotation_button"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:text="@string/contrast" />
 
     <Button
         android:id="@+id/brightness_button"
-        android:layout_width="wrap_content"
+        android:layout_width="120dp"
         android:layout_height="wrap_content"
-        android:text="@string/brightness"
         android:layout_above="@+id/saturation_button"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:text="@string/brightness" />
 
     <Button
         android:id="@+id/temperature_button"
-        android:layout_width="wrap_content"
+        android:layout_width="110dp"
         android:layout_height="wrap_content"
-        android:text="@string/temperature"
         android:layout_above="@+id/opacity_button"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:text="@string/warmth" />
 
     <Button
         android:id="@+id/rotation_button"
-        android:layout_width="wrap_content"
+        android:layout_width="110dp"
         android:layout_height="wrap_content"
-        android:text="@string/rotation"
+        android:layout_alignEnd="@+id/contrast_button"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignRight="@+id/contrast_button"
-        android:layout_alignEnd="@+id/contrast_button" />
+        android:text="@string/rotation" />
 
     <Button
         android:id="@+id/saturation_button"
-        android:layout_width="wrap_content"
+        android:layout_width="120dp"
         android:layout_height="wrap_content"
-        android:text="@string/saturation"
-        android:layout_alignParentBottom="true"
         android:layout_alignLeft="@+id/brightness_button"
-        android:layout_alignStart="@+id/brightness_button" />
+        android:layout_alignParentBottom="true"
+        android:layout_alignStart="@+id/brightness_button"
+        android:text="@string/saturation" />
 
     <Button
         android:id="@+id/opacity_button"
-        android:layout_width="wrap_content"
+        android:layout_width="110dp"
         android:layout_height="wrap_content"
-        android:text="@string/opacity"
         android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:text="@string/opacity" />
 
 </RelativeLayout>
 

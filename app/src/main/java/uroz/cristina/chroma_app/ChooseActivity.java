@@ -73,14 +73,14 @@ public class ChooseActivity extends AppCompatActivity {
         fore_ima = (ImageView) findViewById(R.id.ima_fore);
         back_ima = (ImageView) findViewById(R.id.ima_back);
         btn_next = (Button) findViewById(R.id.next_button_choose);
-/* DESCOMENTAR
+
         if (getIntent() != null && getIntent().getExtras() != null) {
             fore_uri = Uri.parse(getIntent().getExtras().getString(KEY_FORE_URI1));
             back_uri = Uri.parse(getIntent().getExtras().getString(KEY_BACK_URI1));
             back_ima.setImageURI(back_uri);
             fore_ima.setImageURI(fore_uri);
         }
-*/
+
         // Boto next
         btn_next.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,7 +96,7 @@ public class ChooseActivity extends AppCompatActivity {
                     finish();
                 } catch (Exception e) {
                     //String msg = e.toString();
-                    String msg = "Falta triar alguna imatge!";
+                    String msg = getString(R.string.missing_data);
                     Toast.makeText(ChooseActivity.this, msg, Toast.LENGTH_LONG).show();
                 }
             }

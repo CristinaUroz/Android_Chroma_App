@@ -107,9 +107,18 @@ public class ChromaActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(ChromaActivity.this, EditActivity.class);
-
-                startActivity(intent);
-                finish();
+                try {
+                    String back = back_uri.toString();
+                    String fore = fore_uri.toString();
+                    intent.putExtra(EditActivity.KEY_BACK_URI3, back);
+                    intent.putExtra(EditActivity.KEY_FORE_URI3, fore);
+                    startActivity(intent);
+                    finish();
+                } catch (Exception e) {
+                    //String msg = e.toString();
+                    String msg = getString(R.string.missing_data);
+                    Toast.makeText(ChromaActivity.this, msg, Toast.LENGTH_LONG).show();
+                }
             }
         });
 
@@ -145,7 +154,7 @@ public class ChromaActivity extends AppCompatActivity {
         });
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this) ;
-        builder.setTitle("paleta");
+        builder.setTitle(R.string.palette);
 
         builder.setItems(R.array.colors, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {

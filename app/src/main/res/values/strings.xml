@@ -1,27 +1,28 @@
 <resources>
-    <string name="app_name">Chroma_App</string>
+    <string name="app_name" translatable="false">Chroma_App</string>
     <string name="foreground">Foreground</string>
     <string name="background">Background</string>
-    <string name="delete">delete</string>
-    <string name="next">next</string>
-    <string name="previous">previous</string>
-    <string name="palette">palette</string>
+    <string name="delete">Delete</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+    <string name="palette">Palette</string>
     <string name="tolerance">Tolerance</string>
-    <string name="contrast">contrast</string>
-    <string name="brightness">brightness</string>
-    <string name="temperature">warmth</string>
-    <string name="rotation">rotation</string>
-    <string name="saturation">saturation</string>
-    <string name="opacity">opacity</string>
-    <string name="share">share</string>
-    <string name="save">save</string>
-    <string name="restart">restart</string>
-    <string name="finish" >finish</string>
-    <string name="warmth">warmth</string>
-    <string name="camera">camera</string>
-    <string name="gallery">gallery</string>
-    <string name="choose">Choose</string>
-    <string name="choose_from">Choose from where you want to take the pickture</string>
+    <string name="contrast">Contrast</string>
+    <string name="brightness">Brightness</string>
+    <string name="rotation">Rotation</string>
+    <string name="saturation">Saturation</string>
+    <string name="opacity">Opacity</string>
+    <string name="share">Share</string>
+    <string name="save">Save</string>
+    <string name="restart">Restart</string>
+    <string name="finish" >Finish</string>
+    <string name="warmth">Warmth</string>
+    <string name="camera">Camera</string>
+    <string name="gallery">Gallery</string>
+    <string name="choose">Choose the picture</string>
+    <string name="choose_from">From where you want to take the picture?</string>
+    <string name="missing_data">Missing any image!</string>
+    <string name="image_saved">Image saved! no fet</string>
     <array name="colors">
         <item>1aaa</item>
         <item>2bbb</item>

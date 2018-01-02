@@ -4,17 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
+    android:padding="10dp"
     tools:context="uroz.cristina.chroma_app.ChooseActivity">
 
     <Button
         android:id="@+id/next_button_choose"
-        android:layout_width="wrap_content"
+        android:layout_width="@dimen/tam_normal"
         android:layout_height="wrap_content"
-        android:text="@string/next"
-        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentTop="true"
+        android:text="@string/next" />
 
     <TextView
         android:id="@+id/foreground_text"
@@ -44,25 +44,25 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
 
-        app:srcCompat="@android:drawable/ic_menu_camera"
         android:layout_above="@+id/background_text"
-        android:layout_below="@+id/foreground_text"
         android:layout_alignLeft="@+id/foreground_text"
-        android:layout_alignStart="@+id/foreground_text"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignStart="@+id/foreground_text"
+        android:layout_below="@+id/foreground_text"
+        app:srcCompat="@android:drawable/ic_menu_camera" />
 
     <ImageView
         android:id="@+id/ima_back"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
 
-        app:srcCompat="@android:drawable/ic_menu_camera"
-        android:layout_below="@+id/background_text"
         android:layout_alignLeft="@+id/background_text"
-        android:layout_alignStart="@+id/background_text"
         android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignStart="@+id/background_text"
+        android:layout_below="@+id/background_text"
+        app:srcCompat="@android:drawable/ic_menu_camera" />
 
 </RelativeLayout>

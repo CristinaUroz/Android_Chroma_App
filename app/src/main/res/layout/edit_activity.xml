@@ -27,26 +27,26 @@
 
     <Button
         android:id="@+id/foreground_button_edit"
-        android:layout_width="@dimen/tam_normal"
+        android:layout_width="120dp"
         android:layout_height="wrap_content"
+        android:text="@string/foreground"
         android:layout_alignBaseline="@+id/background_button_edit"
         android:layout_alignBottom="@+id/background_button_edit"
-        android:layout_marginEnd="24dp"
-        android:layout_marginRight="24dp"
-        android:layout_toLeftOf="@+id/background_button_edit"
-        android:layout_toStartOf="@+id/background_button_edit"
-        android:text="@string/foreground" />
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="20dp"
+        android:layout_marginStart="30dp" />
 
     <Button
         android:id="@+id/background_button_edit"
-        android:layout_width="@dimen/tam_normal"
+        android:layout_width="120dp"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/next_button_edit"
-        android:layout_marginEnd="63dp"
-        android:layout_marginRight="63dp"
-        android:layout_marginTop="18dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="10dp"
         android:text="@string/background" />
 
     <ImageView
@@ -58,6 +58,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentStart="true"
+        android:layout_marginTop="10dp"
         android:layout_below="@+id/foreground_button_edit"
         app:srcCompat="@android:drawable/btn_radio" />
 

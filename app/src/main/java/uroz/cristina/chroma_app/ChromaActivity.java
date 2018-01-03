@@ -99,9 +99,6 @@ public class ChromaActivity extends AppCompatActivity {
         fore_ima.setImageURI(fore_uri);
         bitmap = BitmapFactory.decodeFile(getRealPathFromURI(getApplicationContext(), fore_uri));
 
-        //fore_ima.getLayoutParams().height = bitmap.getHeight();
-        //fore_ima.getLayoutParams().width = bitmap.getWidth();
-
         // Accions que s'executaran quan es mogui la barra
         barra_chroma.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 

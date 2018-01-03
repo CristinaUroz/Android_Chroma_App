@@ -1,6 +1,7 @@
 package uroz.cristina.chroma_app;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -31,6 +32,7 @@ public class EditActivity extends AppCompatActivity {
     private int color_chroma;
     private int EDIT_IMAGE_CODE = 0;
     private int EDIT_VARIABLE_CODE = 0;
+    private int[] ids_effect = {R.id.contrast_button, R.id.brightness_button, R.id.temperature_button, R.id.rotation_button, R.id.saturation_button, R.id.opacity_button};
 
     // On es guarden els valors de la seekbar per cada efecte i imatge (fore i back)
     private int[][] valors_editables = new int[2][6];
@@ -110,6 +112,7 @@ public class EditActivity extends AppCompatActivity {
         barra_edit.setProgress(valors_editables[0][0]);
 
         ima_mixed.setImageURI(fore_uri);
+        changeButtonTextColor();
 
         // Accions que s'executaran quan es mogui la barra
         barra_edit.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -173,6 +176,7 @@ public class EditActivity extends AppCompatActivity {
             public void onClick(View view) {
                 EDIT_IMAGE_CODE = 0;
                 barra_edit.setProgress(valors_editables[EDIT_IMAGE_CODE][EDIT_VARIABLE_CODE]);
+                changeButtonTextColor();
             }
         });
 
@@ -182,6 +186,7 @@ public class EditActivity extends AppCompatActivity {
             public void onClick(View view) {
                 EDIT_IMAGE_CODE = 1;
                 barra_edit.setProgress(valors_editables[EDIT_IMAGE_CODE][EDIT_VARIABLE_CODE]);
+                changeButtonTextColor();
             }
         });
 
@@ -191,6 +196,7 @@ public class EditActivity extends AppCompatActivity {
             public void onClick(View view) {
                 EDIT_VARIABLE_CODE = 0;
                 barra_edit.setProgress(valors_editables[EDIT_IMAGE_CODE][EDIT_VARIABLE_CODE]);
+                changeButtonTextColor();
             }
         });
 
@@ -200,6 +206,7 @@ public class EditActivity extends AppCompatActivity {
             public void onClick(View view) {
                 EDIT_VARIABLE_CODE = 1;
                 barra_edit.setProgress(valors_editables[EDIT_IMAGE_CODE][EDIT_VARIABLE_CODE]);
+                changeButtonTextColor();
             }
         });
 
@@ -209,6 +216,7 @@ public class EditActivity extends AppCompatActivity {
             public void onClick(View view) {
                 EDIT_VARIABLE_CODE = 2;
                 barra_edit.setProgress(valors_editables[EDIT_IMAGE_CODE][EDIT_VARIABLE_CODE]);
+                changeButtonTextColor();
             }
         });
 
@@ -218,6 +226,7 @@ public class EditActivity extends AppCompatActivity {
             public void onClick(View view) {
                 EDIT_VARIABLE_CODE = 3;
                 barra_edit.setProgress(valors_editables[EDIT_IMAGE_CODE][EDIT_VARIABLE_CODE]);
+                changeButtonTextColor();
             }
         });
 
@@ -227,6 +236,7 @@ public class EditActivity extends AppCompatActivity {
             public void onClick(View view) {
                 EDIT_VARIABLE_CODE = 4;
                 barra_edit.setProgress(valors_editables[EDIT_IMAGE_CODE][EDIT_VARIABLE_CODE]);
+                changeButtonTextColor();
             }
         });
 
@@ -236,8 +246,29 @@ public class EditActivity extends AppCompatActivity {
             public void onClick(View view) {
                 EDIT_VARIABLE_CODE = 5;
                 barra_edit.setProgress(valors_editables[EDIT_IMAGE_CODE][EDIT_VARIABLE_CODE]);
+                changeButtonTextColor();
             }
         });
+    }
+
+    // Cambia el color del text del boto per saber que s'esta editant
+    private void changeButtonTextColor() {
+        for (int i = 0; i < 6; i++) {
+            Button btn = (Button) findViewById(ids_effect[i]);
+            if (EDIT_VARIABLE_CODE == i) {
+                btn.setTextColor(Color.WHITE);
+            } else {
+                btn.setTextColor(Color.BLACK);
+            }
+        }
+
+        if (EDIT_IMAGE_CODE == 0) {
+            btn_fore.setTextColor(Color.WHITE);
+            btn_back.setTextColor(Color.BLACK);
+        } else {
+            btn_fore.setTextColor(Color.BLACK);
+            btn_back.setTextColor(Color.WHITE);
+        }
     }
 
     private void edit_image() {

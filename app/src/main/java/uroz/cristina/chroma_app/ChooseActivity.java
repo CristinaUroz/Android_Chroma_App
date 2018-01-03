@@ -9,7 +9,6 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -28,11 +27,11 @@ import java.util.Calendar;
 public class ChooseActivity extends AppCompatActivity {
     // Declaracio de referencies a elements de la pantalla
     private Button btn_next;
-    private int codi_imatge = 1;
-
-    // Variables globals
     private ImageView fore_ima;
     private ImageView back_ima;
+
+    // Variables globals
+    private int codi_imatge = 1;
     private Uri fore_uri;
     private Uri back_uri;
     private String fileName;
@@ -43,29 +42,37 @@ public class ChooseActivity extends AppCompatActivity {
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 0;
     private static final int MY_PERMISSIONS_REQUEST_CAMERA = 1;
 
+    // Guardem les dades quan girem la pantalla
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (fore_uri != null) {
+            outState.putString("fore_uri", fore_uri.toString());
+        }
+        if (back_uri != null) {
+            outState.putString("back_uri", back_uri.toString());
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.choose_activity);
 
-        ////////////////////////////////////////// Permisos
-        // Es demana el permis per a utilitzar la camera, i quan s'acepta, es demana el permis per escriure fitxers
+        // PERMISOS
+        // Es demana el permis per utilitzar la camera, i quan s'acepta, es demana el permis per escriure fitxers
         // Demana permisos de camera
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
-                Log.i("kike", "demana camera 1");
+                Log.i("kike", "demana camera opcio 1");
             } else {
-                Log.i("kike", "demana camera 2");
+                Log.i("kike", "demana camera opcio 2");
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, MY_PERMISSIONS_REQUEST_CAMERA);
             }
         }
 
-        ////////////////////////////////////////////////////
-
-        // Creació del directori on es guarden les fotos que es fan
+        // Creació del directori on es guarden les fotos que es fan en aquesta activitat
         dir = new File(Environment.getExternalStorageDirectory(), image_dir);
-
         if (!dir.exists()) {
             dir.mkdirs();
         }
@@ -75,11 +82,25 @@ public class ChooseActivity extends AppCompatActivity {
         back_ima = (ImageView) findViewById(R.id.ima_back);
         btn_next = (Button) findViewById(R.id.next_button_choose);
 
+        // Recuperacio de dades de quan tornem d'una altra activitat
         if (getIntent() != null && getIntent().getExtras() != null) {
             fore_uri = Uri.parse(getIntent().getExtras().getString(KEY_FORE_URI1));
             back_uri = Uri.parse(getIntent().getExtras().getString(KEY_BACK_URI1));
             back_ima.setImageURI(back_uri);
             fore_ima.setImageURI(fore_uri);
+        }
+
+        // Recuperacio de dades de quan girem la pantalla
+        if (savedInstanceState != null) {
+            Bundle b = savedInstanceState;
+            if (b.getString("fore_uri") != null) {
+                fore_uri = Uri.parse(b.getString("fore_uri"));
+                fore_ima.setImageURI(fore_uri);
+            }
+            if (b.getString("back_uri") != null) {
+                back_uri = Uri.parse(b.getString("back_uri"));
+                back_ima.setImageURI(back_uri);
+            }
         }
 
         // Boto next
@@ -96,9 +117,7 @@ public class ChooseActivity extends AppCompatActivity {
                     startActivity(intent);
                     finish();
                 } catch (Exception e) {
-                    //String msg = e.toString();
-                    String msg = getString(R.string.missing_data);
-                    Toast.makeText(ChooseActivity.this, msg, Toast.LENGTH_LONG).show();
+                    Toast.makeText(ChooseActivity.this, getString(R.string.missing_data), Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -122,13 +141,14 @@ public class ChooseActivity extends AppCompatActivity {
         });
     }
 
+    // Metode per carregar la imatge desde on es seleccioni
     private void chooseCameraGallery() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.choose);
         builder.setMessage(R.string.choose_from);
         builder.setCancelable(true);
 
-        // Agafa la imatge de la camera
+        // Si s'agafa la imatge de la camera
         builder.setNegativeButton(R.string.camera, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
@@ -154,7 +174,7 @@ public class ChooseActivity extends AppCompatActivity {
             }
         });
 
-        // Agafa la imatge de la galeria
+        // Si s'agafa la imatge de la galeria
         builder.setPositiveButton(R.string.gallery, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
@@ -166,7 +186,7 @@ public class ChooseActivity extends AppCompatActivity {
         builder.create().show();
     }
 
-    @NonNull
+    // Genera un nom per una imatge EX: '2017.12.15_20.31.46.jpg'
     private String getPhotoName() {
         Calendar calendar = Calendar.getInstance();
         String day = Integer.toString(calendar.get(Calendar.DAY_OF_MONTH));
@@ -230,6 +250,7 @@ public class ChooseActivity extends AppCompatActivity {
         }
     }
 
+    // Metode per demanar permisos
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
@@ -239,9 +260,9 @@ public class ChooseActivity extends AppCompatActivity {
                     // Demana permisos d'escriptura
                     if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                         if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                            Log.i("kike", "demana escriure 1");
+                            Log.i("kike", "demana escriptura opcio 1");
                         } else {
-                            Log.i("kike", "demana escriure 2");
+                            Log.i("kike", "demana escriptura opcio 2");
                             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
                         }
                     }
@@ -253,13 +274,13 @@ public class ChooseActivity extends AppCompatActivity {
 
             case MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.i("kike", "permis escriure concedit");
+                    Log.i("kike", "permis escriptura concedit");
                 } else {
-                    Log.i("kike", "permis escriure denegat");
+                    Log.i("kike", "permis escriptura denegat");
                 }
                 return;
             }
-            // Altres permisos, fer un 'case'
+            // Altres permisos, afegir 'case'
         }
     }
 }

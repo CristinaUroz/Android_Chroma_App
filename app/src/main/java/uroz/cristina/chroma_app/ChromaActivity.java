@@ -1,17 +1,12 @@
 package uroz.cristina.chroma_app;
 
-import android.app.Dialog;
-import android.content.ContentResolver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.graphics.Palette;
@@ -21,28 +16,39 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import org.w3c.dom.Text;
-
-import java.io.FileDescriptor;
-
-import static android.provider.MediaStore.Images.Thumbnails.getThumbnail;
 
 public class ChromaActivity extends AppCompatActivity {
     // Declaracio de referencies a elements de la pantalla
     private Button btn_next, btn_prev, btn_hsl, btn_palete;
     private SeekBar barra_chroma;
 
+    private ImageView fore_ima;
+
     // Variables globals
     public static String KEY_FORE_URI2 = "KEY_FORE_URI2";
     public static String KEY_BACK_URI2 = "KEY_BACK_URI2";
+    public static String KEY_VALOR_BARRA_2 = "KEY_VALOR_BARRA_2";
+    public static String KEY_COLOR_CHROMA_2 = "KEY_COLOR_CHROMA_2";
     private int valor_barra;
-    private ImageView fore_ima;
+    private int color_chroma;
     private Uri fore_uri;
     private Uri back_uri;
     private Bitmap bitmap;
+
+    // Guardem les dades quan girem la pantalla
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (fore_uri != null) {
+            outState.putString("fore_uri", fore_uri.toString());
+        }
+        if (back_uri != null) {
+            outState.putString("back_uri", back_uri.toString());
+        }
+        outState.putInt("valor_barra", valor_barra);
+        outState.putInt("color_chroma", color_chroma);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,18 +63,44 @@ public class ChromaActivity extends AppCompatActivity {
         barra_chroma = (SeekBar) findViewById(R.id.tolerance_bar);
         fore_ima = (ImageView) findViewById(R.id.ima_fore2);
 
-
-        // Proba passar dades entre dues activitats
+        // Recuperacio de dades de quan tornem d'una altra activitat
         fore_uri = Uri.parse(getIntent().getExtras().getString(KEY_FORE_URI2));
         back_uri = Uri.parse(getIntent().getExtras().getString(KEY_BACK_URI2));
 
-        fore_ima.setImageURI(fore_uri);
+        // Recuperacio de dades de quan girem la pantalla
+        if (savedInstanceState != null) {
+            Bundle b = savedInstanceState;
+            if (b.getString("fore_uri") != null) {
+                fore_uri = Uri.parse(b.getString("fore_uri"));
+            }
+            if (b.getString("back_uri") != null) {
+                back_uri = Uri.parse(b.getString("back_uri"));
+            }
+            valor_barra = b.getInt("valor_barra");
+            color_chroma = b.getInt("color_chroma");
+        }
 
         // Configuracio de la barra
         barra_chroma.setMax(100);
-        barra_chroma.setProgress(50);
 
+        if (getIntent().getExtras().get(KEY_VALOR_BARRA_2) != null) {
+            valor_barra = getIntent().getExtras().getInt(KEY_VALOR_BARRA_2);
+        } else {
+            valor_barra = 0;
+        }
+        barra_chroma.setProgress(valor_barra);
+
+        if (getIntent().getExtras().get(KEY_COLOR_CHROMA_2) != null) {
+            color_chroma = getIntent().getExtras().getInt(KEY_COLOR_CHROMA_2);
+        } else {
+            color_chroma = 0;
+        }
+
+        fore_ima.setImageURI(fore_uri);
         bitmap = BitmapFactory.decodeFile(getRealPathFromURI(getApplicationContext(), fore_uri));
+
+        //fore_ima.getLayoutParams().height = bitmap.getHeight();
+        //fore_ima.getLayoutParams().width = bitmap.getWidth();
 
         // Accions que s'executaran quan es mogui la barra
         barra_chroma.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -112,12 +144,12 @@ public class ChromaActivity extends AppCompatActivity {
                     String fore = fore_uri.toString();
                     intent.putExtra(EditActivity.KEY_BACK_URI3, back);
                     intent.putExtra(EditActivity.KEY_FORE_URI3, fore);
+                    intent.putExtra(EditActivity.KEY_VALOR_BARRA_3, valor_barra);
+                    intent.putExtra(EditActivity.KEY_COLOR_CHROMA_3, color_chroma);
                     startActivity(intent);
                     finish();
                 } catch (Exception e) {
-                    //String msg = e.toString();
-                    String msg = getString(R.string.missing_data);
-                    Toast.makeText(ChromaActivity.this, msg, Toast.LENGTH_LONG).show();
+                    Toast.makeText(ChromaActivity.this, getString(R.string.missing_data), Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -138,51 +170,91 @@ public class ChromaActivity extends AppCompatActivity {
         });
     }
 
+    // Mostra el color principal de la imatge utilitzant Palette
     private void mostraPaleta() {
         Palette.from(bitmap).maximumColorCount(15).generate(new Palette.PaletteAsyncListener() {
             @Override
             public void onGenerated(Palette palette) {
-                // Get the "vibrant" color swatch based on the bitmap
-                Palette.Swatch vibrant = palette.getMutedSwatch();
+                // Vibrant??? mirar quin es millors
+                Palette.Swatch vibrant = palette.getVibrantSwatch();
                 if (vibrant != null) {
-                    // Set the background color of a layout based on the vibrant color
                     fore_ima.setBackgroundColor(vibrant.getRgb());
-                    // Update the title TextView with the proper text color
-                    //titleView.setTextColor(vibrant.getTitleTextColor());
                 }
             }
         });
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this) ;
+        /* FALTA IMPLEMENTAR
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.palette);
-
         builder.setItems(R.array.colors, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
 
             }
         });
-
         builder.create().show();
+        */
     }
 
+    // Quan toquem la el ImageView
     public boolean onTouchEvent(MotionEvent arg1) {
         int[] pos = new int[2];
         //TODO: Si te pixels imperells que???
         //TODO: Arreglar posicio
         fore_ima.getLocationOnScreen(pos);
-        int x = (int) arg1.getX() - pos[0] - (fore_ima.getWidth()-bitmap.getWidth())/2;
-        int y = (int)arg1.getY()- pos[1] - (fore_ima.getHeight()-bitmap.getHeight())/2;
 
-        //Mirar si esta fora de la imatge
-        if (x>bitmap.getWidth()) {x=bitmap.getWidth()-1;}
-        else if (x<0) {x=0;}
-        if (y>bitmap.getHeight()) {y=bitmap.getHeight()-1;}
-        else if (y<0) {y=0;}
+        int clickX = (int) arg1.getX();
+        int clickY = (int) arg1.getY();
 
-        //valor del pixem
-        int pixel = bitmap.getPixel(x, y);
-        fore_ima.setBackgroundColor(pixel);
-        //Toast.makeText(this, Integer.toString(pixel), Toast.LENGTH_SHORT).show();
+        /*
+        Log.i("kike", "pos0 " + pos[0]);
+        Log.i("kike", "pos1 " + pos[1]);
+        Log.i("kike", "arg0 " + clickX);
+        Log.i("kike", "arg1 " + clickY);
+        Log.i("kike", "bit " + bitmap.getWidth());
+        */
+
+        if (pos[0] < clickX && clickX < (pos[0] + fore_ima.getWidth())) {
+            if (pos[1] < clickY && clickY < (pos[1] + fore_ima.getHeight())) {
+                Log.i("kike", "dins");
+            }
+
+        }
+        // arg1
+        // posicio de la pantalla on es fa click
+
+        // pos
+        // posicio de la cantonada superior esquerra de fore_ima a la pantalla
+
+        // fore_ima.getWidth() i getHeight()
+        // alt i ample de fore_ima
+
+        // bitmap.getWidth() i getHeight()
+        // alt i ample de la imatge
+
+        /*
+        int x;
+        x = (int) arg1.getX() - pos[0] - (fore_ima.getWidth() - bitmap.getWidth()) / 2;
+
+        int y;
+        y = (int) arg1.getY() - pos[1] - (fore_ima.getHeight() - bitmap.getHeight()) / 2;
+
+
+        // Mirar si esta fora de la imatge
+        if (x > bitmap.getWidth()) {
+            x = bitmap.getWidth() - 1;
+        } else if (x < 0) {
+            x = 0;
+        }
+        if (y > bitmap.getHeight()) {
+            y = bitmap.getHeight() - 1;
+        } else if (y < 0) {
+            y = 0;
+        }
+
+        // Valor del pixel
+        //color_chroma = bitmap.getPixel(x, y);
+        fore_ima.setBackgroundColor(color_chroma);
+        */
         return true;
     }
 
@@ -200,6 +272,4 @@ public class ChromaActivity extends AppCompatActivity {
             }
         }
     }
-
 }
-

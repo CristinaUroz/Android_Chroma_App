@@ -23,15 +23,36 @@ public class EditActivity extends AppCompatActivity {
     private Uri back_uri;
     public static String KEY_FORE_URI3 = "KEY_FORE_URI3";
     public static String KEY_BACK_URI3 = "KEY_BACK_URI3";
+    public static String KEY_VALOR_BARRA_3 = "KEY_VALOR_BARRA_3";
+    public static String KEY_COLOR_CHROMA_3 = "KEY_COLOR_CHROMA_3";
+    public static String KEY_VALORS_FORE_3 = "KEY_VALORS_FORE_3";
+    public static String KEY_VALORS_BACK_3 = "KEY_VALORS_BACK_3";
     private int valor_barra;
+    private int color_chroma;
     private int EDIT_IMAGE_CODE = 0;
     private int EDIT_VARIABLE_CODE = 0;
 
     // On es guarden els valors de la seekbar per cada efecte i imatge (fore i back)
     private int[][] valors_editables = new int[2][6];
-    // Al acabar les probes, es poden borrar
+    // Al acabar les probes, es pot borrar aixo d'aqui sota
     private String[] edit_image = {"Foreground", "Background"};
     private String[] edit_variable = {"Contrast", "Bright", "Warmth", "Rotation", "Saturation", "Opacity"};
+
+    // Guardem les dades quan girem la pantalla
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (fore_uri != null) {
+            outState.putString("fore_uri", fore_uri.toString());
+        }
+        if (back_uri != null) {
+            outState.putString("back_uri", back_uri.toString());
+        }
+        outState.putInt("valor_barra", valor_barra);
+        outState.putInt("color_chroma", color_chroma);
+        outState.putIntArray("fore_val", valors_editables[0]);
+        outState.putIntArray("back_val", valors_editables[1]);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,23 +73,44 @@ public class EditActivity extends AppCompatActivity {
         barra_edit = (SeekBar) findViewById(R.id.selection_bar);
         ima_mixed = (ImageView) findViewById(R.id.ima_mixed);
 
-        // Configuracio de la barra
-        barra_edit.setMax(100);
-        barra_edit.setProgress(50);
-
-        //// Dades activitat anterior
+        // Recuperacio de dades de quan tornem d'una altra activitat
         fore_uri = Uri.parse(getIntent().getExtras().getString(KEY_FORE_URI3));
         back_uri = Uri.parse(getIntent().getExtras().getString(KEY_BACK_URI3));
-
-        ima_mixed.setImageURI(fore_uri);
+        valor_barra = getIntent().getExtras().getInt(KEY_VALOR_BARRA_3);
+        color_chroma = getIntent().getExtras().getInt(KEY_COLOR_CHROMA_3);
 
         // Inicialitzacio del vector dels valors
-        for (int i = 0; i < 2; i++) {
-            //valors_editables[i] = new int[6];
-            for (int j = 0; j < 6; j++) {
-                valors_editables[i][j] = 50;
+        if (getIntent().getExtras().get(KEY_VALORS_FORE_3) == null) {
+            for (int i = 0; i < 2; i++) {
+                for (int j = 0; j < 6; j++) {
+                    valors_editables[i][j] = 50;
+                }
             }
+        } else {
+            valors_editables[0] = getIntent().getExtras().getIntArray(KEY_VALORS_FORE_3);
+            valors_editables[1] = getIntent().getExtras().getIntArray(KEY_VALORS_BACK_3);
         }
+
+        // Recuperacio de dades de quan girem la pantalla
+        if (savedInstanceState != null) {
+            Bundle b = savedInstanceState;
+            if (b.getString("fore_uri") != null) {
+                fore_uri = Uri.parse(b.getString("fore_uri"));
+            }
+            if (b.getString("back_uri") != null) {
+                back_uri = Uri.parse(b.getString("back_uri"));
+            }
+            valor_barra = b.getInt("valor_barra");
+            color_chroma = b.getInt("color_chroma");
+            valors_editables[0] = b.getIntArray("fore_val");
+            valors_editables[1] = b.getIntArray("back_val");
+        }
+
+        // Configuracio de la barra
+        barra_edit.setMax(100);
+        barra_edit.setProgress(valors_editables[0][0]);
+
+        ima_mixed.setImageURI(fore_uri);
 
         // Accions que s'executaran quan es mogui la barra
         barra_edit.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -96,6 +138,8 @@ public class EditActivity extends AppCompatActivity {
                 String fore = fore_uri.toString();
                 intent.putExtra(ChromaActivity.KEY_FORE_URI2, fore);
                 intent.putExtra(ChromaActivity.KEY_BACK_URI2, back);
+                intent.putExtra(ChromaActivity.KEY_VALOR_BARRA_2, valor_barra);
+                intent.putExtra(ChromaActivity.KEY_COLOR_CHROMA_2, color_chroma);
                 startActivity(intent);
                 finish();
             }
@@ -109,14 +153,17 @@ public class EditActivity extends AppCompatActivity {
                 try {
                     String back = back_uri.toString();
                     String fore = fore_uri.toString();
+                    // Matriu de propietats
                     intent.putExtra(ShareActivity.KEY_BACK_URI4, back);
                     intent.putExtra(ShareActivity.KEY_FORE_URI4, fore);
+                    intent.putExtra(ShareActivity.KEY_VALOR_BARRA_4, valor_barra);
+                    intent.putExtra(ShareActivity.KEY_COLOR_CHROMA_4, color_chroma);
+                    intent.putExtra(ShareActivity.KEY_VALORS_FORE_4, valors_editables[0]);
+                    intent.putExtra(ShareActivity.KEY_VALORS_BACK_4, valors_editables[1]);
                     startActivity(intent);
                     finish();
                 } catch (Exception e) {
-                    //String msg = e.toString();
-                    String msg = getString(R.string.missing_data);
-                    Toast.makeText(EditActivity.this, msg, Toast.LENGTH_LONG).show();
+                    Toast.makeText(EditActivity.this, getString(R.string.missing_data), Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -196,9 +243,8 @@ public class EditActivity extends AppCompatActivity {
 
     private void edit_image() {
         String msg = String.format(edit_image[EDIT_IMAGE_CODE] + " " + edit_variable[EDIT_VARIABLE_CODE] + " " + valors_editables[EDIT_IMAGE_CODE][EDIT_VARIABLE_CODE]);
-        // Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
         Toast t = Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT);
-        t.setGravity(Gravity.CENTER_VERTICAL|Gravity.CENTER_HORIZONTAL, 0, 0);
+        t.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL, 0, 0);
         t.show();
     }
 }

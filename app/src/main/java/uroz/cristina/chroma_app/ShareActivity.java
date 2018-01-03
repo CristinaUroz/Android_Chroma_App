@@ -8,7 +8,6 @@ import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -21,10 +20,10 @@ import java.io.IOException;
 import java.util.Calendar;
 
 public class ShareActivity extends AppCompatActivity {
+
     // Declaracio de referencies a elements de la pantalla
     private Button btn_share, btn_save, btn_restart, btn_finish, btn_prev;
     private ImageView ima_final;
-
 
     // Variables globals
     private Uri fore_uri;
@@ -32,8 +31,33 @@ public class ShareActivity extends AppCompatActivity {
     private File dir;
     public static String KEY_FORE_URI4 = "KEY_FORE_URI4";
     public static String KEY_BACK_URI4 = "KEY_BACK_URI4";
+    public static String KEY_VALOR_BARRA_4 = "KEY_VALOR_BARRA_4";
+    public static String KEY_COLOR_CHROMA_4 = "KEY_COLOR_CHROMA_4";
+    public static String KEY_VALORS_FORE_4 = "KEY_VALORS_FORE_4";
+    public static String KEY_VALORS_BACK_4 = "KEY_VALORS_BACK_4";
     private String image_name = getPhotoName(); // Inclou '.jpg'
     private String image_dir = "/ChromAppPhotos/SavedPhotos/";
+    private int valor_barra;
+    private int color_chroma;
+
+    private int[] valors_fore;
+    private int[] valors_back;
+
+    // Guardem les dades quan girem la pantalla
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (fore_uri != null) {
+            outState.putString("fore_uri", fore_uri.toString());
+        }
+        if (back_uri != null) {
+            outState.putString("back_uri", back_uri.toString());
+        }
+        outState.putInt("valor_barra", valor_barra);
+        outState.putInt("color_chroma", color_chroma);
+        outState.putIntArray("fore_val", valors_fore);
+        outState.putIntArray("back_val", valors_back);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,10 +75,28 @@ public class ShareActivity extends AppCompatActivity {
         // Variables
 
 
-        /////
-        //// Dades activitat anterior
+        // Recuperacio de dades de quan tornem d'una altra activitat
         fore_uri = Uri.parse(getIntent().getExtras().getString(KEY_FORE_URI4));
         back_uri = Uri.parse(getIntent().getExtras().getString(KEY_BACK_URI4));
+        valor_barra = getIntent().getExtras().getInt(KEY_VALOR_BARRA_4);
+        color_chroma = getIntent().getExtras().getInt(KEY_COLOR_CHROMA_4);
+        valors_fore = getIntent().getExtras().getIntArray(KEY_VALORS_FORE_4);
+        valors_back = getIntent().getExtras().getIntArray(KEY_VALORS_BACK_4);
+
+        // Recuperacio de dades de quan girem la pantalla
+        if (savedInstanceState != null) {
+            Bundle b = savedInstanceState;
+            if (b.getString("fore_uri") != null) {
+                fore_uri = Uri.parse(b.getString("fore_uri"));
+            }
+            if (b.getString("back_uri") != null) {
+                back_uri = Uri.parse(b.getString("back_uri"));
+            }
+            valor_barra = b.getInt("valor_barra");
+            color_chroma = b.getInt("color_chroma");
+            valors_fore = b.getIntArray("fore_val");
+            valors_back = b.getIntArray("back_val");
+        }
 
         ima_final.setImageURI(fore_uri);
 
@@ -67,6 +109,10 @@ public class ShareActivity extends AppCompatActivity {
                 String fore = fore_uri.toString();
                 intent.putExtra(EditActivity.KEY_FORE_URI3, fore);
                 intent.putExtra(EditActivity.KEY_BACK_URI3, back);
+                intent.putExtra(EditActivity.KEY_VALOR_BARRA_3, valor_barra);
+                intent.putExtra(EditActivity.KEY_COLOR_CHROMA_3, color_chroma);
+                intent.putExtra(EditActivity.KEY_VALORS_FORE_3, valors_fore);
+                intent.putExtra(EditActivity.KEY_VALORS_BACK_3, valors_back);
                 startActivity(intent);
                 finish();
             }
@@ -78,10 +124,8 @@ public class ShareActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent shareIntent = new Intent(Intent.ACTION_SEND);
                 shareIntent.setType("image/jpeg");
-
                 saveImage(image_name);
                 Uri uriToImage = Uri.parse("file://" + Environment.getExternalStorageDirectory() + image_dir + image_name);
-
                 shareIntent.putExtra(Intent.EXTRA_STREAM, uriToImage);
                 startActivity(Intent.createChooser(shareIntent, getResources().getText(R.string.share_to)));
             }
@@ -93,8 +137,7 @@ public class ShareActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (saveImage(image_name)) {
                     Toast.makeText(ShareActivity.this, R.string.image_saved, Toast.LENGTH_SHORT).show();
-                }
-                else {
+                } else {
                     Toast.makeText(ShareActivity.this, R.string.image_not_saved, Toast.LENGTH_SHORT).show();
                 }
             }
@@ -119,11 +162,12 @@ public class ShareActivity extends AppCompatActivity {
         });
     }
 
+    // Guardar una foto en un arxiu JPG
     private boolean saveImage(String name) {
         boolean guardat_ok = true;
         BitmapDrawable draw = (BitmapDrawable) ima_final.getDrawable();
         Bitmap bitmap = draw.getBitmap();
-        FileOutputStream outStream = null;
+        FileOutputStream outStream;
         dir = new File(Environment.getExternalStorageDirectory(), image_dir);
         if (!dir.exists()) {
             dir.mkdirs();
@@ -148,7 +192,7 @@ public class ShareActivity extends AppCompatActivity {
         return guardat_ok;
     }
 
-    @NonNull
+    // Genera un nom per una imatge EX: '2017.12.15_20.31.46.jpg'
     private String getPhotoName() {
         Calendar calendar = Calendar.getInstance();
         String day = Integer.toString(calendar.get(Calendar.DAY_OF_MONTH));
@@ -166,5 +210,4 @@ public class ShareActivity extends AppCompatActivity {
 
         return year + "." + month + "." + day + "_" + hour + "." + minute + "." + second + ".jpg";
     }
-
 }

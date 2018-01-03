@@ -19,13 +19,15 @@
     <string name="warmth">Warmth</string>
     <string name="camera">Camera</string>
     <string name="gallery">Gallery</string>
-    <string name="choose">Choose the picture</string>
-    <string name="choose_from">From where you want to take the picture?</string>
+    <string name="choose">Choose the image</string>
+    <string name="choose_from">Where do you want to take the image from?</string>
     <string name="missing_data">Missing any image!</string>
-    <string name="image_saved">Image saved!</string>
+    <string name="image_saved">Saved image!</string>
+    <string name="share_to">Share to...</string>
+    <string name="image_not_saved">The image could not be saved!</string>
     <array name="colors">
-        <item>1aaa</item>
-        <item>2bbb</item>
-        <item>3ccc</item>
+        <item>Color 1</item>
+        <item>Color 2</item>
+        <item>Color 3</item>
     </array>
 </resources>

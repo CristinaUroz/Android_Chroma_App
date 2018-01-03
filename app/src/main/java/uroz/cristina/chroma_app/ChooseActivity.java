@@ -37,6 +37,7 @@ public class ChooseActivity extends AppCompatActivity {
     private Uri back_uri;
     private String fileName;
     private File dir;
+    private String image_dir = "/ChromAppPhotos/data/";
     public static String KEY_FORE_URI1 = "KEY_FORE_URI1";
     public static String KEY_BACK_URI1 = "KEY_BACK_URI1";
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 0;
@@ -63,7 +64,7 @@ public class ChooseActivity extends AppCompatActivity {
         ////////////////////////////////////////////////////
 
         // Creació del directori on es guarden les fotos que es fan
-        dir = new File(Environment.getExternalStorageDirectory(), "/ChromAppPhotos/data/");
+        dir = new File(Environment.getExternalStorageDirectory(), image_dir);
 
         if (!dir.exists()) {
             dir.mkdirs();
@@ -131,7 +132,7 @@ public class ChooseActivity extends AppCompatActivity {
         builder.setNegativeButton(R.string.camera, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                fileName = dir + "/" + getPhotoName() + ".jpg";
+                fileName = dir + "/" + getPhotoName();
                 File photoFile = new File(fileName);
                 try {
                     photoFile.createNewFile();
@@ -181,7 +182,7 @@ public class ChooseActivity extends AppCompatActivity {
         minute = (minute.length() == 1) ? "0" + minute : minute;
         second = (second.length() == 1) ? "0" + second : second;
 
-        return year + "." + month + "." + day + "_" + hour + "." + minute + "." + second;
+        return year + "." + month + "." + day + "_" + hour + "." + minute + "." + second + ".jpg";
     }
 
     @Override

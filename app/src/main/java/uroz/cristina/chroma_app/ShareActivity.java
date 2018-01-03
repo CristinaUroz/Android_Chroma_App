@@ -8,6 +8,7 @@ import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -31,6 +32,8 @@ public class ShareActivity extends AppCompatActivity {
     private File dir;
     public static String KEY_FORE_URI4 = "KEY_FORE_URI4";
     public static String KEY_BACK_URI4 = "KEY_BACK_URI4";
+    private String image_name = getPhotoName(); // Inclou '.jpg'
+    private String image_dir = "/ChromAppPhotos/SavedPhotos/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +76,14 @@ public class ShareActivity extends AppCompatActivity {
         btn_share.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(ShareActivity.this, "no fet encara", Toast.LENGTH_SHORT).show();
+                Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                shareIntent.setType("image/jpeg");
+
+                saveImage(image_name);
+                Uri uriToImage = Uri.parse("file://" + Environment.getExternalStorageDirectory() + image_dir + image_name);
+
+                shareIntent.putExtra(Intent.EXTRA_STREAM, uriToImage);
+                startActivity(Intent.createChooser(shareIntent, getResources().getText(R.string.share_to)));
             }
         });
 
@@ -81,28 +91,11 @@ public class ShareActivity extends AppCompatActivity {
         btn_save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                BitmapDrawable draw = (BitmapDrawable) ima_final.getDrawable();
-                Bitmap bitmap = draw.getBitmap();
-                FileOutputStream outStream = null;
-                dir = new File(Environment.getExternalStorageDirectory(), "/ChromAppPhotos/SavedPhotos/");
-                if (!dir.exists()) {
-                    dir.mkdirs();
-                }
-                File outFile = new File(dir, getPhotoName()+".jpg");
-                try {
-                    outStream = new FileOutputStream(outFile);
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
-                    outStream.flush();
-                    outStream.close();
+                if (saveImage(image_name)) {
                     Toast.makeText(ShareActivity.this, R.string.image_saved, Toast.LENGTH_SHORT).show();
-                    // Per actualitzar les fotos a la galeria
-                    Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-                    intent.setData(Uri.fromFile(outFile));
-                    sendBroadcast(intent);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                }
+                else {
+                    Toast.makeText(ShareActivity.this, R.string.image_not_saved, Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -126,6 +119,35 @@ public class ShareActivity extends AppCompatActivity {
         });
     }
 
+    private boolean saveImage(String name) {
+        boolean guardat_ok = true;
+        BitmapDrawable draw = (BitmapDrawable) ima_final.getDrawable();
+        Bitmap bitmap = draw.getBitmap();
+        FileOutputStream outStream = null;
+        dir = new File(Environment.getExternalStorageDirectory(), image_dir);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        File outFile = new File(dir, name);
+        try {
+            outStream = new FileOutputStream(outFile);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
+            outStream.flush();
+            outStream.close();
+            // Per actualitzar les fotos a la galeria
+            Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+            intent.setData(Uri.fromFile(outFile));
+            sendBroadcast(intent);
+        } catch (FileNotFoundException e) {
+            guardat_ok = false;
+            e.printStackTrace();
+        } catch (IOException e) {
+            guardat_ok = false;
+            e.printStackTrace();
+        }
+        return guardat_ok;
+    }
+
     @NonNull
     private String getPhotoName() {
         Calendar calendar = Calendar.getInstance();
@@ -142,7 +164,7 @@ public class ShareActivity extends AppCompatActivity {
         minute = (minute.length() == 1) ? "0" + minute : minute;
         second = (second.length() == 1) ? "0" + second : second;
 
-        return year + "." + month + "." + day + "_" + hour + "." + minute + "." + second;
+        return year + "." + month + "." + day + "_" + hour + "." + minute + "." + second + ".jpg";
     }
 
 }

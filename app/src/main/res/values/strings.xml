@@ -22,7 +22,7 @@
     <string name="choose">Choose the picture</string>
     <string name="choose_from">From where you want to take the picture?</string>
     <string name="missing_data">Missing any image!</string>
-    <string name="image_saved">Image saved! no fet</string>
+    <string name="image_saved">Image saved!</string>
     <array name="colors">
         <item>1aaa</item>
         <item>2bbb</item>

@@ -1,6 +1,8 @@
 package uroz.cristina.chroma_app;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Environment;
 import android.support.annotation.NonNull;
@@ -12,6 +14,8 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
 
@@ -27,7 +31,6 @@ public class ShareActivity extends AppCompatActivity {
     private File dir;
     public static String KEY_FORE_URI4 = "KEY_FORE_URI4";
     public static String KEY_BACK_URI4 = "KEY_BACK_URI4";
-    private String fileName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,13 +54,6 @@ public class ShareActivity extends AppCompatActivity {
         back_uri = Uri.parse(getIntent().getExtras().getString(KEY_BACK_URI4));
 
         ima_final.setImageURI(fore_uri);
-
-
-        // Carpeta on es guarden les imatges finals
-        dir = new File(Environment.getExternalStorageDirectory(), "/ChromAppPhotos/SavedPhotos/");
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
 
         // Boto prev
         btn_prev.setOnClickListener(new View.OnClickListener() {
@@ -85,18 +81,29 @@ public class ShareActivity extends AppCompatActivity {
         btn_save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                fileName = dir + "/ChromApp_" + getPhotoName() + ".jpg";
-                File photoFile = new File(fileName);
+                BitmapDrawable draw = (BitmapDrawable) ima_final.getDrawable();
+                Bitmap bitmap = draw.getBitmap();
+                FileOutputStream outStream = null;
+                dir = new File(Environment.getExternalStorageDirectory(), "/ChromAppPhotos/SavedPhotos/");
+                if (!dir.exists()) {
+                    dir.mkdirs();
+                }
+                File outFile = new File(dir, getPhotoName()+".jpg");
                 try {
-                    photoFile.createNewFile();
-                    // Es crea l'arxiu, pero no es guarden les dades
-                    // ...
+                    outStream = new FileOutputStream(outFile);
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
+                    outStream.flush();
+                    outStream.close();
                     Toast.makeText(ShareActivity.this, R.string.image_saved, Toast.LENGTH_SHORT).show();
+                    // Per actualitzar les fotos a la galeria
+                    Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                    intent.setData(Uri.fromFile(outFile));
+                    sendBroadcast(intent);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
-                    return;
                 }
-
             }
         });
 

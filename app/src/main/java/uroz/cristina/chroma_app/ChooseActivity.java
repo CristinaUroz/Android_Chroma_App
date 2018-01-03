@@ -92,13 +92,12 @@ public class ChooseActivity extends AppCompatActivity {
 
         // Recuperacio de dades de quan girem la pantalla
         if (savedInstanceState != null) {
-            Bundle b = savedInstanceState;
-            if (b.getString("fore_uri") != null) {
-                fore_uri = Uri.parse(b.getString("fore_uri"));
+            if (savedInstanceState.getString("fore_uri") != null) {
+                fore_uri = Uri.parse(savedInstanceState.getString("fore_uri"));
                 fore_ima.setImageURI(fore_uri);
             }
-            if (b.getString("back_uri") != null) {
-                back_uri = Uri.parse(b.getString("back_uri"));
+            if (savedInstanceState.getString("back_uri") != null) {
+                back_uri = Uri.parse(savedInstanceState.getString("back_uri"));
                 back_ima.setImageURI(back_uri);
             }
         }
@@ -213,8 +212,7 @@ public class ChooseActivity extends AppCompatActivity {
                 case 0:
                     if (resultCode == RESULT_OK) {
                         fore_uri = imageReturnedIntent.getData();
-                        if (fore_uri == null) {
-                        } else {
+                        if (fore_uri != null) {
                             fore_ima.setImageURI(fore_uri);
                         }
                     }
@@ -233,8 +231,7 @@ public class ChooseActivity extends AppCompatActivity {
                 case 0:
                     if (resultCode == RESULT_OK) {
                         back_uri = imageReturnedIntent.getData();
-                        if (back_uri == null) {
-                        } else {
+                        if (back_uri != null) {
                             back_ima.setImageURI(back_uri);
                         }
                     }
@@ -278,7 +275,6 @@ public class ChooseActivity extends AppCompatActivity {
                 } else {
                     Log.i("kike", "permis escriptura denegat");
                 }
-                return;
             }
             // Altres permisos, afegir 'case'
         }

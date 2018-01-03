@@ -69,15 +69,14 @@ public class ChromaActivity extends AppCompatActivity {
 
         // Recuperacio de dades de quan girem la pantalla
         if (savedInstanceState != null) {
-            Bundle b = savedInstanceState;
-            if (b.getString("fore_uri") != null) {
-                fore_uri = Uri.parse(b.getString("fore_uri"));
+            if (savedInstanceState.getString("fore_uri") != null) {
+                fore_uri = Uri.parse(savedInstanceState.getString("fore_uri"));
             }
-            if (b.getString("back_uri") != null) {
-                back_uri = Uri.parse(b.getString("back_uri"));
+            if (savedInstanceState.getString("back_uri") != null) {
+                back_uri = Uri.parse(savedInstanceState.getString("back_uri"));
             }
-            valor_barra = b.getInt("valor_barra");
-            color_chroma = b.getInt("color_chroma");
+            valor_barra = savedInstanceState.getInt("valor_barra");
+            color_chroma = savedInstanceState.getInt("color_chroma");
         }
 
         // Configuracio de la barra

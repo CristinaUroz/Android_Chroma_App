@@ -93,17 +93,16 @@ public class EditActivity extends AppCompatActivity {
 
         // Recuperacio de dades de quan girem la pantalla
         if (savedInstanceState != null) {
-            Bundle b = savedInstanceState;
-            if (b.getString("fore_uri") != null) {
-                fore_uri = Uri.parse(b.getString("fore_uri"));
+            if (savedInstanceState.getString("fore_uri") != null) {
+                fore_uri = Uri.parse(savedInstanceState.getString("fore_uri"));
             }
-            if (b.getString("back_uri") != null) {
-                back_uri = Uri.parse(b.getString("back_uri"));
+            if (savedInstanceState.getString("back_uri") != null) {
+                back_uri = Uri.parse(savedInstanceState.getString("back_uri"));
             }
-            valor_barra = b.getInt("valor_barra");
-            color_chroma = b.getInt("color_chroma");
-            valors_editables[0] = b.getIntArray("fore_val");
-            valors_editables[1] = b.getIntArray("back_val");
+            valor_barra = savedInstanceState.getInt("valor_barra");
+            color_chroma = savedInstanceState.getInt("color_chroma");
+            valors_editables[0] = savedInstanceState.getIntArray("fore_val");
+            valors_editables[1] = savedInstanceState.getIntArray("back_val");
         }
 
         // Configuracio de la barra
@@ -242,7 +241,7 @@ public class EditActivity extends AppCompatActivity {
     }
 
     private void edit_image() {
-        String msg = String.format(edit_image[EDIT_IMAGE_CODE] + " " + edit_variable[EDIT_VARIABLE_CODE] + " " + valors_editables[EDIT_IMAGE_CODE][EDIT_VARIABLE_CODE]);
+        String msg = edit_image[EDIT_IMAGE_CODE] + " " + edit_variable[EDIT_VARIABLE_CODE] + " " + valors_editables[EDIT_IMAGE_CODE][EDIT_VARIABLE_CODE];
         Toast t = Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT);
         t.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL, 0, 0);
         t.show();

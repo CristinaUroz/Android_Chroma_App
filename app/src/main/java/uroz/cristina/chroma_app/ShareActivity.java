@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Environment;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -85,17 +84,16 @@ public class ShareActivity extends AppCompatActivity {
 
         // Recuperacio de dades de quan girem la pantalla
         if (savedInstanceState != null) {
-            Bundle b = savedInstanceState;
-            if (b.getString("fore_uri") != null) {
-                fore_uri = Uri.parse(b.getString("fore_uri"));
+            if (savedInstanceState.getString("fore_uri") != null) {
+                fore_uri = Uri.parse(savedInstanceState.getString("fore_uri"));
             }
-            if (b.getString("back_uri") != null) {
-                back_uri = Uri.parse(b.getString("back_uri"));
+            if (savedInstanceState.getString("back_uri") != null) {
+                back_uri = Uri.parse(savedInstanceState.getString("back_uri"));
             }
-            valor_barra = b.getInt("valor_barra");
-            color_chroma = b.getInt("color_chroma");
-            valors_fore = b.getIntArray("fore_val");
-            valors_back = b.getIntArray("back_val");
+            valor_barra = savedInstanceState.getInt("valor_barra");
+            color_chroma = savedInstanceState.getInt("color_chroma");
+            valors_fore = savedInstanceState.getIntArray("fore_val");
+            valors_back = savedInstanceState.getIntArray("back_val");
         }
 
         ima_final.setImageURI(fore_uri);

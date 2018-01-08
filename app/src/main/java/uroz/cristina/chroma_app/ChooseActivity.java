@@ -83,13 +83,14 @@ public class ChooseActivity extends AppCompatActivity {
         btn_next = (Button) findViewById(R.id.next_button_choose);
 
         // Recuperacio de dades de quan tornem d'una altra activitat
-        if (getIntent() != null && getIntent().getExtras() != null) {
+        //TODO: Si la app peta en algun moment al tornar-la iniciar entra en aquest bucle i torna a petar
+    /*        if (getIntent() != null && getIntent().getExtras() != null) {
             fore_uri = Uri.parse(getIntent().getExtras().getString(KEY_FORE_URI1));
             back_uri = Uri.parse(getIntent().getExtras().getString(KEY_BACK_URI1));
             back_ima.setImageURI(back_uri);
             fore_ima.setImageURI(fore_uri);
         }
-
+    */
         // Recuperacio de dades de quan girem la pantalla
         if (savedInstanceState != null) {
             if (savedInstanceState.getString("fore_uri") != null) {

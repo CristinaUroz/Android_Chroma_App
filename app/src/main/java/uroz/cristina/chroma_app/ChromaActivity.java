@@ -5,7 +5,10 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.Matrix;
 import android.net.Uri;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -13,10 +16,18 @@ import android.support.v7.graphics.Palette;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.Toast;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 
 public class ChromaActivity extends AppCompatActivity {
     // Declaracio de referencies a elements de la pantalla
@@ -24,6 +35,7 @@ public class ChromaActivity extends AppCompatActivity {
     private SeekBar barra_chroma;
 
     private ImageView fore_ima;
+    private ImageView color_view;
 
     // Variables globals
     public static String KEY_FORE_URI2 = "KEY_FORE_URI2";
@@ -35,6 +47,9 @@ public class ChromaActivity extends AppCompatActivity {
     private Uri fore_uri;
     private Uri back_uri;
     private Bitmap bitmap;
+    private Bitmap bitmap_mutable;
+    private int[] pos = new int[2];
+    private int[] xy = new int[2];
 
     // Guardem les dades quan girem la pantalla
     @Override
@@ -62,10 +77,18 @@ public class ChromaActivity extends AppCompatActivity {
         btn_palete = (Button) findViewById(R.id.palette_button);
         barra_chroma = (SeekBar) findViewById(R.id.tolerance_bar);
         fore_ima = (ImageView) findViewById(R.id.ima_fore2);
+        color_view = (ImageView) findViewById(R.id.color_view);
 
         // Recuperacio de dades de quan tornem d'una altra activitat
         fore_uri = Uri.parse(getIntent().getExtras().getString(KEY_FORE_URI2));
         back_uri = Uri.parse(getIntent().getExtras().getString(KEY_BACK_URI2));
+
+        //Guardem a la posicio de fore_ima respecte la pantalla
+        fore_ima.getLocationOnScreen(pos);
+
+        //com a posicio de click inicial posem -1
+        xy[0]=-1;
+        xy[1]=-1;
 
         // Recuperacio de dades de quan girem la pantalla
         if (savedInstanceState != null) {
@@ -95,8 +118,12 @@ public class ChromaActivity extends AppCompatActivity {
             color_chroma = 0;
         }
 
-        fore_ima.setImageURI(fore_uri);
+        //fore_ima.setImageURI(fore_uri);
         bitmap = BitmapFactory.decodeFile(getRealPathFromURI(getApplicationContext(), fore_uri));
+
+        //Creem el bitmap modificable i el posem al imageview
+        bitmap_mutable=convertToMutable(bitmap);
+        fore_ima.setImageBitmap(bitmap_mutable);
 
         // Accions que s'executaran quan es mogui la barra
         barra_chroma.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -113,6 +140,9 @@ public class ChromaActivity extends AppCompatActivity {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 Toast.makeText(ChromaActivity.this, String.valueOf(valor_barra), Toast.LENGTH_SHORT).show();
+                if (xy[0]!=-1&&xy[1]!=-1){
+                    change_Color();
+                }
             }
         });
 
@@ -193,67 +223,29 @@ public class ChromaActivity extends AppCompatActivity {
 
     // Quan toquem la el ImageView
     public boolean onTouchEvent(MotionEvent arg1) {
-        int[] pos = new int[2];
-        //TODO: Si te pixels imperells que???
-        //TODO: Arreglar posicio
-        fore_ima.getLocationOnScreen(pos);
+        // arg1: posicio de la pantalla on es fa click
+        // pos: posicio de la cantonada superior esquerra de fore_ima a la pantalla
+        // fore_ima.getWidth() i getHeight(): alt i ample de fore_ima
+        // bitmap.getWidth() i getHeight(): alt i ample de la imatge
 
         int clickX = (int) arg1.getX();
         int clickY = (int) arg1.getY();
-
-        /*
-        Log.i("kike", "pos0 " + pos[0]);
-        Log.i("kike", "pos1 " + pos[1]);
-        Log.i("kike", "arg0 " + clickX);
-        Log.i("kike", "arg1 " + clickY);
-        Log.i("kike", "bit " + bitmap.getWidth());
-        */
-
         if (pos[0] < clickX && clickX < (pos[0] + fore_ima.getWidth())) {
             if (pos[1] < clickY && clickY < (pos[1] + fore_ima.getHeight())) {
-                Log.i("kike", "dins");
+                posicio(clickX, clickY);
+                if (xy[0]>=0&&xy[0]<bitmap.getWidth()&&xy[1]>=0&&xy[1]<bitmap.getHeight()){
+                    Log.i("cris", "bitmap.getWidth(): " + Integer.toString(bitmap.getWidth())+ "| bitmap.getHeight(): "+ Integer.toString(bitmap.getHeight()));
+                    Log.i("cris",  "x: " + Integer.toString(xy[0])+ "| y: "+ Integer.toString(xy[1]));
+                    color_chroma= bitmap_mutable.getPixel(xy[0], xy[1]);
+                    color_view.setBackgroundColor(color_chroma);
+                    change_Color();
+                }
             }
-
         }
-        // arg1
-        // posicio de la pantalla on es fa click
-
-        // pos
-        // posicio de la cantonada superior esquerra de fore_ima a la pantalla
-
-        // fore_ima.getWidth() i getHeight()
-        // alt i ample de fore_ima
-
-        // bitmap.getWidth() i getHeight()
-        // alt i ample de la imatge
-
-        /*
-        int x;
-        x = (int) arg1.getX() - pos[0] - (fore_ima.getWidth() - bitmap.getWidth()) / 2;
-
-        int y;
-        y = (int) arg1.getY() - pos[1] - (fore_ima.getHeight() - bitmap.getHeight()) / 2;
-
-
-        // Mirar si esta fora de la imatge
-        if (x > bitmap.getWidth()) {
-            x = bitmap.getWidth() - 1;
-        } else if (x < 0) {
-            x = 0;
-        }
-        if (y > bitmap.getHeight()) {
-            y = bitmap.getHeight() - 1;
-        } else if (y < 0) {
-            y = 0;
-        }
-
-        // Valor del pixel
-        //color_chroma = bitmap.getPixel(x, y);
-        fore_ima.setBackgroundColor(color_chroma);
-        */
         return true;
     }
 
+    //Poder trobar ladreça de la imatge per tal de convertirla en un bitmap
     public String getRealPathFromURI(Context context, Uri contentUri) {
         Cursor cursor = null;
         try {
@@ -268,4 +260,93 @@ public class ChromaActivity extends AppCompatActivity {
             }
         }
     }
+
+    //Posar els pixels del mateix color a transparent
+    public void change_Color() {
+        //TODO:APLICAR FACTOR TOLERANCIA
+        for (int i=0;i<bitmap_mutable.getWidth();i++){
+            for (int j=0;j<bitmap_mutable.getHeight();j++) {
+                if (!(i == xy[0] && j == xy[1])) {
+                    int c=bitmap_mutable.getPixel(i, j);
+                    if (color_chroma == c) {
+                        bitmap_mutable.setPixel(i, j, android.R.color.transparent);
+                    }
+                }
+            }
+        }
+        Log.i("cris",  "sup");
+
+        bitmap_mutable.setPixel(xy[0], xy[1], android.R.color.transparent);
+
+        fore_ima.setImageBitmap(bitmap_mutable);
+    }
+
+    //Per poder editar el bitmap
+    public static Bitmap convertToMutable(Bitmap imgIn) {
+        try {
+            //this is the file going to use temporally to save the bytes.
+            // This file will not be a image, it will store the raw image data.
+            File file = new File(Environment.getExternalStorageDirectory() + File.separator + "temp.tmp");
+
+            //Open an RandomAccessFile
+            //Make sure you have added uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+            //into AndroidManifest.xml file
+            RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");
+
+            // get the width and height of the source bitmap.
+            int width = imgIn.getWidth();
+            int height = imgIn.getHeight();
+            Bitmap.Config type = imgIn.getConfig();
+
+            //Copy the byte to the file
+            //Assume source bitmap loaded using options.inPreferredConfig = Config.ARGB_8888;
+            FileChannel channel = randomAccessFile.getChannel();
+            MappedByteBuffer map = channel.map(FileChannel.MapMode.READ_WRITE, 0, imgIn.getRowBytes()*height);
+            imgIn.copyPixelsToBuffer(map);
+            //recycle the source bitmap, this will be no longer used.
+            imgIn.recycle();
+            System.gc();// try to force the bytes from the imgIn to be released
+
+            //Create a new bitmap to load the bitmap again. Probably the memory will be available.
+            imgIn = Bitmap.createBitmap(width, height, type);
+            map.position(0);
+            //load it back from temporary
+            imgIn.copyPixelsFromBuffer(map);
+            //close the temporary file and channel , then delete that also
+            channel.close();
+            randomAccessFile.close();
+
+            // delete the temp file
+            file.delete();
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return imgIn;
+    }
+
+    //Passa la posicio de la pantalla a la posicio del bitmap
+    public void posicio(int clickX, int clickY) {
+        //TODO:ARREGALR-HO!
+        int prop; //proporcio
+        int correc; //factor correccio
+        if (fore_ima.getWidth() / fore_ima.getHeight() > bitmap.getWidth() / bitmap.getHeight()) {//la imatge ocupa tot lample del imageView
+            prop = bitmap_mutable.getWidth() / fore_ima.getWidth();
+            correc = (fore_ima.getHeight() * prop - bitmap.getHeight()) / 2;
+            xy[0] = (int) (clickX - pos[0]) * prop;
+            xy[1]= (int) (clickY - pos[1]) * prop - correc;
+        } else {//la imatge ocupa tota l'alçada del imageView
+            Log.i("cris", "vertical");
+            prop = bitmap_mutable.getHeight() / fore_ima.getHeight();
+            correc = (fore_ima.getWidth() * prop - bitmap.getWidth()) / 2;
+            xy[0] = (int) (clickX - pos[0]) * prop - correc;
+            xy[1]= (int) (clickY - pos[1]) * prop;
+        }
+    }
+
 }
+
+

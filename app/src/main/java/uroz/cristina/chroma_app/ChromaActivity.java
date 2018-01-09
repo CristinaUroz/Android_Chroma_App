@@ -5,29 +5,30 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.graphics.Palette;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.Toast;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+
+import static android.graphics.Color.alpha;
+import static android.graphics.Color.blue;
+import static android.graphics.Color.green;
+import static android.graphics.Color.red;
 
 public class ChromaActivity extends AppCompatActivity {
     // Declaracio de referencies a elements de la pantalla
@@ -83,9 +84,6 @@ public class ChromaActivity extends AppCompatActivity {
         fore_uri = Uri.parse(getIntent().getExtras().getString(KEY_FORE_URI2));
         back_uri = Uri.parse(getIntent().getExtras().getString(KEY_BACK_URI2));
 
-        //Guardem a la posicio de fore_ima respecte la pantalla
-        fore_ima.getLocationOnScreen(pos);
-
         //com a posicio de click inicial posem -1
         xy[0]=-1;
         xy[1]=-1;
@@ -124,6 +122,7 @@ public class ChromaActivity extends AppCompatActivity {
         //Creem el bitmap modificable i el posem al imageview
         bitmap_mutable=convertToMutable(bitmap);
         fore_ima.setImageBitmap(bitmap_mutable);
+
 
         // Accions que s'executaran quan es mogui la barra
         barra_chroma.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -191,7 +190,7 @@ public class ChromaActivity extends AppCompatActivity {
         btn_palete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mostraPaleta();
+              //  mostraPaleta();
             }
         });
     }
@@ -223,24 +222,25 @@ public class ChromaActivity extends AppCompatActivity {
 
     // Quan toquem la el ImageView
     public boolean onTouchEvent(MotionEvent arg1) {
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, //Per fer que no es pugui tornar a premer mentre sesta executant
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         // arg1: posicio de la pantalla on es fa click
         // pos: posicio de la cantonada superior esquerra de fore_ima a la pantalla
         // fore_ima.getWidth() i getHeight(): alt i ample de fore_ima
         // bitmap.getWidth() i getHeight(): alt i ample de la imatge
-
+        //bitmap_mutable=bitmap_mutable_aux;
         int clickX = (int) arg1.getX();
         int clickY = (int) arg1.getY();
         if (pos[0] < clickX && clickX < (pos[0] + fore_ima.getWidth())) {
             if (pos[1] < clickY && clickY < (pos[1] + fore_ima.getHeight())) {
                 posicio(clickX, clickY);
-                if (xy[0]>=0&&xy[0]<bitmap.getWidth()&&xy[1]>=0&&xy[1]<bitmap.getHeight()){
-                    Log.i("cris", "bitmap.getWidth(): " + Integer.toString(bitmap.getWidth())+ "| bitmap.getHeight(): "+ Integer.toString(bitmap.getHeight()));
-                    Log.i("cris",  "x: " + Integer.toString(xy[0])+ "| y: "+ Integer.toString(xy[1]));
-                    color_chroma= bitmap_mutable.getPixel(xy[0], xy[1]);
-                    color_view.setBackgroundColor(color_chroma);
-                    change_Color();
+                   if (xy[0]>=0&&xy[0]<bitmap.getWidth()&&xy[1]>=0&&xy[1]<bitmap.getHeight()){
+                   change_Color();
                 }
             }
+        }
+        else{
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         }
         return true;
     }
@@ -263,22 +263,31 @@ public class ChromaActivity extends AppCompatActivity {
 
     //Posar els pixels del mateix color a transparent
     public void change_Color() {
-        //TODO:APLICAR FACTOR TOLERANCIA
-        for (int i=0;i<bitmap_mutable.getWidth();i++){
-            for (int j=0;j<bitmap_mutable.getHeight();j++) {
-                if (!(i == xy[0] && j == xy[1])) {
-                    int c=bitmap_mutable.getPixel(i, j);
-                    if (color_chroma == c) {
-                        bitmap_mutable.setPixel(i, j, android.R.color.transparent);
+        reiniciar();
+        color_chroma= bitmap_mutable.getPixel(xy[0], xy[1]);
+        if (color_chroma!=android.R.color.transparent) {
+            color_view.setBackgroundColor(color_chroma);
+            for (int i = 0; i < bitmap_mutable.getWidth(); i++) {
+                for (int j = 0; j < bitmap_mutable.getHeight(); j++) {
+                    if (!(i == xy[0] && j == xy[1])) {
+                        int c = bitmap_mutable.getPixel(i, j);
+                        int tol = valor_barra;
+                        //Mirem si els valors del color es troben dins dels parametres de tolerancia
+                        if (alpha(color_chroma) + tol >= alpha(c) &&  alpha(color_chroma) - tol <=alpha(c) &&
+                                    red(color_chroma) + tol >= red(c) &&  red(color_chroma) - tol <=red(c) &&
+                                    blue(color_chroma) + tol >= blue(c) &&  blue(color_chroma) - tol <=blue(c) &&
+                                    green(color_chroma) + tol >= green(c) &&  green(color_chroma) - tol <=green(c)
+                                ){
+                            bitmap_mutable.setPixel(i, j, android.R.color.transparent);
+                        }
                     }
                 }
             }
         }
-        Log.i("cris",  "sup");
-
         bitmap_mutable.setPixel(xy[0], xy[1], android.R.color.transparent);
-
         fore_ima.setImageBitmap(bitmap_mutable);
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+
     }
 
     //Per poder editar el bitmap
@@ -330,21 +339,20 @@ public class ChromaActivity extends AppCompatActivity {
 
     //Passa la posicio de la pantalla a la posicio del bitmap
     public void posicio(int clickX, int clickY) {
-        //TODO:ARREGALR-HO!
-        int prop; //proporcio
-        int correc; //factor correccio
-        if (fore_ima.getWidth() / fore_ima.getHeight() > bitmap.getWidth() / bitmap.getHeight()) {//la imatge ocupa tot lample del imageView
-            prop = bitmap_mutable.getWidth() / fore_ima.getWidth();
-            correc = (fore_ima.getHeight() * prop - bitmap.getHeight()) / 2;
-            xy[0] = (int) (clickX - pos[0]) * prop;
-            xy[1]= (int) (clickY - pos[1]) * prop - correc;
+        fore_ima.getLocationOnScreen(pos);
+        if (bitmap.getHeight()*fore_ima.getWidth()/bitmap.getWidth()<fore_ima.getHeight()) {//la imatge ocupa tot lample del imageView
+            xy[0] = (int)( (clickX - pos[0]) * bitmap.getWidth() / fore_ima.getWidth());
+            xy[1]= (int) ((clickY - pos[1]) * bitmap.getWidth() / fore_ima.getWidth() - ((fore_ima.getHeight() * bitmap.getWidth() / fore_ima.getWidth() - bitmap.getHeight()) / 2));
         } else {//la imatge ocupa tota l'alçada del imageView
-            Log.i("cris", "vertical");
-            prop = bitmap_mutable.getHeight() / fore_ima.getHeight();
-            correc = (fore_ima.getWidth() * prop - bitmap.getWidth()) / 2;
-            xy[0] = (int) (clickX - pos[0]) * prop - correc;
-            xy[1]= (int) (clickY - pos[1]) * prop;
+            xy[0] = (int) ((clickX - pos[0]) * bitmap.getHeight() / fore_ima.getHeight() - (fore_ima.getWidth() * bitmap.getHeight() / fore_ima.getHeight() - bitmap.getWidth()) / 2);
+            xy[1]= (int) ((clickY - pos[1]) * bitmap.getHeight() / fore_ima.getHeight());
         }
+    }
+
+    public void reiniciar(){
+        bitmap = BitmapFactory.decodeFile(getRealPathFromURI(getApplicationContext(), fore_uri));
+        bitmap_mutable=convertToMutable(bitmap);
+        fore_ima.setImageBitmap(bitmap_mutable);
     }
 
 }

@@ -326,7 +326,6 @@ public class ChromaActivity extends AppCompatActivity {
         fore_ima.setImageBitmap(bitmap_mutable);
         //habilitem poder tornar a tocar a la pantalla
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-
     }
 
     public void change_Color_paleta() {
@@ -350,9 +349,6 @@ public class ChromaActivity extends AppCompatActivity {
 
         }
         //Fem visible el nou bitmap
-        fore_ima.setImageBitmap(bitmap_mutable);
-        //habilitem poder tornar a tocar a la pantalla
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
     }
 
     //Per poder editar el bitmap - EXTRET DE INTERNET

@@ -2,11 +2,13 @@ package uroz.cristina.chroma_app;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -28,6 +30,7 @@ public class ShareActivity extends AppCompatActivity {
     private Uri fore_uri;
     private Uri back_uri;
     private File dir;
+    public static String KEY_PROVA = "KEY_PROVA";
     public static String KEY_FORE_URI4 = "KEY_FORE_URI4";
     public static String KEY_BACK_URI4 = "KEY_BACK_URI4";
     public static String KEY_VALOR_BARRA_4 = "KEY_VALOR_BARRA_4";
@@ -81,6 +84,9 @@ public class ShareActivity extends AppCompatActivity {
         color_chroma = getIntent().getExtras().getInt(KEY_COLOR_CHROMA_4);
         valors_fore = getIntent().getExtras().getIntArray(KEY_VALORS_FORE_4);
         valors_back = getIntent().getExtras().getIntArray(KEY_VALORS_BACK_4);
+        String prova = getIntent().getExtras().getString(KEY_PROVA);
+
+        Bitmap b = StringToBitMap(prova);
 
         // Recuperacio de dades de quan girem la pantalla
         if (savedInstanceState != null) {
@@ -96,7 +102,8 @@ public class ShareActivity extends AppCompatActivity {
             valors_back = savedInstanceState.getIntArray("back_val");
         }
 
-        ima_final.setImageURI(fore_uri);
+        //ima_final.setImageURI(fore_uri);
+        ima_final.setImageBitmap(b);
 
         // Boto prev
         btn_prev.setOnClickListener(new View.OnClickListener() {
@@ -207,5 +214,16 @@ public class ShareActivity extends AppCompatActivity {
         second = (second.length() == 1) ? "0" + second : second;
 
         return year + "." + month + "." + day + "_" + hour + "." + minute + "." + second + ".jpg";
+    }
+
+    public Bitmap StringToBitMap(String encodedString){
+        try {
+            byte [] encodeByte=Base64.decode(encodedString, Base64.DEFAULT);
+            Bitmap bitmap= BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
+            return bitmap;
+        } catch(Exception e) {
+            e.getMessage();
+            return null;
+        }
     }
 }

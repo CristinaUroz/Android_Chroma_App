@@ -159,21 +159,23 @@ public class ChooseActivity extends AppCompatActivity {
                 File photoFile = new File(fileName);
                 try {
                     photoFile.createNewFile();
+                    if (codi_imatge == 0) {
+                        back_uri = Uri.fromFile(photoFile);
+                        Log.i("cris",back_uri.toString());
+                        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, back_uri);
+                        startActivityForResult(cameraIntent, 1);
+                    } else if (codi_imatge == 1) {
+                        fore_uri = Uri.fromFile(photoFile);
+                        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, fore_uri);
+                        startActivityForResult(cameraIntent, 1);
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                     return;
                 }
-                if (codi_imatge == 0) {
-                    back_uri = Uri.fromFile(photoFile);
-                    Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, back_uri);
-                    startActivityForResult(cameraIntent, 1);
-                } else if (codi_imatge == 1) {
-                    fore_uri = Uri.fromFile(photoFile);
-                    Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, fore_uri);
-                    startActivityForResult(cameraIntent, 1);
-                }
+
             }
         });
 

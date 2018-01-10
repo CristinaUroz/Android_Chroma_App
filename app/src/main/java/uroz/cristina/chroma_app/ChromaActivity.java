@@ -5,12 +5,14 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.graphics.Palette;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -18,6 +20,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.Toast;
+
+import net.margaritov.preference.colorpicker.ColorPickerDialog;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -44,13 +49,15 @@ public class ChromaActivity extends AppCompatActivity {
     public static String KEY_VALOR_BARRA_2 = "KEY_VALOR_BARRA_2";
     public static String KEY_COLOR_CHROMA_2 = "KEY_COLOR_CHROMA_2";
     private int valor_barra;
-    private int color_chroma;
+    private int color_chroma=Color.parseColor("#ffffff");
     private Uri fore_uri;
     private Uri back_uri;
     private Bitmap bitmap;
     private Bitmap bitmap_mutable;
     private int[] pos = new int[2];
     private int[] xy = new int[2];
+
+    private ColorPickerDialog colorPickerDialog;
 
     // Guardem les dades quan girem la pantalla
     @Override
@@ -140,7 +147,7 @@ public class ChromaActivity extends AppCompatActivity {
             public void onStopTrackingTouch(SeekBar seekBar) {
                 Toast.makeText(ChromaActivity.this, String.valueOf(valor_barra), Toast.LENGTH_SHORT).show();
                 if (xy[0]!=-1&&xy[1]!=-1){
-                    change_Color();
+                    change_Color_paleta();
                 }
             }
         });
@@ -183,6 +190,7 @@ public class ChromaActivity extends AppCompatActivity {
         btn_hsl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                colorPicker();
             }
         });
 
@@ -190,13 +198,16 @@ public class ChromaActivity extends AppCompatActivity {
         btn_palete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-              //  mostraPaleta();
+               mostraPaleta();
             }
         });
     }
 
     // Mostra el color principal de la imatge utilitzant Palette
     private void mostraPaleta() {
+
+
+        /*
         Palette.from(bitmap).maximumColorCount(15).generate(new Palette.PaletteAsyncListener() {
             @Override
             public void onGenerated(Palette palette) {
@@ -207,7 +218,7 @@ public class ChromaActivity extends AppCompatActivity {
                 }
             }
         });
-
+*/
         /* FALTA IMPLEMENTAR
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.palette);
@@ -274,9 +285,9 @@ public class ChromaActivity extends AppCompatActivity {
                         int tol = valor_barra;
                         //Mirem si els valors del color es troben dins dels parametres de tolerancia
                         if (alpha(color_chroma) + tol >= alpha(c) &&  alpha(color_chroma) - tol <=alpha(c) &&
-                                    red(color_chroma) + tol >= red(c) &&  red(color_chroma) - tol <=red(c) &&
-                                    blue(color_chroma) + tol >= blue(c) &&  blue(color_chroma) - tol <=blue(c) &&
-                                    green(color_chroma) + tol >= green(c) &&  green(color_chroma) - tol <=green(c)
+                                red(color_chroma) + tol >= red(c) &&  red(color_chroma) - tol <=red(c) &&
+                                blue(color_chroma) + tol >= blue(c) &&  blue(color_chroma) - tol <=blue(c) &&
+                                green(color_chroma) + tol >= green(c) &&  green(color_chroma) - tol <=green(c)
                                 ){
                             bitmap_mutable.setPixel(i, j, android.R.color.transparent);
                         }
@@ -288,6 +299,28 @@ public class ChromaActivity extends AppCompatActivity {
         fore_ima.setImageBitmap(bitmap_mutable);
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
+    }
+
+    public void change_Color_paleta() {
+        reiniciar();
+        if (color_chroma!=android.R.color.transparent) {
+            color_view.setBackgroundColor(color_chroma);
+            for (int i = 0; i < bitmap_mutable.getWidth(); i++) {
+                for (int j = 0; j < bitmap_mutable.getHeight(); j++) {
+                    int c = bitmap_mutable.getPixel(i, j);
+                    int tol = valor_barra;
+                        //Mirem si els valors del color es troben dins dels parametres de tolerancia
+                    if (alpha(color_chroma) + tol >= alpha(c) &&  alpha(color_chroma) - tol <=alpha(c) &&
+                            red(color_chroma) + tol >= red(c) &&  red(color_chroma) - tol <=red(c) &&
+                            blue(color_chroma) + tol >= blue(c) &&  blue(color_chroma) - tol <=blue(c) &&
+                            green(color_chroma) + tol >= green(c) &&  green(color_chroma) - tol <=green(c)
+                            ){
+                        bitmap_mutable.setPixel(i, j, android.R.color.transparent);
+                    }
+                }
+            }
+        }
+        fore_ima.setImageBitmap(bitmap_mutable);
     }
 
     //Per poder editar el bitmap
@@ -353,6 +386,18 @@ public class ChromaActivity extends AppCompatActivity {
         bitmap = BitmapFactory.decodeFile(getRealPathFromURI(getApplicationContext(), fore_uri));
         bitmap_mutable=convertToMutable(bitmap);
         fore_ima.setImageBitmap(bitmap_mutable);
+    }
+
+    public void colorPicker(){
+        colorPickerDialog=new ColorPickerDialog(this, color_chroma);
+        colorPickerDialog.setOnColorChangedListener(new ColorPickerDialog.OnColorChangedListener() {
+            @Override
+            public void onColorChanged(int i) {
+                color_chroma =  i;
+                change_Color_paleta();
+            }
+        });
+        colorPickerDialog.show();
     }
 
 }

@@ -2,7 +2,9 @@ package uroz.cristina.chroma_app;
 
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Environment;
@@ -11,6 +13,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -57,6 +60,8 @@ public class ChromaActivity extends AppCompatActivity {
     private int[] pos = new int[2]; //posicio del imageview
     private int[] xy = new int[2]; //posicio del "click" en el bitmap
     private ColorPickerDialog colorPickerDialog;
+    private int pix; //cadaquants pixels es processara la imatge perqeu no peti lapp
+    private static int pix_max=248000;
 
     // Guardem les dades quan girem la pantalla
     @Override
@@ -126,8 +131,8 @@ public class ChromaActivity extends AppCompatActivity {
         }
 
         // Creacio del bitmap, el bitmap mutable i display a l'imageview
-        iniciar();
 
+        iniciar();
 
         // Accions que s'executaran quan es mogui la barra
         barra_chroma.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -265,7 +270,7 @@ public class ChromaActivity extends AppCompatActivity {
             if (pos[1] < clickY && clickY < (pos[1] + fore_ima.getHeight())) {
                 //trobem la posicio corresponent al bitmap
                 posicio(clickX, clickY);
-                   if (xy[0]>=0&&xy[0]<bitmap.getWidth()&&xy[1]>=0&&xy[1]<bitmap.getHeight()){
+                   if (xy[0]>=0&&xy[0]<bitmap_mutable.getWidth()&&xy[1]>=0&&xy[1]<bitmap_mutable.getHeight()){
                    change_Color();
                 }
             }
@@ -285,11 +290,11 @@ public class ChromaActivity extends AppCompatActivity {
         if (color_chroma!=getResources().getColor(transparent)) {
             //Posem el color en el quadre
             color_view.setBackgroundColor(color_chroma);
+            int tol = valor_barra;
             for (int i = 0; i < bitmap_mutable.getWidth(); i++) {
                 for (int j = 0; j < bitmap_mutable.getHeight(); j++) {
                     if (!(i == xy[0] && j == xy[1])) {
                         int c = bitmap_mutable.getPixel(i, j);
-                        int tol = valor_barra;
                         //Mirem si els valors del color es troben dins dels parametres de tolerancia i tornem el pixel transparent
                         if (alpha(color_chroma) + tol >= alpha(c) &&  alpha(color_chroma) - tol <=alpha(c) &&
                                 red(color_chroma) + tol >= red(c) &&  red(color_chroma) - tol <=red(c) &&
@@ -297,6 +302,7 @@ public class ChromaActivity extends AppCompatActivity {
                                 green(color_chroma) + tol >= green(c) &&  green(color_chroma) - tol <=green(c)
                                 ){
                             bitmap_mutable.setPixel(i, j, getResources().getColor(transparent));
+                            fore_ima.setImageBitmap(bitmap_mutable);
                         }
                     }
                 }
@@ -382,21 +388,26 @@ public class ChromaActivity extends AppCompatActivity {
     //Passa la posicio de la pantalla a la posicio del bitmap
     public void posicio(int clickX, int clickY) {
         fore_ima.getLocationOnScreen(pos);
-        if (bitmap.getHeight()*fore_ima.getWidth()/bitmap.getWidth()<fore_ima.getHeight()) {
+        if (bitmap_mutable.getHeight()*fore_ima.getWidth()/bitmap_mutable.getWidth()<fore_ima.getHeight()) {
             //la imatge ocupa tot lample del imageView
-            xy[0] = (int)( (clickX - pos[0]) * bitmap.getWidth() / fore_ima.getWidth());
-            xy[1]= (int) ((clickY - pos[1]) * bitmap.getWidth() / fore_ima.getWidth() - ((fore_ima.getHeight() * bitmap.getWidth() / fore_ima.getWidth() - bitmap.getHeight()) / 2));
+            xy[0] = (int)( (clickX - pos[0]) * bitmap_mutable.getWidth() / fore_ima.getWidth());
+            xy[1]= (int) ((clickY - pos[1]) * bitmap_mutable.getWidth() / fore_ima.getWidth() - ((fore_ima.getHeight() * bitmap_mutable.getWidth() / fore_ima.getWidth() - bitmap_mutable.getHeight()) / 2));
         } else {
             //la imatge ocupa tota l'alçada del imageView
-            xy[0] = (int) ((clickX - pos[0]) * bitmap.getHeight() / fore_ima.getHeight() - (fore_ima.getWidth() * bitmap.getHeight() / fore_ima.getHeight() - bitmap.getWidth()) / 2);
-            xy[1]= (int) ((clickY - pos[1]) * bitmap.getHeight() / fore_ima.getHeight());
+            xy[0] = (int) ((clickX - pos[0]) * bitmap_mutable.getHeight() / fore_ima.getHeight() - (fore_ima.getWidth() * bitmap_mutable.getHeight() / fore_ima.getHeight() - bitmap_mutable.getWidth()) / 2);
+            xy[1]= (int) ((clickY - pos[1]) * bitmap_mutable.getHeight() / fore_ima.getHeight());
         }
     }
 
     public void iniciar(){
         try {
             bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(),fore_uri);
-            bitmap_mutable=convertToMutable(bitmap);
+            pix= (int) ((bitmap.getHeight()*bitmap.getWidth()/pix_max) + 1);
+            Bitmap resizedBitmap = Bitmap.createScaledBitmap(
+                    bitmap, (int)bitmap.getWidth()/pix, (int)bitmap.getHeight()/pix, false);
+            Log.i ("Cris", "Factor compresio: "+pix+" Sense comprimir:" + bitmap.getWidth()+"x"+bitmap.getHeight()+"| Comprimit:" + resizedBitmap.getWidth()+"x"+resizedBitmap.getHeight());
+            //bitmap_mutable=convertToMutable(bitmap);
+            bitmap_mutable=convertToMutable(resizedBitmap);
             fore_ima.setImageBitmap(bitmap_mutable);
         } catch (IOException e) {
             e.printStackTrace();

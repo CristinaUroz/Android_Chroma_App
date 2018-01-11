@@ -2,7 +2,10 @@ package uroz.cristina.chroma_app;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.PointF;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -10,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -25,14 +29,28 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
 import static android.R.color.transparent;
-import static android.R.color.white;
-import static android.graphics.Color.WHITE;
-import static android.graphics.Color.alpha;
-import static android.graphics.Color.blue;
-import static android.graphics.Color.green;
-import static android.graphics.Color.red;
 
-public class EditActivity extends AppCompatActivity {
+public class EditActivity extends AppCompatActivity implements View.OnTouchListener {
+
+
+    //VARIABLES PEL MOVIMENT
+    // these matrices will be used to move and zoom image
+    private Matrix matrix = new Matrix();
+    private Matrix savedMatrix = new Matrix();
+    // we can be in one of these 3 states
+    private static final int NONE = 0;
+    private static final int DRAG = 1;
+    private static final int ZOOM = 2;
+    private int mode = NONE;
+    // remember some things for zooming
+    private PointF start = new PointF();
+    private PointF mid = new PointF();
+    private float oldDist = 1f;
+    private float d = 0f;
+    private float newRot = 0f;
+    private float[] lastEvent = null;
+
+
     // Declaracio de referencies a elements de la pantalla
     private Button btn_prev, btn_next, btn_fore, btn_back, btn_contrast, btn_brillo, btn_temp, btn_rot, btn_satu, btn_opac;
     private SeekBar barra_edit;
@@ -42,12 +60,14 @@ public class EditActivity extends AppCompatActivity {
     // Variables globals
     private Uri fore_uri;
     private Uri back_uri;
+    public static String KEY_IMA_CHROMA = "KEY_IMA_CHROMA";
     public static String KEY_FORE_URI3 = "KEY_FORE_URI3";
     public static String KEY_BACK_URI3 = "KEY_BACK_URI3";
     public static String KEY_VALOR_BARRA_3 = "KEY_VALOR_BARRA_3";
     public static String KEY_COLOR_CHROMA_3 = "KEY_COLOR_CHROMA_3";
     public static String KEY_VALORS_FORE_3 = "KEY_VALORS_FORE_3";
     public static String KEY_VALORS_BACK_3 = "KEY_VALORS_BACK_3";
+    private String ima_chroma;
     private int valor_barra;
     private int color_chroma;
     private int EDIT_IMAGE_CODE = 0;
@@ -101,11 +121,13 @@ public class EditActivity extends AppCompatActivity {
         ima_mixed = (ImageView) findViewById(R.id.ima_mixed);
         ima_fons = (ImageView) findViewById(R.id.ima_fons);
 
+
         // Recuperacio de dades de quan tornem d'una altra activitat
         fore_uri = Uri.parse(getIntent().getExtras().getString(KEY_FORE_URI3));
         back_uri = Uri.parse(getIntent().getExtras().getString(KEY_BACK_URI3));
         valor_barra = getIntent().getExtras().getInt(KEY_VALOR_BARRA_3);
         color_chroma = getIntent().getExtras().getInt(KEY_COLOR_CHROMA_3);
+        ima_chroma = getIntent().getExtras().getString(KEY_IMA_CHROMA);
 
         // Inicialitzacio del vector dels valors
         if (getIntent().getExtras().get(KEY_VALORS_FORE_3) == null) {
@@ -139,12 +161,22 @@ public class EditActivity extends AppCompatActivity {
 
         //Colocar imatges
         ima_fons.setImageURI(back_uri);
+
+
         try {
             bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(),fore_uri);
             bitmap_mutable=convertToMutable(bitmap);
             bitmap_b = MediaStore.Images.Media.getBitmap(this.getContentResolver(),back_uri);
             bitmap_mutable_b=convertToMutable(bitmap_b);
-            change_Color_paleta();
+            //change_Color_paleta();
+
+            //Fem visible el nou bitmap
+            bitmap_mutable=StringToBitMap(ima_chroma);
+            ima_mixed.setImageBitmap(bitmap_mutable);
+
+            //Habilitar moviment
+            ima_mixed.setOnTouchListener(this);
+            ima_fons.setOnTouchListener(this);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -190,11 +222,12 @@ public class EditActivity extends AppCompatActivity {
                 guardar_imatge_final ();
                 Intent intent = new Intent(EditActivity.this, ShareActivity.class);
                 try {
-                    String prova = BitMapToString(b_final);
+                    String ima_final = BitMapToString(b_final);
                     String back = back_uri.toString();
                     String fore = fore_uri.toString();
                     // Matriu de propietats
-                    intent.putExtra(ShareActivity.KEY_PROVA, prova);
+                    intent.putExtra(ShareActivity.KEY_IMA_CHROMA, ima_chroma);
+                    intent.putExtra(ShareActivity.KEY_IMA_FINAL, ima_final);
                     intent.putExtra(ShareActivity.KEY_BACK_URI4, back);
                     intent.putExtra(ShareActivity.KEY_FORE_URI4, fore);
                     intent.putExtra(ShareActivity.KEY_VALOR_BARRA_4, valor_barra);
@@ -317,25 +350,6 @@ public class EditActivity extends AppCompatActivity {
         t.show();
     }
 
-    public void change_Color_paleta() {
-        for (int i = 0; i < bitmap_mutable.getWidth(); i++) {
-            for (int j = 0; j < bitmap_mutable.getHeight(); j++) {
-                int c = bitmap_mutable.getPixel(i, j);
-                int tol = valor_barra;
-                //Mirem si els valors del color es troben dins dels parametres de tolerancia
-                if (alpha(color_chroma) + tol >= alpha(c) &&  alpha(color_chroma) - tol <=alpha(c) &&
-                        red(color_chroma) + tol >= red(c) &&  red(color_chroma) - tol <=red(c) &&
-                        blue(color_chroma) + tol >= blue(c) &&  blue(color_chroma) - tol <=blue(c) &&
-                        green(color_chroma) + tol >= green(c) &&  green(color_chroma) - tol <=green(c)
-                        ) {
-                    bitmap_mutable.setPixel(i, j, getResources().getColor(transparent));}
-            }
-
-        }
-        //Fem visible el nou bitmap
-        ima_mixed.setImageBitmap(bitmap_mutable);
-    }
-
     //Per poder editar el bitmap - EXTRET DE INTERNET
     public static Bitmap convertToMutable(Bitmap imgIn) {
         try {
@@ -383,30 +397,19 @@ public class EditActivity extends AppCompatActivity {
         return imgIn;
     }
 
-    private void guardar_imatge_final () {
-        int w = ima_mixed.getWidth(), h = ima_mixed.getHeight();
-        Bitmap.Config conf = Bitmap.Config.ARGB_8888; // see other conf types
-        b_final = Bitmap.createBitmap(w, h, conf);
-        b_final=convertToMutable(b_final);
-        for (int i = 0; i < w; i++) {
-            for (int j = 0; j < h; j++) {
-                int c=color(i, j, bitmap_mutable);
-               // int tol = valor_barra;
-                if (c !=getResources().getColor(transparent)
-                      /*  && !(alpha(color_chroma) + tol >= alpha(c) &&  alpha(color_chroma) - tol <=alpha(c) &&
-                        red(color_chroma) + tol >= red(c) &&  red(color_chroma) - tol <=red(c) &&
-                        blue(color_chroma) + tol >= blue(c) &&  blue(color_chroma) - tol <=blue(c) &&
-                        green(color_chroma) + tol >= green(c) &&  green(color_chroma) - tol <=green(c))*/
-                        ) {
-                    b_final.setPixel(i, j, color(i, j, bitmap_mutable));
-                } else {
-                    if (color(i, j, bitmap_mutable_b) != getResources().getColor(transparent)) {
-                        b_final.setPixel(i, j, color(i, j, bitmap_mutable_b));
-                    } else {
-                        b_final.setPixel(i, j, getResources().getColor(white));
-                    }
-                }
-            }
+
+    private void guardar_imatge_final (    ) {
+        try {
+            int[] pos = new int[2];
+            ima_mixed.getLocationOnScreen(pos);
+            // create bitmap screen capture
+            View v1 = getWindow().getDecorView().getRootView();
+            v1.setDrawingCacheEnabled(true);
+            b_final = Bitmap.createBitmap(v1.getDrawingCache());
+            b_final = Bitmap.createBitmap(b_final, pos[0], pos[1], ima_mixed.getWidth(), ima_mixed.getHeight());
+        } catch (Throwable e) {
+            // Several error may come out with file handling or OOM
+            e.printStackTrace();
         }
     }
 
@@ -437,6 +440,137 @@ public class EditActivity extends AppCompatActivity {
         byte [] b=baos.toByteArray();
         String temp=Base64.encodeToString(b, Base64.DEFAULT);
         return temp;
+    }
+
+    public Bitmap StringToBitMap(String encodedString){
+        try {
+            byte [] encodeByte=Base64.decode(encodedString, Base64.DEFAULT);
+            Bitmap bitmap= BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
+            return bitmap;
+        } catch(Exception e) {
+            e.getMessage();
+            return null;
+        }
+    }
+
+    public boolean onTouch(View v, MotionEvent event) {
+
+// handle touch events here
+        ImageView view;
+        if (EDIT_IMAGE_CODE==0){
+        view = (ImageView) v;}
+        else {view = (ImageView) ima_fons;}
+        switch (event.getAction() & MotionEvent.ACTION_MASK) {
+            case MotionEvent.ACTION_DOWN:
+                savedMatrix.set(matrix);
+                start.set(event.getX(), event.getY());
+                mode = DRAG;
+                lastEvent = null;
+                break;
+
+            case MotionEvent.ACTION_POINTER_DOWN:
+
+                oldDist = spacing(event);
+                if (oldDist > 10f) {
+                    savedMatrix.set(matrix);
+                    midPoint(mid, event);
+                    mode = ZOOM;
+                }
+
+                lastEvent = new float[4];
+                lastEvent[0] = event.getX(0);
+                lastEvent[1] = event.getX(1);
+                lastEvent[2] = event.getY(0);
+                lastEvent[3] = event.getY(1);
+                d = rotation(event);
+                break;
+
+            case MotionEvent.ACTION_UP:
+
+            case MotionEvent.ACTION_POINTER_UP:
+
+                mode = NONE;
+                lastEvent = null;
+                break;
+
+            case MotionEvent.ACTION_MOVE:
+
+                if (mode == DRAG) {
+
+                    matrix.set(savedMatrix);
+                    float dx = event.getX() - start.x;
+                    float dy = event.getY() - start.y;
+                    matrix.postTranslate(dx, dy);
+
+                } else if (mode == ZOOM) {
+                    float newDist = spacing(event);
+
+                    if (newDist > 10f) {
+
+                        matrix.set(savedMatrix);
+                        float scale = (newDist / oldDist);
+                        matrix.postScale(scale, scale, mid.x, mid.y);
+
+                    }
+
+                    if (lastEvent != null && event.getPointerCount() == 3) {
+
+                        newRot = rotation(event);
+                        float r = newRot - d;
+                        float[] values = new float[9];
+                        matrix.getValues(values);
+                        float tx = values[2];
+                        float ty = values[5];
+                        float sx = values[0];
+                        float xc = (view.getWidth() / 2) * sx;
+                        float yc = (view.getHeight() / 2) * sx;
+                        matrix.postRotate(r, tx + xc, ty + yc);
+
+                    }
+                }
+                break;
+        }
+        view.setImageMatrix(matrix);
+        return true;
+    }
+
+    /**
+     * Determine the space between the first two fingers
+     */
+
+    private float spacing(MotionEvent event) {
+
+        float x = event.getX(0) - event.getX(1);
+        float y = event.getY(0) - event.getY(1);
+        return (float) Math.sqrt(x * x + y * y);
+
+    }
+
+    /**
+     * Calculate the mid point of the first two fingers
+     */
+
+    private void midPoint(PointF point, MotionEvent event) {
+
+        float x = event.getX(0) + event.getX(1);
+        float y = event.getY(0) + event.getY(1);
+        point.set(x / 2, y / 2);
+    }
+
+    /**
+     * Calculate the degree to be rotated by.
+     *
+     * @param event
+     * @return Degrees
+     */
+
+    private float rotation(MotionEvent event) {
+
+        double delta_x = (event.getX(0) - event.getX(1));
+        double delta_y = (event.getY(0) - event.getY(1));
+        double radians = Math.atan2(delta_y, delta_x);
+        return (float) Math.toDegrees(radians);
+
     }
 
 }

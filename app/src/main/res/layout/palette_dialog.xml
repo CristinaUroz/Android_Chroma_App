@@ -22,24 +22,6 @@
         android:background="#0000ff" />
 
     <Button
-        android:id="@+id/btn_y"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#ffff00" />
-
-    <Button
-        android:id="@+id/btn_p"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#ff00ff" />
-
-    <Button
-        android:id="@+id/btn_t"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#00ffff" />
-
-    <Button
         android:id="@+id/btn_white"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

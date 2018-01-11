@@ -30,7 +30,8 @@ public class ShareActivity extends AppCompatActivity {
     private Uri fore_uri;
     private Uri back_uri;
     private File dir;
-    public static String KEY_PROVA = "KEY_PROVA";
+    public static String KEY_IMA_CHROMA = "KEY_IMA_CHROMA";
+    public static String KEY_IMA_FINAL = "KEY_IMA_FINAL";
     public static String KEY_FORE_URI4 = "KEY_FORE_URI4";
     public static String KEY_BACK_URI4 = "KEY_BACK_URI4";
     public static String KEY_VALOR_BARRA_4 = "KEY_VALOR_BARRA_4";
@@ -39,6 +40,7 @@ public class ShareActivity extends AppCompatActivity {
     public static String KEY_VALORS_BACK_4 = "KEY_VALORS_BACK_4";
     private String image_name = getPhotoName(); // Inclou '.jpg'
     private String image_dir = "/ChromAppPhotos/SavedPhotos/";
+    private String ima_chroma;
     private int valor_barra;
     private int color_chroma;
 
@@ -59,6 +61,7 @@ public class ShareActivity extends AppCompatActivity {
         outState.putInt("color_chroma", color_chroma);
         outState.putIntArray("fore_val", valors_fore);
         outState.putIntArray("back_val", valors_back);
+        outState.putString("ima_chroma", ima_chroma);
     }
 
     @Override
@@ -84,9 +87,10 @@ public class ShareActivity extends AppCompatActivity {
         color_chroma = getIntent().getExtras().getInt(KEY_COLOR_CHROMA_4);
         valors_fore = getIntent().getExtras().getIntArray(KEY_VALORS_FORE_4);
         valors_back = getIntent().getExtras().getIntArray(KEY_VALORS_BACK_4);
-        String prova = getIntent().getExtras().getString(KEY_PROVA);
+        ima_chroma = getIntent().getExtras().getString(KEY_IMA_CHROMA);
+        String ima_fin = getIntent().getExtras().getString(KEY_IMA_FINAL);
 
-        Bitmap b = StringToBitMap(prova);
+        Bitmap b = StringToBitMap(ima_fin);
 
         // Recuperacio de dades de quan girem la pantalla
         if (savedInstanceState != null) {
@@ -100,6 +104,7 @@ public class ShareActivity extends AppCompatActivity {
             color_chroma = savedInstanceState.getInt("color_chroma");
             valors_fore = savedInstanceState.getIntArray("fore_val");
             valors_back = savedInstanceState.getIntArray("back_val");
+            ima_chroma = savedInstanceState.getString("ima_chroma");
         }
 
         //ima_final.setImageURI(fore_uri);
@@ -112,6 +117,7 @@ public class ShareActivity extends AppCompatActivity {
                 Intent intent = new Intent(ShareActivity.this, EditActivity.class);
                 String back = back_uri.toString();
                 String fore = fore_uri.toString();
+                intent.putExtra(EditActivity.KEY_IMA_CHROMA, ima_chroma);
                 intent.putExtra(EditActivity.KEY_FORE_URI3, fore);
                 intent.putExtra(EditActivity.KEY_BACK_URI3, back);
                 intent.putExtra(EditActivity.KEY_VALOR_BARRA_3, valor_barra);

@@ -10,6 +10,7 @@ import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -20,6 +21,7 @@ import android.widget.Toast;
 
 import net.margaritov.preference.colorpicker.ColorPickerDialog;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -27,6 +29,7 @@ import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
+import static android.R.color.transparent;
 import static android.graphics.Color.alpha;
 import static android.graphics.Color.blue;
 import static android.graphics.Color.green;
@@ -165,10 +168,12 @@ public class ChromaActivity extends AppCompatActivity {
         btn_next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                String ima_chroma = BitMapToString(bitmap_mutable);
                 Intent intent = new Intent(ChromaActivity.this, EditActivity.class);
                 try {
                     String back = back_uri.toString();
                     String fore = fore_uri.toString();
+                    intent.putExtra(EditActivity.KEY_IMA_CHROMA, ima_chroma);
                     intent.putExtra(EditActivity.KEY_BACK_URI3, back);
                     intent.putExtra(EditActivity.KEY_FORE_URI3, fore);
                     intent.putExtra(EditActivity.KEY_VALOR_BARRA_3, valor_barra);
@@ -199,9 +204,6 @@ public class ChromaActivity extends AppCompatActivity {
                 Button btn_r = (Button) pView.findViewById(R.id.btn_r);
                 Button btn_g = (Button) pView.findViewById(R.id.btn_g);
                 Button btn_b = (Button) pView.findViewById(R.id.btn_b);
-                Button btn_y = (Button) pView.findViewById(R.id.btn_y);
-                Button btn_p = (Button) pView.findViewById(R.id.btn_p);
-                Button btn_t = (Button) pView.findViewById(R.id.btn_t);
                 Button btn_white = (Button) pView.findViewById(R.id.btn_white);
                 Button btn_black = (Button) pView.findViewById(R.id.btn_black);
                 pBuilder.setView(pView);
@@ -225,27 +227,6 @@ public class ChromaActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         color_chroma=Color.parseColor("#0000ff");
-                        change_Color_paleta();
-                    }
-                });
-                btn_y.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        color_chroma=Color.parseColor("#ffff00");
-                        change_Color_paleta();
-                    }
-                });
-                btn_p.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        color_chroma=Color.parseColor("#ff00ff");
-                        change_Color_paleta();
-                    }
-                });
-                btn_t.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        color_chroma=Color.parseColor("#00ffff");
                         change_Color_paleta();
                     }
                 });
@@ -301,7 +282,7 @@ public class ChromaActivity extends AppCompatActivity {
         iniciar();
         //guardem el color del pixel clickat del bitmap per compararlo amb la resta
         color_chroma= bitmap_mutable.getPixel(xy[0], xy[1]);
-        if (color_chroma!=android.R.color.transparent) {
+        if (color_chroma!=getResources().getColor(transparent)) {
             //Posem el color en el quadre
             color_view.setBackgroundColor(color_chroma);
             for (int i = 0; i < bitmap_mutable.getWidth(); i++) {
@@ -315,13 +296,13 @@ public class ChromaActivity extends AppCompatActivity {
                                 blue(color_chroma) + tol >= blue(c) &&  blue(color_chroma) - tol <=blue(c) &&
                                 green(color_chroma) + tol >= green(c) &&  green(color_chroma) - tol <=green(c)
                                 ){
-                            bitmap_mutable.setPixel(i, j, android.R.color.transparent);
+                            bitmap_mutable.setPixel(i, j, getResources().getColor(transparent));
                         }
                     }
                 }
             }
         }
-        bitmap_mutable.setPixel(xy[0], xy[1], android.R.color.transparent);
+        bitmap_mutable.setPixel(xy[0], xy[1], getResources().getColor(transparent));
         //Fem visible el nou bitmap
         fore_ima.setImageBitmap(bitmap_mutable);
         //habilitem poder tornar a tocar a la pantalla
@@ -343,7 +324,7 @@ public class ChromaActivity extends AppCompatActivity {
                         blue(color_chroma) + tol >= blue(c) &&  blue(color_chroma) - tol <=blue(c) &&
                         green(color_chroma) + tol >= green(c) &&  green(color_chroma) - tol <=green(c)
                         ){
-                    bitmap_mutable.setPixel(i, j, android.R.color.transparent);
+                    bitmap_mutable.setPixel(i, j, getResources().getColor(transparent));
                 }
             }
 
@@ -434,6 +415,16 @@ public class ChromaActivity extends AppCompatActivity {
         colorPickerDialog.show();
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
     }
+
+    public String BitMapToString(Bitmap bitmap){
+        ByteArrayOutputStream baos=new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG,100, baos);
+        byte [] b=baos.toByteArray();
+        String temp= Base64.encodeToString(b, Base64.DEFAULT);
+        return temp;
+    }
+
+
 }
 
 

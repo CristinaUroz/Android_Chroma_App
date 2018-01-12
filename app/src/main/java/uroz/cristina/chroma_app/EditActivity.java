@@ -3,8 +3,10 @@ package uroz.cristina.chroma_app;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.graphics.PointF;
 import android.net.Uri;
 import android.os.Environment;
@@ -56,6 +58,7 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
     private SeekBar barra_edit;
     private ImageView ima_mixed;
     private ImageView ima_fons;
+    private ImageView ima_restart;
 
     // Variables globals
     private Uri fore_uri;
@@ -120,6 +123,7 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
         barra_edit = (SeekBar) findViewById(R.id.selection_bar);
         ima_mixed = (ImageView) findViewById(R.id.ima_mixed);
         ima_fons = (ImageView) findViewById(R.id.ima_fons);
+        ima_restart = (ImageView) findViewById(R.id.restart);
 
 
         // Recuperacio de dades de quan tornem d'una altra activitat
@@ -136,6 +140,8 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
                     valors_editables[i][j] = 50;
                 }
             }
+            valors_editables[1][5] = 0;
+            valors_editables[0][5] = 0;
         } else {
             valors_editables[0] = getIntent().getExtras().getIntArray(KEY_VALORS_FORE_3);
             valors_editables[1] = getIntent().getExtras().getIntArray(KEY_VALORS_BACK_3);
@@ -154,6 +160,8 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
             valors_editables[0] = savedInstanceState.getIntArray("fore_val");
             valors_editables[1] = savedInstanceState.getIntArray("back_val");
         }
+
+
 
         // Configuracio de la barra
         barra_edit.setMax(100);
@@ -181,12 +189,23 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
             e.printStackTrace();
         }
         changeButtonTextColor();
+        Bitmap aux;
+        aux=all_transformations(bitmap_mutable,0);
+        ima_mixed.setImageBitmap(aux);
+        aux=all_transformations(bitmap_mutable_b,1);
+        ima_fons.setImageBitmap(aux);
 
         // Accions que s'executaran quan es mogui la barra
         barra_edit.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 valors_editables[EDIT_IMAGE_CODE][EDIT_VARIABLE_CODE] = i;
+                Bitmap aux;
+                if (EDIT_IMAGE_CODE==0){
+                aux = all_transformations(bitmap_mutable,EDIT_IMAGE_CODE);
+                    ima_mixed.setImageBitmap(aux);}
+                else {aux= all_transformations(bitmap_mutable_b,EDIT_IMAGE_CODE);
+                    ima_fons.setImageBitmap(aux);}
             }
 
             @Override
@@ -321,6 +340,24 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
                 changeButtonTextColor();
             }
         });
+        ima_restart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                for (int i = 0; i < 2; i++) {
+                    for (int j = 0; j < 6; j++) {
+                        valors_editables[i][j] = 50;
+                    }
+                }
+                valors_editables[1][5] = 0;
+                valors_editables[0][5] = 0;
+                Bitmap aux;
+                if (EDIT_IMAGE_CODE==0){
+                    aux = all_transformations(bitmap_mutable,EDIT_IMAGE_CODE);
+                    ima_mixed.setImageBitmap(aux);}
+                else {aux= all_transformations(bitmap_mutable_b,EDIT_IMAGE_CODE);
+                    ima_fons.setImageBitmap(aux);}
+            }
+        });
     }
 
     // Cambia el color del text del boto per saber que s'esta editant
@@ -396,7 +433,6 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
 
         return imgIn;
     }
-
 
     private void guardar_imatge_final (    ) {
         try {
@@ -572,5 +608,265 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
         return (float) Math.toDegrees(radians);
 
     }
+
+    /**
+    private Bitmap contrast (Bitmap bitmap, int EDIT_IMAGE_CODE){
+        double val = (valors_editables[EDIT_IMAGE_CODE][0])/50 ;
+        int mPhotoWidth = bitmap.getWidth();
+        int mPhotoHeight = bitmap.getHeight();
+        int[] pix = new int[mPhotoWidth * mPhotoHeight];
+        bitmap.getPixels(pix, 0, mPhotoWidth, 0, 0, mPhotoWidth, mPhotoHeight);
+
+        int r, g, b, index;
+        int RY, BY, R, G, B, Y;
+
+        for (int y = 0; y < mPhotoHeight; y++) {
+            for (int x = 0; x < mPhotoWidth; x++) {
+                index = y * mPhotoWidth + x;
+                if(pix[index]!= getResources().getColor(transparent)){
+                //Extreiem els components rgb
+                r = (pix[index] >> 16) & 0xff;
+                g = (pix[index] >> 8) & 0xff;
+                b = pix[index] & 0xff;
+                //Lluminancia Cr Cb?
+                RY = (70 * r - 59 * g - 11 * b) / 100;
+                BY = (-30 * r - 59 * g + 89 * b) / 100;
+                Y = (30 * r + 59 * g + 11 * b) / 100;
+                //Transformaciona
+                double aux = (double) Y;
+                aux=(aux-255/2)*val + 255/2;
+                Y=(int)aux;
+                //Obtenim RGB
+                R = Y + RY;
+                R = (R < 0) ? 0 : ((R > 255) ? 255 : R);
+                G = Y + (-51 * RY - 19 * BY) / 100;
+                G = (G < 0) ? 0 : ((G > 255) ? 255 : G);
+                B = Y + BY;
+                B = (B < 0) ? 0 : ((B > 255) ? 255 : B);
+                pix[index] = 0xff000000 | (R << 16) | (G << 8) | B;}
+            }
+        }
+        Bitmap bm = Bitmap.createBitmap(mPhotoWidth, mPhotoHeight, Bitmap.Config.ARGB_8888);
+        bm.setPixels(pix, 0, mPhotoWidth, 0, 0, mPhotoWidth, mPhotoHeight);
+        return bm;
+    }
+    private Bitmap bright(Bitmap bitmap, int EDIT_IMAGE_CODE){
+
+        int val = (valors_editables[EDIT_IMAGE_CODE][1]-50)*2;
+        int mPhotoWidth = bitmap.getWidth();
+        int mPhotoHeight = bitmap.getHeight();
+        int[] pix = new int[mPhotoWidth * mPhotoHeight];
+        bitmap.getPixels(pix, 0, mPhotoWidth, 0, 0, mPhotoWidth, mPhotoHeight);
+        int r, g, b, index;
+        int RY, BY, R, G, B, Y;
+
+        for (int y = 0; y < mPhotoHeight; y++) {
+            for (int x = 0; x < mPhotoWidth; x++) {
+
+                index = y * mPhotoWidth + x;
+                if(pix[index] != getResources().getColor(transparent)){
+                //Extreiem els components rgb
+                r = (pix[index] >> 16) & 0xff;
+                g = (pix[index] >> 8) & 0xff;
+                b = pix[index] & 0xff;
+                //Lluminancia Cr Cb?
+                RY = (70 * r - 59 * g - 11 * b) / 100;
+                BY = (-30 * r - 59 * g + 89 * b) / 100;
+                Y = (30 * r + 59 * g + 11 * b) / 100;
+                //Transformaciona
+                Y=Y+val;
+                //Obtenim RGB
+                R = Y + RY;
+                R = (R < 0) ? 0 : ((R > 255) ? 255 : R);
+                G = Y + (-51 * RY - 19 * BY) / 100;
+                G = (G < 0) ? 0 : ((G > 255) ? 255 : G);
+                B = Y + BY;
+                B = (B < 0) ? 0 : ((B > 255) ? 255 : B);
+                pix[index] = 0xff000000 | (R << 16) | (G << 8) | B;}
+                else {pix[index]=transparent;}
+            }
+        }
+
+        Bitmap bm = Bitmap.createBitmap(mPhotoWidth, mPhotoHeight, Bitmap.Config.ARGB_8888);
+        bm.setPixels(pix, 0, mPhotoWidth, 0, 0, mPhotoWidth, mPhotoHeight);
+        return bm;
+    }
+    private Bitmap warmth (Bitmap bitmap, int EDIT_IMAGE_CODE){
+        int val = (valors_editables[EDIT_IMAGE_CODE][2]-50)*5;
+        int mPhotoWidth = bitmap.getWidth();
+        int mPhotoHeight = bitmap.getHeight();
+        int[] pix = new int[mPhotoWidth * mPhotoHeight];
+        bitmap.getPixels(pix, 0, mPhotoWidth, 0, 0, mPhotoWidth, mPhotoHeight);
+        int r, g, b, index;
+        int  R, B;
+        for (int y = 0; y < mPhotoHeight; y++) {
+            for (int x = 0; x < mPhotoWidth; x++) {
+                index = y * mPhotoWidth + x;
+                if(pix[index]!= getResources().getColor(transparent)){
+                //Extreiem els components rgb
+                r = (pix[index] >> 16) & 0xff;
+                g = (pix[index] >> 8) & 0xff;
+                b = pix[index] & 0xff;
+
+                //Transformem R i G
+                R = r+val;
+                R = (R < 0) ? 0 : ((R > 255) ? 255 : R);
+                B = b-val;
+                B = (B < 0) ? 0 : ((B > 255) ? 255 : B);
+
+                pix[index] = 0xff000000 | (R << 16) | (g << 8) | B;}
+            }
+        }
+
+        Bitmap bm = Bitmap.createBitmap(mPhotoWidth, mPhotoHeight, Bitmap.Config.ARGB_8888);
+        bm.setPixels(pix, 0, mPhotoWidth, 0, 0, mPhotoWidth, mPhotoHeight);
+
+        return bm;}
+    private Bitmap rotation (Bitmap bitmap, int EDIT_IMAGE_CODE){
+
+        int val = (int) ((valors_editables[EDIT_IMAGE_CODE][3]-50)*2*1.8);
+
+
+        Matrix matrix = new Matrix();
+
+        matrix.postRotate(val);
+
+        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap,bitmap.getWidth(),bitmap.getHeight(),true);
+        Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap , 0, 0, scaledBitmap .getWidth(), scaledBitmap .getHeight(), matrix, true);
+
+        return rotatedBitmap;
+    }
+    private Bitmap saturation (Bitmap bitmap, int EDIT_IMAGE_CODE){
+        int val = (valors_editables[EDIT_IMAGE_CODE][4])/50;
+        // get image size
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        int[] pixels = new int[width * height];
+        float[] HSV = new float[3];
+        // get pixel array from source
+        bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+
+        int index = 0;
+        // iteration through pixels
+        for(int y = 0; y < height; ++y) {
+            for(int x = 0; x < width; ++x) {
+
+                // get current index in 2D-matrix
+                index = y * width + x;
+                // convert to HSV
+                Color.colorToHSV(pixels[index], HSV);
+                // increase Saturation level
+                HSV[1] *= val;
+                HSV[1] = (float) Math.max(0.0, Math.min(HSV[1], 1.0));
+                // take color back
+                pixels[index] |= Color.HSVToColor(HSV);
+            }
+        }
+        // output bitmap
+        Bitmap bmOut = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        bmOut.setPixels(pixels, 0, width, 0, 0, width, height);
+        return bmOut;
+    }
+    private Bitmap opacity (Bitmap bitmap, int EDIT_IMAGE_CODE ){
+        int val= (int)-(valors_editables[EDIT_IMAGE_CODE][5]*2.55 - 255);
+        Bitmap bitmap2 = makeTransparent(bitmap, val);
+        return bitmap2;}
+    private Bitmap all (Bitmap bm, int EDIT_IMAGE_CODE){
+          Bitmap bitmap=bm;
+          bitmap = contrast(bitmap, EDIT_IMAGE_CODE);
+          bitmap = warmth(bitmap, EDIT_IMAGE_CODE);
+          bitmap = saturation(bitmap, EDIT_IMAGE_CODE);
+          bitmap = bright(bitmap, EDIT_IMAGE_CODE);
+          bitmap = rotation(bitmap, EDIT_IMAGE_CODE);
+        bitmap = opacity(bitmap, EDIT_IMAGE_CODE);
+        return bitmap;
+    }
+*/
+
+    private Bitmap all_transformations (Bitmap bmap, int EDIT_IMAGE_CODE){
+        Bitmap bitmap=bmap;
+
+        double val_contrast = (double)(valors_editables[EDIT_IMAGE_CODE][0])/50;
+        int val_bright = (valors_editables[EDIT_IMAGE_CODE][1]-50)*2;
+        int val_warmth = (valors_editables[EDIT_IMAGE_CODE][2]-50)*5;
+        int val_rotation = (int) ((valors_editables[EDIT_IMAGE_CODE][3]-50)*2*1.8);
+        double val_saturation = (double)(valors_editables[EDIT_IMAGE_CODE][4])/50;
+        int val_opacity= (int)-((double)valors_editables[EDIT_IMAGE_CODE][5]*2.55 - 255);
+
+        int mPhotoWidth = bitmap.getWidth();
+        int mPhotoHeight = bitmap.getHeight();
+        int[] pix = new int[mPhotoWidth * mPhotoHeight];
+        bitmap.getPixels(pix, 0, mPhotoWidth, 0, 0, mPhotoWidth, mPhotoHeight);
+        int trans=getResources().getColor(transparent);
+        int r, g, b, index;
+        int RY, BY, R, G, B, Y;
+        for (int y = 0; y < mPhotoHeight; y++) {
+            for (int x = 0; x < mPhotoWidth; x++) {
+                index = y * mPhotoWidth + x;
+                if(pix[index]!=trans){
+                    //Extreiem els components rgb
+                    r = (pix[index] >> 16) & 0xff;
+                    g = (pix[index] >> 8) & 0xff;
+                    b = pix[index] & 0xff;
+
+                    //Temperatura i saturacio
+                    RY = (int)((((70 * r - 59 * g - 11 * b) / 100)+ val_warmth)*val_saturation);
+                    BY = (int)((((-30 * r - 59 * g + 89 * b) / 100)- val_warmth)*val_saturation);
+
+                    Y = (30 * r + 59 * g + 11 * b) / 100;
+                    //Transformacio contrast
+                    double aux = (double) Y;
+                    aux=(aux-255/2)*val_contrast + 255/2;
+                    Y=(int)aux;
+
+                    //Transformació brillo
+                    Y=Y+val_bright;
+
+                    //Obtenim RGB
+                    R = Y + RY;
+                    R = (R < 0) ? 0 : ((R > 255) ? 255 : R);
+                    G = Y + (-51 * RY - 19 * BY) / 100;
+                    G = (G < 0) ? 0 : ((G > 255) ? 255 : G);
+                    B = Y + BY;
+                    B = (B < 0) ? 0 : ((B > 255) ? 255 : B);
+
+                    //RGB a exadecimal
+                    pix[index] = 0xff000000 | (R << 16) | (G << 8) | B;
+
+
+
+                }
+                else {pix[index]=transparent;}
+
+            }
+        }
+        Bitmap bm = Bitmap.createBitmap(mPhotoWidth, mPhotoHeight, Bitmap.Config.ARGB_8888);
+        bm.setPixels(pix, 0, mPhotoWidth, 0, 0, mPhotoWidth, mPhotoHeight);
+
+
+
+        Matrix matrix = new Matrix();
+        matrix.postRotate(val_rotation);
+        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bm,bitmap.getWidth(),bitmap.getHeight(),true);
+        Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap , 0, 0, scaledBitmap .getWidth(), scaledBitmap .getHeight(), matrix, true);
+
+        Bitmap bitmap_final = makeTransparent(rotatedBitmap, val_opacity);
+        return bitmap_final;
+    }
+
+
+    public Bitmap makeTransparent(Bitmap src, int value) {
+        int width = src.getWidth();
+        int height = src.getHeight();
+        Bitmap transBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(transBitmap);
+        canvas.drawARGB(0, 0, 0, 0);
+        // config paint
+        final Paint paint = new Paint();
+        paint.setAlpha(value);
+        canvas.drawBitmap(src, 0, 0, paint);
+        return transBitmap;
+    }
+
 
 }

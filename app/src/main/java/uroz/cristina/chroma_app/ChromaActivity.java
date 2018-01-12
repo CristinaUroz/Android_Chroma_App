@@ -2,9 +2,7 @@ package uroz.cristina.chroma_app;
 
 
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Environment;
@@ -33,10 +31,10 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
 import static android.R.color.transparent;
-import static android.graphics.Color.alpha;
-import static android.graphics.Color.blue;
-import static android.graphics.Color.green;
-import static android.graphics.Color.red;
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
+
+//TODO: WAITING VISIBILITY
 
 public class ChromaActivity extends AppCompatActivity {
     // Declaracio de referencies a elements de la pantalla
@@ -45,14 +43,16 @@ public class ChromaActivity extends AppCompatActivity {
 
     private ImageView fore_ima;
     private ImageView color_view;
+    private ImageView revert;
+    private ImageView waiting;
 
     // Variables globals
     public static String KEY_FORE_URI2 = "KEY_FORE_URI2";
     public static String KEY_BACK_URI2 = "KEY_BACK_URI2";
     public static String KEY_VALOR_BARRA_2 = "KEY_VALOR_BARRA_2";
     public static String KEY_COLOR_CHROMA_2 = "KEY_COLOR_CHROMA_2";
-    private int valor_barra;
-    private int color_chroma;
+    private int valor_barra=0;
+    private int color_chroma=0;
     private Uri fore_uri;
     private Uri back_uri;
     private Bitmap bitmap;
@@ -61,7 +61,8 @@ public class ChromaActivity extends AppCompatActivity {
     private int[] xy = new int[2]; //posicio del "click" en el bitmap
     private ColorPickerDialog colorPickerDialog;
     private int pix; //cadaquants pixels es processara la imatge perqeu no peti lapp
-    private static int pix_max=248000;
+    private static int pix_max=480000;
+    private int recuperat =0;
 
     // Guardem les dades quan girem la pantalla
     @Override
@@ -75,11 +76,14 @@ public class ChromaActivity extends AppCompatActivity {
         }
         outState.putInt("valor_barra", valor_barra);
         outState.putInt("color_chroma", color_chroma);
+        recuperat=1;
+        outState.putInt("recuperat", recuperat);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.chroma_activity);
 
         // Obtencio de referencies a elements de la pantalla
@@ -90,6 +94,10 @@ public class ChromaActivity extends AppCompatActivity {
         barra_chroma = (SeekBar) findViewById(R.id.tolerance_bar);
         fore_ima = (ImageView) findViewById(R.id.ima_fore2);
         color_view = (ImageView) findViewById(R.id.color_view);
+        revert=(ImageView) findViewById(R.id.revert);
+        waiting=(ImageView) findViewById(R.id.waiting);
+
+        waiting.setVisibility(INVISIBLE);
 
         // Recuperacio de dades de quan tornem d'una altra activitat
         fore_uri = Uri.parse(getIntent().getExtras().getString(KEY_FORE_URI2));
@@ -100,7 +108,7 @@ public class ChromaActivity extends AppCompatActivity {
         xy[1]=-1;
 
         //iniciem el chroma a blanc
-        color_chroma=Color.parseColor("#ffffff");
+        //color_chroma=Color.parseColor("#ffffff");
 
         // Recuperacio de dades de quan girem la pantalla
         if (savedInstanceState != null) {
@@ -112,6 +120,7 @@ public class ChromaActivity extends AppCompatActivity {
             }
             valor_barra = savedInstanceState.getInt("valor_barra");
             color_chroma = savedInstanceState.getInt("color_chroma");
+            recuperat = savedInstanceState.getInt("recuperat");
         }
 
         // Configuracio de la barra
@@ -119,20 +128,25 @@ public class ChromaActivity extends AppCompatActivity {
 
         if (getIntent().getExtras().get(KEY_VALOR_BARRA_2) != null) {
             valor_barra = getIntent().getExtras().getInt(KEY_VALOR_BARRA_2);
-        } else {
-            valor_barra = 0;
         }
         barra_chroma.setProgress(valor_barra);
 
         if (getIntent().getExtras().get(KEY_COLOR_CHROMA_2) != null) {
             color_chroma = getIntent().getExtras().getInt(KEY_COLOR_CHROMA_2);
-        } else {
-            color_chroma = 0;
         }
 
         // Creacio del bitmap, el bitmap mutable i display a l'imageview
-
         iniciar();
+        change_Color();
+
+        revert.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                valor_barra = 0;
+                color_chroma = 0;
+                iniciar();
+            }
+        });
 
         // Accions que s'executaran quan es mogui la barra
         barra_chroma.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -148,9 +162,13 @@ public class ChromaActivity extends AppCompatActivity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
+                waiting.setVisibility(VISIBLE);
+                getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, //Per fer que no es pugui tornar a premer mentre sesta executant
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                 Toast.makeText(ChromaActivity.this, String.valueOf(valor_barra), Toast.LENGTH_SHORT).show();
                 if (xy[0]!=-1&&xy[1]!=-1){
-                    change_Color_paleta();
+                    iniciar();
+                    change_Color();
                 }
             }
         });
@@ -211,42 +229,64 @@ public class ChromaActivity extends AppCompatActivity {
                 Button btn_b = (Button) pView.findViewById(R.id.btn_b);
                 Button btn_white = (Button) pView.findViewById(R.id.btn_white);
                 Button btn_black = (Button) pView.findViewById(R.id.btn_black);
+
                 pBuilder.setView(pView);
                 AlertDialog dialog = pBuilder.create();
                 dialog.show();
                 btn_r.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        waiting.setVisibility(VISIBLE);
+                        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, //Per fer que no es pugui tornar a premer mentre sesta executant
+                                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                         color_chroma=Color.parseColor("#ff0000");
-                        change_Color_paleta();
+
+                        iniciar();
+                        change_Color();
                     }
                 });
                 btn_g.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        waiting.setVisibility(VISIBLE);
+                        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, //Per fer que no es pugui tornar a premer mentre sesta executant
+                                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                         color_chroma=Color.parseColor("#00ff00");
-                        change_Color_paleta();
+                        iniciar();
+                        change_Color();
                     }
                 });
                 btn_b.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        waiting.setVisibility(VISIBLE);
+                        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, //Per fer que no es pugui tornar a premer mentre sesta executant
+                                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                         color_chroma=Color.parseColor("#0000ff");
-                        change_Color_paleta();
+                        iniciar();
+                        change_Color();
                     }
                 });
                 btn_white.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        waiting.setVisibility(VISIBLE);
+                        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, //Per fer que no es pugui tornar a premer mentre sesta executant
+                                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                         color_chroma=Color.parseColor("#ffffff");
-                        change_Color_paleta();
+                        iniciar();
+                        change_Color();
                     }
                 });
                 btn_black.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        waiting.setVisibility(VISIBLE);
+                        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, //Per fer que no es pugui tornar a premer mentre sesta executant
+                                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                         color_chroma=Color.parseColor("#000000");
-                        change_Color_paleta();
+                        iniciar();
+                        change_Color();
                     }
                 });
             }
@@ -255,14 +295,16 @@ public class ChromaActivity extends AppCompatActivity {
 
         // Quan toquem la el ImageView
     public boolean onTouchEvent(MotionEvent arg1) {
+        waiting.setVisibility(VISIBLE);
         //Deshabilitem que es pugui tornar a tocar la pantalla fins acabar la funcio
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, //Per fer que no es pugui tornar a premer mentre sesta executant
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-        // arg1: posicio de la pantalla on es fa click
-        // pos: posicio de la cantonada superior esquerra de fore_ima a la pantalla
-        // fore_ima.getWidth() i getHeight(): alt i ample de fore_ima
-        // bitmap.getWidth() i getHeight(): alt i ample de la imatge
-        //bitmap_mutable=bitmap_mutable_aux;
+        /** arg1: posicio de la pantalla on es fa click
+            pos: posicio de la cantonada superior esquerra de fore_ima a la pantalla
+            fore_ima.getWidth() i getHeight(): alt i ample de fore_ima
+            bitmap.getWidth() i getHeight(): alt i ample de la imatge
+            bitmap_mutable=bitmap_mutable_aux;
+         **/
         int clickX = (int) arg1.getX();
         int clickY = (int) arg1.getY();
         //mirem que el click estigui dins l'imageview
@@ -271,8 +313,17 @@ public class ChromaActivity extends AppCompatActivity {
                 //trobem la posicio corresponent al bitmap
                 posicio(clickX, clickY);
                    if (xy[0]>=0&&xy[0]<bitmap_mutable.getWidth()&&xy[1]>=0&&xy[1]<bitmap_mutable.getHeight()){
-                   change_Color();
-                }
+                       // Tornem a iniciar el bitmap per seleccionar un nou color
+                       iniciar();
+                       //guardem el color del pixel clickat del bitmap per compararlo amb la resta
+                       color_chroma= bitmap_mutable.getPixel(xy[0], xy[1]);
+                        change_Color();
+                }else{
+                       getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                   }
+            }
+            else{
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
             }
         }
         else{
@@ -281,61 +332,44 @@ public class ChromaActivity extends AppCompatActivity {
         return true;
     }
 
-    //Posar els pixels del mateix color a transparent
     public void change_Color() {
-        // Tornem a iniciar el bitmap per seleccionar un nou color
-        iniciar();
-        //guardem el color del pixel clickat del bitmap per compararlo amb la resta
-        color_chroma= bitmap_mutable.getPixel(xy[0], xy[1]);
-        if (color_chroma!=getResources().getColor(transparent)) {
-            //Posem el color en el quadre
-            color_view.setBackgroundColor(color_chroma);
-            int tol = valor_barra;
-            for (int i = 0; i < bitmap_mutable.getWidth(); i++) {
-                for (int j = 0; j < bitmap_mutable.getHeight(); j++) {
-                    if (!(i == xy[0] && j == xy[1])) {
-                        int c = bitmap_mutable.getPixel(i, j);
-                        //Mirem si els valors del color es troben dins dels parametres de tolerancia i tornem el pixel transparent
-                        if (alpha(color_chroma) + tol >= alpha(c) &&  alpha(color_chroma) - tol <=alpha(c) &&
-                                red(color_chroma) + tol >= red(c) &&  red(color_chroma) - tol <=red(c) &&
-                                blue(color_chroma) + tol >= blue(c) &&  blue(color_chroma) - tol <=blue(c) &&
-                                green(color_chroma) + tol >= green(c) &&  green(color_chroma) - tol <=green(c)
-                                ){
-                            bitmap_mutable.setPixel(i, j, getResources().getColor(transparent));
-                            fore_ima.setImageBitmap(bitmap_mutable);
-                        }
-                    }
-                }
-            }
-        }
-        bitmap_mutable.setPixel(xy[0], xy[1], getResources().getColor(transparent));
-        //Fem visible el nou bitmap
-        fore_ima.setImageBitmap(bitmap_mutable);
-        //habilitem poder tornar a tocar a la pantalla
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-    }
 
-    public void change_Color_paleta() {
         // Tornem a iniciar el bitmap per seleccionar un nou color
-        iniciar();
         //Posem el color en el quadre
         color_view.setBackgroundColor(color_chroma);
-        for (int i = 0; i < bitmap_mutable.getWidth(); i++) {
-            for (int j = 0; j < bitmap_mutable.getHeight(); j++) {
-                int c = bitmap_mutable.getPixel(i, j);
-                int tol = valor_barra;
+        int mPhotoWidth = bitmap_mutable.getWidth();
+        int mPhotoHeight = bitmap_mutable.getHeight();
+        int[] pix = new int[mPhotoWidth * mPhotoHeight];
+        int tol = valor_barra;
+        int index, r, g, b, yy,R,G,B,Y;
+        R = (color_chroma >> 16) & 0xff;
+        G = (color_chroma >> 8) & 0xff;
+        B = color_chroma & 0xff;
+        Y = (30 * R + 59 * G + 11 * B) / 100;
+        bitmap_mutable.getPixels(pix, 0, mPhotoWidth, 0, 0, mPhotoWidth, mPhotoHeight);
+        for (int y = 0; y < mPhotoHeight; y++) {
+            for (int x = 0; x < mPhotoWidth; x++) {
+                index = y * mPhotoWidth + x;
+                r = (pix[index] >> 16) & 0xff;
+                g = (pix[index] >> 8) & 0xff;
+                b = pix[index] & 0xff;
+                yy = (30 * r + 59 * g + 11 * b) / 100;
                 //Mirem si els valors del color es troben dins dels parametres de tolerancia
-                if (alpha(color_chroma) + tol >= alpha(c) &&  alpha(color_chroma) - tol <=alpha(c) &&
-                        red(color_chroma) + tol >= red(c) &&  red(color_chroma) - tol <=red(c) &&
-                        blue(color_chroma) + tol >= blue(c) &&  blue(color_chroma) - tol <=blue(c) &&
-                        green(color_chroma) + tol >= green(c) &&  green(color_chroma) - tol <=green(c)
+                if (Y + tol >= yy && Y - tol <=yy &&
+                        R + tol >= r &&  R - tol <=r &&
+                        B + tol >= b &&  B - tol <=b &&
+                        G + tol >= g &&  G - tol <=g
                         ){
-                    bitmap_mutable.setPixel(i, j, getResources().getColor(transparent));
+                    pix[index]=getResources().getColor(transparent);
                 }
             }
 
         }
+        bitmap_mutable.setPixels(pix, 0, mPhotoWidth, 0, 0, mPhotoWidth, mPhotoHeight);
         //Fem visible el nou bitmap
+        fore_ima.setImageBitmap(bitmap_mutable);
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+        waiting.setVisibility(INVISIBLE);
     }
 
     //Per poder editar el bitmap - EXTRET DE INTERNET
@@ -400,14 +434,16 @@ public class ChromaActivity extends AppCompatActivity {
     }
 
     public void iniciar(){
+
         try {
             bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(),fore_uri);
             pix= (int) ((bitmap.getHeight()*bitmap.getWidth()/pix_max) + 1);
             Bitmap resizedBitmap = Bitmap.createScaledBitmap(
                     bitmap, (int)bitmap.getWidth()/pix, (int)bitmap.getHeight()/pix, false);
             Log.i ("Cris", "Factor compresio: "+pix+" Sense comprimir:" + bitmap.getWidth()+"x"+bitmap.getHeight()+"| Comprimit:" + resizedBitmap.getWidth()+"x"+resizedBitmap.getHeight());
-            //bitmap_mutable=convertToMutable(bitmap);
             bitmap_mutable=convertToMutable(resizedBitmap);
+
+            //bitmap_mutable=convertToMutable(bitmap);
             fore_ima.setImageBitmap(bitmap_mutable);
         } catch (IOException e) {
             e.printStackTrace();
@@ -415,16 +451,19 @@ public class ChromaActivity extends AppCompatActivity {
     }
 
     public void colorPicker(){
+        waiting.setVisibility(VISIBLE);
         colorPickerDialog=new ColorPickerDialog(this, color_chroma);
         colorPickerDialog.setOnColorChangedListener(new ColorPickerDialog.OnColorChangedListener() {
             @Override
             public void onColorChanged(int i) {
+                getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, //Per fer que no es pugui tornar a premer mentre sesta executant
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                 color_chroma =  i;
-                change_Color_paleta();
+                iniciar();
+                change_Color();
             }
         });
         colorPickerDialog.show();
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
     }
 
     public String BitMapToString(Bitmap bitmap){

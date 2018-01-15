@@ -24,8 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 
-//TODO: CAMERA PROVIDER
-
 public class ChooseActivity extends AppCompatActivity {
     // Declaracio de referencies a elements de la pantalla
     private Button btn_next;
@@ -287,4 +285,7 @@ public class ChooseActivity extends AppCompatActivity {
             // Altres permisos, afegir 'case'
         }
     }
+
+
+
 }

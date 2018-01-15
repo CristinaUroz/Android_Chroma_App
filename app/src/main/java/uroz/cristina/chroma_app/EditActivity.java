@@ -14,6 +14,7 @@ import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -80,6 +81,7 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
     private Bitmap bitmap_b; // backgorund
     private Bitmap bitmap_mutable_b; //bitmap editable //background
     private Bitmap b_final;
+    private static int pix_max=500;
     private int[] ids_effect = {R.id.contrast_button, R.id.brightness_button, R.id.temperature_button, R.id.rotation_button, R.id.saturation_button, R.id.opacity_button};
 
     // On es guarden els valors de la seekbar per cada efecte i imatge (fore i back)
@@ -175,7 +177,26 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
             bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(),fore_uri);
             bitmap_mutable=convertToMutable(bitmap);
             bitmap_b = MediaStore.Images.Media.getBitmap(this.getContentResolver(),back_uri);
-            bitmap_mutable_b=convertToMutable(bitmap_b);
+            int H=bitmap_b.getHeight();
+            int W=bitmap_b.getWidth();
+            if(bitmap_b.getHeight()>bitmap_b.getWidth()){
+                if(bitmap_b.getHeight()>pix_max){
+                    H=pix_max;
+                    W= (int) ( (double)(bitmap_b.getWidth())*((double)(pix_max)/(double)(bitmap_b.getHeight())));
+                    Bitmap resizedBitmap = getResizedBitmap(bitmap_b, W, H);
+                    bitmap_mutable_b=convertToMutable(resizedBitmap);
+                }
+                else { bitmap_mutable_b=convertToMutable(bitmap_b);}
+            }
+            else {
+                if(bitmap_b.getWidth()>pix_max){
+                    W=pix_max;
+                    H= (int) ((double)(bitmap_b.getHeight())*((double)(pix_max)/(double)(bitmap_b.getWidth())));
+                    Bitmap resizedBitmap = getResizedBitmap(bitmap_b, W, H);
+                    bitmap_mutable_b=convertToMutable(resizedBitmap);
+                }
+                else { bitmap_mutable_b=convertToMutable(bitmap_b);}
+            }
             //change_Color_paleta();
 
             //Fem visible el nou bitmap
@@ -240,7 +261,7 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
             public void onClick(View view) {
                 guardar_imatge_final ();
                 Intent intent = new Intent(EditActivity.this, ShareActivity.class);
-                try {
+                //try {
                     String ima_final = BitMapToString(b_final);
                     String back = back_uri.toString();
                     String fore = fore_uri.toString();
@@ -253,11 +274,12 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
                     intent.putExtra(ShareActivity.KEY_COLOR_CHROMA_4, color_chroma);
                     intent.putExtra(ShareActivity.KEY_VALORS_FORE_4, valors_editables[0]);
                     intent.putExtra(ShareActivity.KEY_VALORS_BACK_4, valors_editables[1]);
+
                     startActivity(intent);
                     finish();
-                } catch (Exception e) {
+               /* } catch (Exception e) {
                     Toast.makeText(EditActivity.this, getString(R.string.missing_data), Toast.LENGTH_LONG).show();
-                }
+                }*/
             }
         });
 
@@ -410,7 +432,7 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
             MappedByteBuffer map = channel.map(FileChannel.MapMode.READ_WRITE, 0, imgIn.getRowBytes()*height);
             imgIn.copyPixelsToBuffer(map);
             //recycle the source bitmap, this will be no longer used.
-            imgIn.recycle();
+            //imgIn.recycle();
             System.gc();// try to force the bytes from the imgIn to be released
 
             //Create a new bitmap to load the bitmap again. Probably the memory will be available.
@@ -435,6 +457,14 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
     }
 
     private void guardar_imatge_final (    ) {
+        int[] pos = new int[2];
+        ima_mixed.getLocationOnScreen(pos);
+        // create bitmap screen capture
+        View v1 = getWindow().getDecorView().getRootView();
+        v1.setDrawingCacheEnabled(true);
+        b_final = Bitmap.createBitmap(v1.getDrawingCache());
+        b_final = Bitmap.createBitmap(b_final, pos[0], pos[1], ima_mixed.getWidth(), ima_mixed.getHeight());
+/**
         try {
             int[] pos = new int[2];
             ima_mixed.getLocationOnScreen(pos);
@@ -447,6 +477,7 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
             // Several error may come out with file handling or OOM
             e.printStackTrace();
         }
+ */
     }
 
     public int color(int X, int Y, Bitmap b) {
@@ -540,17 +571,13 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
 
                 } else if (mode == ZOOM) {
                     float newDist = spacing(event);
-
                     if (newDist > 10f) {
-
                         matrix.set(savedMatrix);
                         float scale = (newDist / oldDist);
                         matrix.postScale(scale, scale, mid.x, mid.y);
-
                     }
 
                     if (lastEvent != null && event.getPointerCount() == 3) {
-
                         newRot = rotation(event);
                         float r = newRot - d;
                         float[] values = new float[9];
@@ -561,7 +588,6 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
                         float xc = (view.getWidth() / 2) * sx;
                         float yc = (view.getHeight() / 2) * sx;
                         matrix.postRotate(r, tx + xc, ty + yc);
-
                     }
                 }
                 break;
@@ -832,9 +858,6 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
 
                     //RGB a exadecimal
                     pix[index] = 0xff000000 | (R << 16) | (G << 8) | B;
-
-
-
                 }
                 else {pix[index]=transparent;}
 
@@ -868,5 +891,23 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
         return transBitmap;
     }
 
+
+
+    public Bitmap getResizedBitmap(Bitmap bm, int newWidth, int newHeight) {
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+        float scaleWidth = ((float) newWidth) / width;
+        float scaleHeight = ((float) newHeight) / height;
+        // CREATE A MATRIX FOR THE MANIPULATION
+        Matrix matrix = new Matrix();
+        // RESIZE THE BIT MAP
+        matrix.postScale(scaleWidth, scaleHeight);
+        Log.i("cris","parametre W:" + newWidth + " H:" + newHeight + " W2:" + width + " H2:" + height);
+        // "RECREATE" THE NEW BITMAP
+        Bitmap resizedBitmap = Bitmap.createBitmap(
+                bm, 0, 0, width, height, matrix, false);
+        // bm.recycle();
+        return resizedBitmap;
+    }
 
 }

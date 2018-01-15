@@ -41,6 +41,7 @@ public class ShareActivity extends AppCompatActivity {
     private String image_name = getPhotoName(); // Inclou '.jpg'
     private String image_dir = "/ChromAppPhotos/SavedPhotos/";
     private String ima_chroma;
+    private byte[] bytes;
     private int valor_barra;
     private int color_chroma;
 

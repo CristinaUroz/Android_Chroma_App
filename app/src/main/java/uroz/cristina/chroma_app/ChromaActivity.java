@@ -1,9 +1,9 @@
 package uroz.cristina.chroma_app;
 
-
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -31,10 +31,6 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
 import static android.R.color.transparent;
-import static android.view.View.INVISIBLE;
-import static android.view.View.VISIBLE;
-
-//TODO: WAITING VISIBILITY
 
 public class ChromaActivity extends AppCompatActivity {
     // Declaracio de referencies a elements de la pantalla
@@ -44,7 +40,6 @@ public class ChromaActivity extends AppCompatActivity {
     private ImageView fore_ima;
     private ImageView color_view;
     private ImageView revert;
-    private ImageView waiting;
 
     // Variables globals
     public static String KEY_FORE_URI2 = "KEY_FORE_URI2";
@@ -54,14 +49,14 @@ public class ChromaActivity extends AppCompatActivity {
     private int valor_barra=0;
     private int color_chroma=0;
     private Uri fore_uri;
-    private Uri back_uri;
+    private String back_uri;
     private Bitmap bitmap;
     private Bitmap bitmap_mutable; //bitmap editable
     private int[] pos = new int[2]; //posicio del imageview
     private int[] xy = new int[2]; //posicio del "click" en el bitmap
     private ColorPickerDialog colorPickerDialog;
     private int pix; //cadaquants pixels es processara la imatge perqeu no peti lapp
-    private static int pix_max=480000;
+    private static int pix_max=500;
     private int recuperat =0;
 
     // Guardem les dades quan girem la pantalla
@@ -72,7 +67,7 @@ public class ChromaActivity extends AppCompatActivity {
             outState.putString("fore_uri", fore_uri.toString());
         }
         if (back_uri != null) {
-            outState.putString("back_uri", back_uri.toString());
+            outState.putString("back_uri", back_uri);
         }
         outState.putInt("valor_barra", valor_barra);
         outState.putInt("color_chroma", color_chroma);
@@ -95,13 +90,10 @@ public class ChromaActivity extends AppCompatActivity {
         fore_ima = (ImageView) findViewById(R.id.ima_fore2);
         color_view = (ImageView) findViewById(R.id.color_view);
         revert=(ImageView) findViewById(R.id.revert);
-        waiting=(ImageView) findViewById(R.id.waiting);
-
-        waiting.setVisibility(INVISIBLE);
 
         // Recuperacio de dades de quan tornem d'una altra activitat
         fore_uri = Uri.parse(getIntent().getExtras().getString(KEY_FORE_URI2));
-        back_uri = Uri.parse(getIntent().getExtras().getString(KEY_BACK_URI2));
+        back_uri = getIntent().getExtras().getString(KEY_BACK_URI2);
 
         //com a posicio de click inicial posem -1
         xy[0]=-1;
@@ -116,7 +108,7 @@ public class ChromaActivity extends AppCompatActivity {
                 fore_uri = Uri.parse(savedInstanceState.getString("fore_uri"));
             }
             if (savedInstanceState.getString("back_uri") != null) {
-                back_uri = Uri.parse(savedInstanceState.getString("back_uri"));
+                back_uri = savedInstanceState.getString("back_uri");
             }
             valor_barra = savedInstanceState.getInt("valor_barra");
             color_chroma = savedInstanceState.getInt("color_chroma");
@@ -162,7 +154,6 @@ public class ChromaActivity extends AppCompatActivity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                waiting.setVisibility(VISIBLE);
                 getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, //Per fer que no es pugui tornar a premer mentre sesta executant
                         WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                 Toast.makeText(ChromaActivity.this, String.valueOf(valor_barra), Toast.LENGTH_SHORT).show();
@@ -178,7 +169,7 @@ public class ChromaActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(ChromaActivity.this, ChooseActivity.class);
-                String back = back_uri.toString();
+                String back = back_uri;
                 String fore = fore_uri.toString();
                 intent.putExtra(ChooseActivity.KEY_FORE_URI1, fore);
                 intent.putExtra(ChooseActivity.KEY_BACK_URI1, back);
@@ -194,7 +185,7 @@ public class ChromaActivity extends AppCompatActivity {
                 String ima_chroma = BitMapToString(bitmap_mutable);
                 Intent intent = new Intent(ChromaActivity.this, EditActivity.class);
                 try {
-                    String back = back_uri.toString();
+                    String back = back_uri;
                     String fore = fore_uri.toString();
                     intent.putExtra(EditActivity.KEY_IMA_CHROMA, ima_chroma);
                     intent.putExtra(EditActivity.KEY_BACK_URI3, back);
@@ -236,7 +227,6 @@ public class ChromaActivity extends AppCompatActivity {
                 btn_r.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        waiting.setVisibility(VISIBLE);
                         getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, //Per fer que no es pugui tornar a premer mentre sesta executant
                                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                         color_chroma=Color.parseColor("#ff0000");
@@ -248,7 +238,6 @@ public class ChromaActivity extends AppCompatActivity {
                 btn_g.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        waiting.setVisibility(VISIBLE);
                         getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, //Per fer que no es pugui tornar a premer mentre sesta executant
                                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                         color_chroma=Color.parseColor("#00ff00");
@@ -259,7 +248,6 @@ public class ChromaActivity extends AppCompatActivity {
                 btn_b.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        waiting.setVisibility(VISIBLE);
                         getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, //Per fer que no es pugui tornar a premer mentre sesta executant
                                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                         color_chroma=Color.parseColor("#0000ff");
@@ -270,7 +258,6 @@ public class ChromaActivity extends AppCompatActivity {
                 btn_white.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        waiting.setVisibility(VISIBLE);
                         getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, //Per fer que no es pugui tornar a premer mentre sesta executant
                                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                         color_chroma=Color.parseColor("#ffffff");
@@ -281,7 +268,6 @@ public class ChromaActivity extends AppCompatActivity {
                 btn_black.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        waiting.setVisibility(VISIBLE);
                         getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, //Per fer que no es pugui tornar a premer mentre sesta executant
                                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                         color_chroma=Color.parseColor("#000000");
@@ -295,7 +281,6 @@ public class ChromaActivity extends AppCompatActivity {
 
         // Quan toquem la el ImageView
     public boolean onTouchEvent(MotionEvent arg1) {
-        waiting.setVisibility(VISIBLE);
         //Deshabilitem que es pugui tornar a tocar la pantalla fins acabar la funcio
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, //Per fer que no es pugui tornar a premer mentre sesta executant
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
@@ -369,7 +354,6 @@ public class ChromaActivity extends AppCompatActivity {
         //Fem visible el nou bitmap
         fore_ima.setImageBitmap(bitmap_mutable);
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-        waiting.setVisibility(INVISIBLE);
     }
 
     //Per poder editar el bitmap - EXTRET DE INTERNET
@@ -437,13 +421,31 @@ public class ChromaActivity extends AppCompatActivity {
 
         try {
             bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(),fore_uri);
-            pix= (int) ((bitmap.getHeight()*bitmap.getWidth()/pix_max) + 1);
-            Bitmap resizedBitmap = Bitmap.createScaledBitmap(
-                    bitmap, (int)bitmap.getWidth()/pix, (int)bitmap.getHeight()/pix, false);
-            Log.i ("Cris", "Factor compresio: "+pix+" Sense comprimir:" + bitmap.getWidth()+"x"+bitmap.getHeight()+"| Comprimit:" + resizedBitmap.getWidth()+"x"+resizedBitmap.getHeight());
-            bitmap_mutable=convertToMutable(resizedBitmap);
+            int H=bitmap.getHeight();
+            int W=bitmap.getWidth();
+            if(bitmap.getHeight()>bitmap.getWidth()){
+                if(bitmap.getHeight()>pix_max){
+                    H=pix_max;
+                    W= (int) ( (double)(bitmap.getWidth())*((double)(pix_max)/(double)(bitmap.getHeight())));
+                    Bitmap resizedBitmap = getResizedBitmap(bitmap, W, H);
+                    bitmap_mutable=convertToMutable(resizedBitmap);
+                    Log.i ("Cris", "1. Factor compresio: "+pix_max+" Sense comprimir:" + bitmap.getWidth()+"x"+bitmap.getHeight()+"| Comprimit:" + resizedBitmap.getWidth()+"x"+resizedBitmap.getHeight());
 
-            //bitmap_mutable=convertToMutable(bitmap);
+                }
+                else{bitmap_mutable=convertToMutable(bitmap);}
+            }
+            else {
+                if(bitmap.getWidth()>pix_max){
+                    W=pix_max;
+                    H= (int) ((double)(bitmap.getHeight())*((double)(pix_max)/(double)(bitmap.getWidth())));
+                    Bitmap resizedBitmap = getResizedBitmap(bitmap, W, H);
+                    bitmap_mutable=convertToMutable(resizedBitmap);
+                    Log.i ("Cris", "2. Factor compresio: "+pix_max+" Sense comprimir:" + bitmap.getWidth()+"x"+bitmap.getHeight()+"| Comprimit:" + resizedBitmap.getWidth()+"x"+resizedBitmap.getHeight());
+
+                }
+                else{bitmap_mutable=convertToMutable(bitmap);}
+            }
+
             fore_ima.setImageBitmap(bitmap_mutable);
         } catch (IOException e) {
             e.printStackTrace();
@@ -451,7 +453,7 @@ public class ChromaActivity extends AppCompatActivity {
     }
 
     public void colorPicker(){
-        waiting.setVisibility(VISIBLE);
+        if (color_chroma==0){color_chroma=Color.parseColor("#00ff00");}
         colorPickerDialog=new ColorPickerDialog(this, color_chroma);
         colorPickerDialog.setOnColorChangedListener(new ColorPickerDialog.OnColorChangedListener() {
             @Override
@@ -474,6 +476,23 @@ public class ChromaActivity extends AppCompatActivity {
         return temp;
     }
 
+
+    public Bitmap getResizedBitmap(Bitmap bm, int newWidth, int newHeight) {
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+        float scaleWidth = ((float) newWidth) / width;
+        float scaleHeight = ((float) newHeight) / height;
+        // CREATE A MATRIX FOR THE MANIPULATION
+        Matrix matrix = new Matrix();
+        // RESIZE THE BIT MAP
+        matrix.postScale(scaleWidth, scaleHeight);
+       // Log.i("cris","parametre W:" + newWidth + " H:" + newHeight + " W2:" + width + " H2:" + height);
+        // "RECREATE" THE NEW BITMAP
+        Bitmap resizedBitmap = Bitmap.createBitmap(
+                bm, 0, 0, width, height, matrix, false);
+        // bm.recycle();
+        return resizedBitmap;
+    }
 
 }
 

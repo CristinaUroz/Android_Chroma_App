@@ -83,16 +83,16 @@ public class ChooseActivity extends AppCompatActivity {
         btn_next = (Button) findViewById(R.id.next_button_choose);
 
         // Recuperacio de dades de quan tornem d'una altra activitat
-            if (getIntent() != null && getIntent().getExtras() != null) {
-                try {
-                    fore_uri = Uri.parse(getIntent().getExtras().getString(KEY_FORE_URI1));
-                    back_uri = Uri.parse(getIntent().getExtras().getString(KEY_BACK_URI1));
-                    back_ima.setImageURI(back_uri);
-                    fore_ima.setImageURI(fore_uri);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        if (getIntent() != null && getIntent().getExtras() != null) {
+            try {
+                fore_uri = Uri.parse(getIntent().getExtras().getString(KEY_FORE_URI1));
+                fore_ima.setImageURI(fore_uri);
+                back_uri = Uri.parse(getIntent().getExtras().getString(KEY_BACK_URI1));
+                back_ima.setImageURI(back_uri);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+        }
 
         // Recuperacio de dades de quan girem la pantalla
         if (savedInstanceState != null) {
@@ -161,7 +161,7 @@ public class ChooseActivity extends AppCompatActivity {
                     photoFile.createNewFile();
                     if (codi_imatge == 0) {
                         back_uri = Uri.fromFile(photoFile);
-                        Log.i("cris",back_uri.toString());
+                        Log.i("cris", back_uri.toString());
                         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, back_uri);
                         startActivityForResult(cameraIntent, 1);
@@ -285,7 +285,4 @@ public class ChooseActivity extends AppCompatActivity {
             // Altres permisos, afegir 'case'
         }
     }
-
-
-
 }

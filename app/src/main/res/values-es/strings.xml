@@ -26,4 +26,5 @@
     <string name="image_saved">Imagen guardada!</string>
     <string name="share_to">Comparte con...</string>
     <string name="image_not_saved">La imagen no se ha podido guardar!</string>
+    <string name="selected">Color chroma</string>
 </resources>

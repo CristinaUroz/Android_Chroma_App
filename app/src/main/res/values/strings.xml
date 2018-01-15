@@ -25,6 +25,7 @@
     <string name="image_saved">Saved image!</string>
     <string name="share_to">Share to...</string>
     <string name="image_not_saved">The image could not be saved!</string>
+    <string name="selected">Chroma color</string>
     <array name="colors">
         <item>Color 1</item>
         <item>Color 2</item>

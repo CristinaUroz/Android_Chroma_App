@@ -41,7 +41,6 @@ public class ShareActivity extends AppCompatActivity {
     private String image_name = getPhotoName(); // Inclou '.jpg'
     private String image_dir = "/ChromAppPhotos/SavedPhotos/";
     private String ima_chroma;
-    private byte[] bytes;
     private int valor_barra;
     private int color_chroma;
 
@@ -78,7 +77,7 @@ public class ShareActivity extends AppCompatActivity {
         btn_save = (Button) findViewById(R.id.save_button);
         ima_final = (ImageView) findViewById(R.id.ima_final);
 
-        // Variables
+        // Variables locals
 
 
         // Recuperacio de dades de quan tornem d'una altra activitat
@@ -90,7 +89,6 @@ public class ShareActivity extends AppCompatActivity {
         valors_back = getIntent().getExtras().getIntArray(KEY_VALORS_BACK_4);
         ima_chroma = getIntent().getExtras().getString(KEY_IMA_CHROMA);
         String ima_fin = getIntent().getExtras().getString(KEY_IMA_FINAL);
-
         Bitmap b = StringToBitMap(ima_fin);
 
         // Recuperacio de dades de quan girem la pantalla
@@ -108,7 +106,6 @@ public class ShareActivity extends AppCompatActivity {
             ima_chroma = savedInstanceState.getString("ima_chroma");
         }
 
-        //ima_final.setImageURI(fore_uri);
         ima_final.setImageBitmap(b);
 
         // Boto prev
@@ -223,12 +220,12 @@ public class ShareActivity extends AppCompatActivity {
         return year + "." + month + "." + day + "_" + hour + "." + minute + "." + second + ".jpg";
     }
 
-    public Bitmap StringToBitMap(String encodedString){
+    public Bitmap StringToBitMap(String encodedString) {
         try {
-            byte [] encodeByte=Base64.decode(encodedString, Base64.DEFAULT);
-            Bitmap bitmap= BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
+            byte[] encodeByte = Base64.decode(encodedString, Base64.DEFAULT);
+            Bitmap bitmap = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
             return bitmap;
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.getMessage();
             return null;
         }

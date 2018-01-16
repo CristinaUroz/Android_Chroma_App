@@ -2,16 +2,13 @@ package uroz.cristina.chroma_app;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Matrix;
-import android.net.Uri;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -42,32 +39,22 @@ public class ChromaActivity extends AppCompatActivity {
     private ImageView revert;
 
     // Variables globals
-    public static String KEY_FORE_URI2 = "KEY_FORE_URI2";
-    public static String KEY_BACK_URI2 = "KEY_BACK_URI2";
     public static String KEY_VALOR_BARRA_2 = "KEY_VALOR_BARRA_2";
     public static String KEY_COLOR_CHROMA_2 = "KEY_COLOR_CHROMA_2";
     private int valor_barra = 0;
     private int color_chroma = 0;
-    private Uri fore_uri;
-    private String back_uri;
     private Bitmap bitmap;
     private Bitmap bitmap_mutable; // Bitmap editable
     private int[] pos = new int[2]; // Posicio del ImageView
     private int[] xy = new int[2]; // Posicio del "click" en el bitmap
     private ColorPickerDialog colorPickerDialog;
-    private static int pix_max = 500;
     private int recuperat = 0;
+    private File dir;
 
     // Guardem les dades quan girem la pantalla
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (fore_uri != null) {
-            outState.putString("fore_uri", fore_uri.toString());
-        }
-        if (back_uri != null) {
-            outState.putString("back_uri", back_uri);
-        }
         outState.putInt("valor_barra", valor_barra);
         outState.putInt("color_chroma", color_chroma);
         recuperat = 1;
@@ -90,25 +77,12 @@ public class ChromaActivity extends AppCompatActivity {
         color_view = (ImageView) findViewById(R.id.color_view);
         revert = (ImageView) findViewById(R.id.revert);
 
-        // Recuperacio de dades de quan tornem d'una altra activitat
-        fore_uri = Uri.parse(getIntent().getExtras().getString(KEY_FORE_URI2));
-        back_uri = getIntent().getExtras().getString(KEY_BACK_URI2);
-
         // Com a posicio de click inicial posem -1
         xy[0] = -1;
         xy[1] = -1;
 
-        //iniciem el chroma a blanc
-        //color_chroma=Color.parseColor("#ffffff");
-
         // Recuperacio de dades de quan girem la pantalla
         if (savedInstanceState != null) {
-            if (savedInstanceState.getString("fore_uri") != null) {
-                fore_uri = Uri.parse(savedInstanceState.getString("fore_uri"));
-            }
-            if (savedInstanceState.getString("back_uri") != null) {
-                back_uri = savedInstanceState.getString("back_uri");
-            }
             valor_barra = savedInstanceState.getInt("valor_barra");
             color_chroma = savedInstanceState.getInt("color_chroma");
             recuperat = savedInstanceState.getInt("recuperat");
@@ -116,7 +90,7 @@ public class ChromaActivity extends AppCompatActivity {
 
         // Configuracio de la barra
         barra_chroma.setMax(100);
-
+        if (getIntent()!=null&&getIntent().getExtras()!=null){
         if (getIntent().getExtras().get(KEY_VALOR_BARRA_2) != null) {
             valor_barra = getIntent().getExtras().getInt(KEY_VALOR_BARRA_2);
         }
@@ -124,9 +98,10 @@ public class ChromaActivity extends AppCompatActivity {
 
         if (getIntent().getExtras().get(KEY_COLOR_CHROMA_2) != null) {
             color_chroma = getIntent().getExtras().getInt(KEY_COLOR_CHROMA_2);
-        }
+        }}
 
         // Creacio del bitmap, el bitmap mutable i display a l'imageview
+        dir = new File(getCacheDir(), "Fore");
         iniciar();
         change_Color();
 
@@ -163,6 +138,9 @@ public class ChromaActivity extends AppCompatActivity {
                     iniciar();
                     change_Color();
                 }
+                else {
+                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                }
             }
         });
 
@@ -171,10 +149,6 @@ public class ChromaActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(ChromaActivity.this, ChooseActivity.class);
-                String back = back_uri;
-                String fore = fore_uri.toString();
-                intent.putExtra(ChooseActivity.KEY_FORE_URI1, fore);
-                intent.putExtra(ChooseActivity.KEY_BACK_URI1, back);
                 startActivity(intent);
                 finish();
             }
@@ -184,14 +158,13 @@ public class ChromaActivity extends AppCompatActivity {
         btn_next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 String ima_chroma = BitMapToString(bitmap_mutable);
+                bitmap.recycle();
+                bitmap_mutable.recycle();
                 Intent intent = new Intent(ChromaActivity.this, EditActivity.class);
                 try {
-                    String back = back_uri;
-                    String fore = fore_uri.toString();
                     intent.putExtra(EditActivity.KEY_IMA_CHROMA, ima_chroma);
-                    intent.putExtra(EditActivity.KEY_BACK_URI3, back);
-                    intent.putExtra(EditActivity.KEY_FORE_URI3, fore);
                     intent.putExtra(EditActivity.KEY_VALOR_BARRA_3, valor_barra);
                     intent.putExtra(EditActivity.KEY_COLOR_CHROMA_3, color_chroma);
                     startActivity(intent);
@@ -416,39 +389,9 @@ public class ChromaActivity extends AppCompatActivity {
     }
 
     public void iniciar() {
-        try {
-            bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), fore_uri);
-            int H = bitmap.getHeight();
-            int W = bitmap.getWidth();
-            // Es fa un resize de la imatge a un tamany mes petit fent que el costat mes gran de la
-            // imatge no sigui superior a pix_max
-            if (bitmap.getHeight() > bitmap.getWidth()) {
-                if (bitmap.getHeight() > pix_max) {
-                    H = pix_max;
-                    W = (int) ((double) (bitmap.getWidth()) * ((double) (pix_max) / (double) (bitmap.getHeight())));
-                    Bitmap resizedBitmap = getResizedBitmap(bitmap, W, H);
-                    bitmap_mutable = convertToMutable(resizedBitmap);
-                    Log.i("Cris", "1. Maxim ample/alt: " + pix_max + " Sense comprimir:" + bitmap.getWidth() + "x" + bitmap.getHeight() + "| Comprimit:" + resizedBitmap.getWidth() + "x" + resizedBitmap.getHeight());
-
-                } else {
-                    bitmap_mutable = convertToMutable(bitmap);
-                }
-            } else {
-                if (bitmap.getWidth() > pix_max) {
-                    W = pix_max;
-                    H = (int) ((double) (bitmap.getHeight()) * ((double) (pix_max) / (double) (bitmap.getWidth())));
-                    Bitmap resizedBitmap = getResizedBitmap(bitmap, W, H);
-                    bitmap_mutable = convertToMutable(resizedBitmap);
-                    Log.i("Cris", "2. Maxim ample/alt: " + pix_max + " Sense comprimir:" + bitmap.getWidth() + "x" + bitmap.getHeight() + "| Comprimit:" + resizedBitmap.getWidth() + "x" + resizedBitmap.getHeight());
-
-                } else {
-                    bitmap_mutable = convertToMutable(bitmap);
-                }
-            }
+            bitmap = BitmapFactory.decodeFile(dir.getAbsolutePath());
+            bitmap_mutable = convertToMutable(bitmap);
             fore_ima.setImageBitmap(bitmap_mutable);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public void colorPicker() {
@@ -475,22 +418,5 @@ public class ChromaActivity extends AppCompatActivity {
         byte[] b = baos.toByteArray();
         String temp = Base64.encodeToString(b, Base64.DEFAULT);
         return temp;
-    }
-
-    // Crea un bitmap amb un nou tamany
-    public Bitmap getResizedBitmap(Bitmap bm, int newWidth, int newHeight) {
-        int width = bm.getWidth();
-        int height = bm.getHeight();
-        float scaleWidth = ((float) newWidth) / width;
-        float scaleHeight = ((float) newHeight) / height;
-        // Crea una matriu, mes facil de manipular
-        Matrix matrix = new Matrix();
-        // Canvia el tamany de la matriu
-        matrix.postScale(scaleWidth, scaleHeight);
-        // Log.i("cris", "parametre W:" + newWidth + " H:" + newHeight + " W2:" + width + " H2:" + height);
-        // Emplena el bitmap amb la matriu amb el tamany nou
-        Bitmap resizedBitmap = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, false);
-        // bm.recycle();
-        return resizedBitmap;
     }
 }

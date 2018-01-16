@@ -9,6 +9,7 @@ import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -27,13 +28,8 @@ public class ShareActivity extends AppCompatActivity {
     private ImageView ima_final;
 
     // Variables globals
-    private Uri fore_uri;
-    private Uri back_uri;
     private File dir;
     public static String KEY_IMA_CHROMA = "KEY_IMA_CHROMA";
-    public static String KEY_IMA_FINAL = "KEY_IMA_FINAL";
-    public static String KEY_FORE_URI4 = "KEY_FORE_URI4";
-    public static String KEY_BACK_URI4 = "KEY_BACK_URI4";
     public static String KEY_VALOR_BARRA_4 = "KEY_VALOR_BARRA_4";
     public static String KEY_COLOR_CHROMA_4 = "KEY_COLOR_CHROMA_4";
     public static String KEY_VALORS_FORE_4 = "KEY_VALORS_FORE_4";
@@ -51,12 +47,6 @@ public class ShareActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (fore_uri != null) {
-            outState.putString("fore_uri", fore_uri.toString());
-        }
-        if (back_uri != null) {
-            outState.putString("back_uri", back_uri.toString());
-        }
         outState.putInt("valor_barra", valor_barra);
         outState.putInt("color_chroma", color_chroma);
         outState.putIntArray("fore_val", valors_fore);
@@ -77,28 +67,21 @@ public class ShareActivity extends AppCompatActivity {
         btn_save = (Button) findViewById(R.id.save_button);
         ima_final = (ImageView) findViewById(R.id.ima_final);
 
-        // Variables locals
-
-
         // Recuperacio de dades de quan tornem d'una altra activitat
-        fore_uri = Uri.parse(getIntent().getExtras().getString(KEY_FORE_URI4));
-        back_uri = Uri.parse(getIntent().getExtras().getString(KEY_BACK_URI4));
         valor_barra = getIntent().getExtras().getInt(KEY_VALOR_BARRA_4);
         color_chroma = getIntent().getExtras().getInt(KEY_COLOR_CHROMA_4);
         valors_fore = getIntent().getExtras().getIntArray(KEY_VALORS_FORE_4);
         valors_back = getIntent().getExtras().getIntArray(KEY_VALORS_BACK_4);
         ima_chroma = getIntent().getExtras().getString(KEY_IMA_CHROMA);
-        String ima_fin = getIntent().getExtras().getString(KEY_IMA_FINAL);
-        Bitmap b = StringToBitMap(ima_fin);
+
+        //Llegim la imatge del cache i la fem visible
+        File dir = new File(getCacheDir(), "Final");
+        Log.i("Cris",dir.getAbsolutePath());
+        Bitmap b = BitmapFactory.decodeFile(dir.getAbsolutePath());
+        ima_final.setImageBitmap(b);
 
         // Recuperacio de dades de quan girem la pantalla
         if (savedInstanceState != null) {
-            if (savedInstanceState.getString("fore_uri") != null) {
-                fore_uri = Uri.parse(savedInstanceState.getString("fore_uri"));
-            }
-            if (savedInstanceState.getString("back_uri") != null) {
-                back_uri = Uri.parse(savedInstanceState.getString("back_uri"));
-            }
             valor_barra = savedInstanceState.getInt("valor_barra");
             color_chroma = savedInstanceState.getInt("color_chroma");
             valors_fore = savedInstanceState.getIntArray("fore_val");
@@ -106,18 +89,14 @@ public class ShareActivity extends AppCompatActivity {
             ima_chroma = savedInstanceState.getString("ima_chroma");
         }
 
-        ima_final.setImageBitmap(b);
+
 
         // Boto prev
         btn_prev.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(ShareActivity.this, EditActivity.class);
-                String back = back_uri.toString();
-                String fore = fore_uri.toString();
                 intent.putExtra(EditActivity.KEY_IMA_CHROMA, ima_chroma);
-                intent.putExtra(EditActivity.KEY_FORE_URI3, fore);
-                intent.putExtra(EditActivity.KEY_BACK_URI3, back);
                 intent.putExtra(EditActivity.KEY_VALOR_BARRA_3, valor_barra);
                 intent.putExtra(EditActivity.KEY_COLOR_CHROMA_3, color_chroma);
                 intent.putExtra(EditActivity.KEY_VALORS_FORE_3, valors_fore);
@@ -156,6 +135,12 @@ public class ShareActivity extends AppCompatActivity {
         btn_restart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                File dir = new File(getCacheDir(), "Fore");
+                dir.delete();
+                dir = new File(getCacheDir(), "Back");
+                dir.delete();
+                dir = new File(getCacheDir(), "Final");
+                dir.delete();
                 Intent intent = new Intent(ShareActivity.this, ChooseActivity.class);
                 startActivity(intent);
                 finish();
@@ -166,6 +151,12 @@ public class ShareActivity extends AppCompatActivity {
         btn_finish.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                File dir = new File(getCacheDir(), "Fore");
+                dir.delete();
+                dir = new File(getCacheDir(), "Back");
+                dir.delete();
+                dir = new File(getCacheDir(), "Final");
+                dir.delete();
                 finish();
             }
         });
@@ -218,16 +209,5 @@ public class ShareActivity extends AppCompatActivity {
         second = (second.length() == 1) ? "0" + second : second;
 
         return year + "." + month + "." + day + "_" + hour + "." + minute + "." + second + ".jpg";
-    }
-
-    public Bitmap StringToBitMap(String encodedString) {
-        try {
-            byte[] encodeByte = Base64.decode(encodedString, Base64.DEFAULT);
-            Bitmap bitmap = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
-            return bitmap;
-        } catch (Exception e) {
-            e.getMessage();
-            return null;
-        }
     }
 }

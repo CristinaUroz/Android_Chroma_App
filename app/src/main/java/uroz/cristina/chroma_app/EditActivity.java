@@ -8,9 +8,7 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PointF;
-import android.net.Uri;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
@@ -23,10 +21,11 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
@@ -57,11 +56,7 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
     private ImageView ima_mixed, ima_fons, ima_restart;
 
     // Variables globals
-    private Uri fore_uri;
-    private Uri back_uri;
     public static String KEY_IMA_CHROMA = "KEY_IMA_CHROMA";
-    public static String KEY_FORE_URI3 = "KEY_FORE_URI3";
-    public static String KEY_BACK_URI3 = "KEY_BACK_URI3";
     public static String KEY_VALOR_BARRA_3 = "KEY_VALOR_BARRA_3";
     public static String KEY_COLOR_CHROMA_3 = "KEY_COLOR_CHROMA_3";
     public static String KEY_VALORS_FORE_3 = "KEY_VALORS_FORE_3";
@@ -71,12 +66,12 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
     private int color_chroma;
     private int EDIT_IMAGE_CODE = 0;
     private int EDIT_VARIABLE_CODE = 0;
-    private Bitmap bitmap;
     private Bitmap bitmap_mutable; // Bitmap editable
     private Bitmap bitmap_b; // Backgorund
     private Bitmap bitmap_mutable_b; // Bitmap editable background
     private Bitmap b_final; // Bitmap final
-    private static int pix_max = 500; // Valor maxim de ample/alt de les imatges
+
+  //  private static int pix_max = 500; // Valor maxim de ample/alt de les imatges
     private int[] ids_effect = {R.id.contrast_button, R.id.brightness_button, R.id.temperature_button, R.id.rotation_button, R.id.saturation_button, R.id.opacity_button};
 
     // On es guarden els valors de la seekbar per cada efecte i imatge (fore i back)
@@ -91,12 +86,6 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (fore_uri != null) {
-            outState.putString("fore_uri", fore_uri.toString());
-        }
-        if (back_uri != null) {
-            outState.putString("back_uri", back_uri.toString());
-        }
         outState.putInt("valor_barra", valor_barra);
         outState.putInt("color_chroma", color_chroma);
         outState.putIntArray("fore_val", valors_editables[0]);
@@ -125,8 +114,6 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
         ima_restart = (ImageView) findViewById(R.id.restart);
 
         // Recuperacio de dades de quan tornem d'una altra activitat
-        fore_uri = Uri.parse(getIntent().getExtras().getString(KEY_FORE_URI3));
-        back_uri = Uri.parse(getIntent().getExtras().getString(KEY_BACK_URI3));
         valor_barra = getIntent().getExtras().getInt(KEY_VALOR_BARRA_3);
         color_chroma = getIntent().getExtras().getInt(KEY_COLOR_CHROMA_3);
         ima_chroma = getIntent().getExtras().getString(KEY_IMA_CHROMA);
@@ -146,13 +133,8 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
         }
 
         // Recuperacio de dades de quan girem la pantalla
+
         if (savedInstanceState != null) {
-            if (savedInstanceState.getString("fore_uri") != null) {
-                fore_uri = Uri.parse(savedInstanceState.getString("fore_uri"));
-            }
-            if (savedInstanceState.getString("back_uri") != null) {
-                back_uri = Uri.parse(savedInstanceState.getString("back_uri"));
-            }
             valor_barra = savedInstanceState.getInt("valor_barra");
             color_chroma = savedInstanceState.getInt("color_chroma");
             valors_editables[0] = savedInstanceState.getIntArray("fore_val");
@@ -163,50 +145,22 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
         barra_edit.setMax(100);
         barra_edit.setProgress(valors_editables[0][0]);
 
-        //Colocar imatges
-        ima_fons.setImageURI(back_uri);
+        //Creem els bitmapa de background i el convertim mutable
+        File dir = new File(getCacheDir(), "Back");
+        Log.i("Cris",dir.getAbsolutePath());
+        bitmap_b = BitmapFactory.decodeFile(dir.getAbsolutePath());
+        bitmap_mutable_b = convertToMutable(bitmap_b);
 
-        // ?????????????????????????????????????????????????????????????????????????????????????????
-        // ?????????????????????????????????????????????????????????????????????????????????????????
-        // ?????????????????????????????????????????????????????????????????????????????????????????
-        try {
-            bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), fore_uri);
-            bitmap_mutable = convertToMutable(bitmap);
-            bitmap_b = MediaStore.Images.Media.getBitmap(this.getContentResolver(), back_uri);
-            int H = bitmap_b.getHeight();
-            int W = bitmap_b.getWidth();
-            if (bitmap_b.getHeight() > bitmap_b.getWidth()) {
-                if (bitmap_b.getHeight() > pix_max) {
-                    H = pix_max;
-                    W = (int) ((double) (bitmap_b.getWidth()) * ((double) (pix_max) / (double) (bitmap_b.getHeight())));
-                    Bitmap resizedBitmap = getResizedBitmap(bitmap_b, W, H);
-                    bitmap_mutable_b = convertToMutable(resizedBitmap);
-                } else {
-                    bitmap_mutable_b = convertToMutable(bitmap_b);
-                }
-            } else {
-                if (bitmap_b.getWidth() > pix_max) {
-                    W = pix_max;
-                    H = (int) ((double) (bitmap_b.getHeight()) * ((double) (pix_max) / (double) (bitmap_b.getWidth())));
-                    Bitmap resizedBitmap = getResizedBitmap(bitmap_b, W, H);
-                    bitmap_mutable_b = convertToMutable(resizedBitmap);
-                } else {
-                    bitmap_mutable_b = convertToMutable(bitmap_b);
-                }
-            }
+        bitmap_mutable = StringToBitMap(ima_chroma);
 
-            //Fem visible el nou bitmap
-            bitmap_mutable = StringToBitMap(ima_chroma);
-            ima_mixed.setImageBitmap(bitmap_mutable);
+        //Habilitar moviment
+        ima_mixed.setOnTouchListener(this);
+        ima_fons.setOnTouchListener(this);
 
-            //Habilitar moviment
-            ima_mixed.setOnTouchListener(this);
-            ima_fons.setOnTouchListener(this);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        //Posem el color del boto fore com a clicat
         changeButtonTextColor();
+
+        //Fem les transformacions guardades als bitmaps i els fem visibles
         Bitmap aux;
         aux = all_transformations(bitmap_mutable, 0);
         ima_mixed.setImageBitmap(aux);
@@ -243,10 +197,6 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(EditActivity.this, ChromaActivity.class);
-                String back = back_uri.toString();
-                String fore = fore_uri.toString();
-                intent.putExtra(ChromaActivity.KEY_FORE_URI2, fore);
-                intent.putExtra(ChromaActivity.KEY_BACK_URI2, back);
                 intent.putExtra(ChromaActivity.KEY_VALOR_BARRA_2, valor_barra);
                 intent.putExtra(ChromaActivity.KEY_COLOR_CHROMA_2, color_chroma);
                 startActivity(intent);
@@ -259,16 +209,11 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
             @Override
             public void onClick(View view) {
                 guardar_imatge_final();
+
                 Intent intent = new Intent(EditActivity.this, ShareActivity.class);
                 try {
-                    String ima_final = BitMapToString(b_final);
-                    String back = back_uri.toString();
-                    String fore = fore_uri.toString();
                     // Matriu de propietats
                     intent.putExtra(ShareActivity.KEY_IMA_CHROMA, ima_chroma);
-                    intent.putExtra(ShareActivity.KEY_IMA_FINAL, ima_final);
-                    intent.putExtra(ShareActivity.KEY_BACK_URI4, back);
-                    intent.putExtra(ShareActivity.KEY_FORE_URI4, fore);
                     intent.putExtra(ShareActivity.KEY_VALOR_BARRA_4, valor_barra);
                     intent.putExtra(ShareActivity.KEY_COLOR_CHROMA_4, color_chroma);
                     intent.putExtra(ShareActivity.KEY_VALORS_FORE_4, valors_editables[0]);
@@ -276,9 +221,14 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
 
                     startActivity(intent);
                     finish();
+
                 } catch (Exception e) {
                     Toast.makeText(EditActivity.this, "Error al try", Toast.LENGTH_LONG).show();
                 }
+                bitmap_b.recycle();
+                bitmap_mutable.recycle();
+                bitmap_mutable_b.recycle();
+                b_final.recycle();
             }
         });
 
@@ -461,37 +411,15 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
         v1.setDrawingCacheEnabled(true);
         b_final = Bitmap.createBitmap(v1.getDrawingCache());
         b_final = Bitmap.createBitmap(b_final, pos[0], pos[1], ima_mixed.getWidth(), ima_mixed.getHeight());
-    }
-
-    // Obte el color a unes coordenades del bitmap
-    public int color(int X, int Y, Bitmap b) {
-        int col = getResources().getColor(transparent);
-        int x, y;
-        if (bitmap.getHeight() * ima_mixed.getWidth() / b.getWidth() < ima_mixed.getHeight()) {
-            // La imatge ocupa tot lample del imageView
-            x = (int) ((X) * b.getWidth() / ima_mixed.getWidth());
-            y = (int) ((Y) * b.getWidth() / ima_mixed.getWidth() - ((ima_mixed.getHeight() * b.getWidth() / ima_mixed.getWidth() - b.getHeight()) / 2));
-
-        } else {
-            // La imatge ocupa tota l'alçada del imageView
-            x = (int) ((X) * b.getHeight() / ima_mixed.getHeight() - (ima_mixed.getWidth() * b.getHeight() / ima_mixed.getHeight() - b.getWidth()) / 2);
-            y = (int) ((Y) * b.getHeight() / ima_mixed.getHeight());
-        }
         try {
-            col = b.getPixel(x, y);
+        File file_final = new File(getCacheDir(), "Final");
+        // = File.createTempFile("Fore", null, getCacheDir());
+        OutputStream outStream = new FileOutputStream(file_final);
+        b_final.compress(Bitmap.CompressFormat.PNG, 85, outStream);
+        outStream.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return col;
-    }
-
-    // Convertir bitmap a String
-    public String BitMapToString(Bitmap bitmap) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-        byte[] b = baos.toByteArray();
-        String temp = Base64.encodeToString(b, Base64.DEFAULT);
-        return temp;
     }
 
     // Convertir String a bitmap
@@ -586,7 +514,6 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
         point.set(x / 2, y / 2);
     }
 
-
     // Calcular l'angle de rotacio
     private float rotation(MotionEvent event) {
         double delta_x = (event.getX(0) - event.getX(1));
@@ -677,20 +604,4 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
         return transBitmap;
     }
 
-    // Crea un bitmap amb un nou tamany
-    public Bitmap getResizedBitmap(Bitmap bm, int newWidth, int newHeight) {
-        int width = bm.getWidth();
-        int height = bm.getHeight();
-        float scaleWidth = ((float) newWidth) / width;
-        float scaleHeight = ((float) newHeight) / height;
-        // Crea una matriu, mes facil de manipular
-        Matrix matrix = new Matrix();
-        // Canvia el tamany de la matriu
-        matrix.postScale(scaleWidth, scaleHeight);
-        // Log.i("cris", "parametre W:" + newWidth + " H:" + newHeight + " W2:" + width + " H2:" + height);
-        // Emplena el bitmap amb la matriu amb el tamany nou
-        Bitmap resizedBitmap = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, false);
-        // bm.recycle();
-        return resizedBitmap;
-    }
 }

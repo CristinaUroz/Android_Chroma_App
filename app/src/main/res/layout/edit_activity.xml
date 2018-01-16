@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     android:padding="10dp"
     android:background="#332222"
-    tools:context="uroz.cristina.chroma_app.ChooseActivity">
+    tools:context="uroz.cristina.chroma_app.ChooseActivity"
+    android:screenOrientation="portrait">
 
     <ImageView
         android:id="@+id/ima_fons"

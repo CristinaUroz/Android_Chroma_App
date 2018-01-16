@@ -8,7 +8,6 @@ import android.os.Environment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Base64;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -19,10 +18,11 @@ import android.widget.Toast;
 
 import net.margaritov.preference.colorpicker.ColorPickerDialog;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
@@ -43,7 +43,7 @@ public class ChromaActivity extends AppCompatActivity {
     public static String KEY_COLOR_CHROMA_2 = "KEY_COLOR_CHROMA_2";
     private int valor_barra = 0;
     private int color_chroma = 0;
-    private Bitmap bitmap;
+  //  private Bitmap bitmap;
     private Bitmap bitmap_mutable; // Bitmap editable
     private int[] pos = new int[2]; // Posicio del ImageView
     private int[] xy = new int[2]; // Posicio del "click" en el bitmap
@@ -158,13 +158,19 @@ public class ChromaActivity extends AppCompatActivity {
         btn_next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                String ima_chroma = BitMapToString(bitmap_mutable);
-                bitmap.recycle();
+                try {
+                    File file_chroma = new File(getCacheDir(), "Chroma");
+                    // = File.createTempFile("Fore", null, getCacheDir());
+                    OutputStream outStream = new FileOutputStream(file_chroma);
+                    bitmap_mutable.compress(Bitmap.CompressFormat.PNG, 85, outStream);
+                    outStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+               // bitmap.recycle();
                 bitmap_mutable.recycle();
                 Intent intent = new Intent(ChromaActivity.this, EditActivity.class);
                 try {
-                    intent.putExtra(EditActivity.KEY_IMA_CHROMA, ima_chroma);
                     intent.putExtra(EditActivity.KEY_VALOR_BARRA_3, valor_barra);
                     intent.putExtra(EditActivity.KEY_COLOR_CHROMA_3, color_chroma);
                     startActivity(intent);
@@ -389,8 +395,11 @@ public class ChromaActivity extends AppCompatActivity {
     }
 
     public void iniciar() {
-            bitmap = BitmapFactory.decodeFile(dir.getAbsolutePath());
-            bitmap_mutable = convertToMutable(bitmap);
+            final BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inSampleSize = 1;
+            //bitmap = BitmapFactory.decodeFile(dir.getAbsolutePath(),options);
+            //bitmap_mutable = convertToMutable(bitmap);
+            bitmap_mutable = convertToMutable(BitmapFactory.decodeFile(dir.getAbsolutePath(),options));
             fore_ima.setImageBitmap(bitmap_mutable);
     }
 
@@ -409,14 +418,5 @@ public class ChromaActivity extends AppCompatActivity {
             }
         });
         colorPickerDialog.show();
-    }
-
-    // Convertir Bitmap a String
-    public String BitMapToString(Bitmap bitmap) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-        byte[] b = baos.toByteArray();
-        String temp = Base64.encodeToString(b, Base64.DEFAULT);
-        return temp;
     }
 }

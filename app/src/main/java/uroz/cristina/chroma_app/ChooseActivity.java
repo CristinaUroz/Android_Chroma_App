@@ -44,6 +44,8 @@ public class ChooseActivity extends AppCompatActivity {
     private static final int MY_PERMISSIONS_REQUEST_CAMERA = 1;
     private boolean fore_guardada=false;
     private boolean back_guardada=false;
+    private int pix_max = 800;
+    private int compressio=85;
 
     // Guardem les dades quan girem la pantalla
     @Override
@@ -125,14 +127,15 @@ public class ChooseActivity extends AppCompatActivity {
             public void onClick(View view) {
                 // Passar dades entre dues activitats
                 guardarImatgesCache();
-
                 Intent intent = new Intent(ChooseActivity.this, ChromaActivity.class);
-
                 if(fore_guardada&&back_guardada){
-                startActivity(intent);
+                    File dir = new File(getCacheDir(), "Final");
+                    dir.delete();
+                    dir = new File(getCacheDir(), "Chroma");
+                    dir.delete();
+                    startActivity(intent);
                 finish();}
                 else {
-
                 Toast.makeText(ChooseActivity.this, getString(R.string.missing_data), Toast.LENGTH_LONG).show();}
 
             }
@@ -307,18 +310,20 @@ public class ChooseActivity extends AppCompatActivity {
 
         try {
             if (!fore_guardada){
-            Bitmap fore = Resize(MediaStore.Images.Media.getBitmap(this.getContentResolver(), fore_uri));
+                Bitmap fore = Resize(MediaStore.Images.Media.getBitmap(this.getContentResolver(), fore_uri));
                 File file_fore = new File(this.getCacheDir(), "Fore");
                 OutputStream outStream = new FileOutputStream(file_fore);
-                fore.compress(Bitmap.CompressFormat.PNG, 85, outStream);
+                fore.compress(Bitmap.CompressFormat.PNG, compressio, outStream);
                 outStream.close();
-            fore_guardada=true;}
+                fore.recycle();
+                fore_guardada=true;}
             if (!back_guardada) {
                 Bitmap back = Resize(MediaStore.Images.Media.getBitmap(this.getContentResolver(), back_uri));
                 File file_back = new File(this.getCacheDir(), "Back");
                 OutputStream outStream = new FileOutputStream(file_back);
-                back.compress(Bitmap.CompressFormat.PNG, 85, outStream);
+                back.compress(Bitmap.CompressFormat.PNG, compressio, outStream);
                 outStream.close();
+                back.recycle();
                 back_guardada=true;
             }
 
@@ -332,7 +337,7 @@ public class ChooseActivity extends AppCompatActivity {
     public Bitmap Resize (Bitmap bitmap) {
         // Es fa un resize de la imatge a un tamany mes petit fent que el costat mes gran de la
         // imatge no sigui superior a pix_max
-        int pix_max = 200;
+
         int H;
         int W;
         Bitmap resizedBitmap;
@@ -342,8 +347,7 @@ public class ChooseActivity extends AppCompatActivity {
                 H = pix_max;
                 W = (int) ((double) (bitmap.getWidth()) * ((double) (pix_max) / (double) (bitmap.getHeight())));
                 resizedBitmap = getResizedBitmap(bitmap, W, H);
-               // Log.i("Cris", "1. Maxim ample/alt: " + pix_max + " Sense comprimir:" + bitmap.getWidth() + "x" + bitmap.getHeight() + "| Comprimit:" + resizedBitmap.getWidth() + "x" + resizedBitmap.getHeight());
-
+                Log.i("Cris", "La imatge ha passat de tenir un tamany de " + bitmap.getWidth() + "x" + bitmap.getHeight() + " a un tamany de" + resizedBitmap.getWidth() + "x" + resizedBitmap.getHeight());
             }
             else {
                 resizedBitmap=bitmap;
@@ -353,8 +357,7 @@ public class ChooseActivity extends AppCompatActivity {
                 W = pix_max;
                 H = (int) ((double) (bitmap.getHeight()) * ((double) (pix_max) / (double) (bitmap.getWidth())));
                 resizedBitmap = getResizedBitmap(bitmap, W, H);
-              //  Log.i("Cris", "2. Maxim ample/alt: " + pix_max + " Sense comprimir:" + bitmap.getWidth() + "x" + bitmap.getHeight() + "| Comprimit:" + resizedBitmap.getWidth() + "x" + resizedBitmap.getHeight());
-
+                Log.i("Cris", "La imatge ha passat de tenir un tamany de " + bitmap.getWidth() + "x" + bitmap.getHeight() + " a un tamany de" + resizedBitmap.getWidth() + "x" + resizedBitmap.getHeight());
             }
             else {
                 resizedBitmap=bitmap;
@@ -372,10 +375,9 @@ public class ChooseActivity extends AppCompatActivity {
         Matrix matrix = new Matrix();
         // Canvia el tamany de la matriu
         matrix.postScale(scaleWidth, scaleHeight);
-        // Log.i("cris", "parametre W:" + newWidth + " H:" + newHeight + " W2:" + width + " H2:" + height);
         // Emplena el bitmap amb la matriu amb el tamany nou
         Bitmap resizedBitmap = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, false);
-        // bm.recycle();
+        bm.recycle();
         return resizedBitmap;
     }
 

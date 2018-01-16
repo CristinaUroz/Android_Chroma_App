@@ -11,7 +11,6 @@ import android.graphics.PointF;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -56,20 +55,18 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
     private ImageView ima_mixed, ima_fons, ima_restart;
 
     // Variables globals
-    public static String KEY_IMA_CHROMA = "KEY_IMA_CHROMA";
     public static String KEY_VALOR_BARRA_3 = "KEY_VALOR_BARRA_3";
     public static String KEY_COLOR_CHROMA_3 = "KEY_COLOR_CHROMA_3";
     public static String KEY_VALORS_FORE_3 = "KEY_VALORS_FORE_3";
     public static String KEY_VALORS_BACK_3 = "KEY_VALORS_BACK_3";
-    private String ima_chroma;
     private int valor_barra;
     private int color_chroma;
     private int EDIT_IMAGE_CODE = 0;
     private int EDIT_VARIABLE_CODE = 0;
     private Bitmap bitmap_mutable; // Bitmap editable
-    private Bitmap bitmap_b; // Backgorund
     private Bitmap bitmap_mutable_b; // Bitmap editable background
     private Bitmap b_final; // Bitmap final
+    private int compressio=85;
 
   //  private static int pix_max = 500; // Valor maxim de ample/alt de les imatges
     private int[] ids_effect = {R.id.contrast_button, R.id.brightness_button, R.id.temperature_button, R.id.rotation_button, R.id.saturation_button, R.id.opacity_button};
@@ -116,7 +113,7 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
         // Recuperacio de dades de quan tornem d'una altra activitat
         valor_barra = getIntent().getExtras().getInt(KEY_VALOR_BARRA_3);
         color_chroma = getIntent().getExtras().getInt(KEY_COLOR_CHROMA_3);
-        ima_chroma = getIntent().getExtras().getString(KEY_IMA_CHROMA);
+       // ima_chroma = getIntent().getExtras().getString(KEY_IMA_CHROMA);
 
         // Inicialitzacio del vector dels valors
         if (getIntent().getExtras().get(KEY_VALORS_FORE_3) == null) {
@@ -146,12 +143,13 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
         barra_edit.setProgress(valors_editables[0][0]);
 
         //Creem els bitmapa de background i el convertim mutable
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inSampleSize = 1;
         File dir = new File(getCacheDir(), "Back");
-        Log.i("Cris",dir.getAbsolutePath());
-        bitmap_b = BitmapFactory.decodeFile(dir.getAbsolutePath());
-        bitmap_mutable_b = convertToMutable(bitmap_b);
+        bitmap_mutable_b = convertToMutable(BitmapFactory.decodeFile(dir.getAbsolutePath(),options));
+        File dir_chroma = new File(getCacheDir(), "Chroma");
+        bitmap_mutable = convertToMutable(BitmapFactory.decodeFile(dir_chroma.getAbsolutePath(),options));
 
-        bitmap_mutable = StringToBitMap(ima_chroma);
 
         //Habilitar moviment
         ima_mixed.setOnTouchListener(this);
@@ -209,11 +207,9 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
             @Override
             public void onClick(View view) {
                 guardar_imatge_final();
-
                 Intent intent = new Intent(EditActivity.this, ShareActivity.class);
                 try {
                     // Matriu de propietats
-                    intent.putExtra(ShareActivity.KEY_IMA_CHROMA, ima_chroma);
                     intent.putExtra(ShareActivity.KEY_VALOR_BARRA_4, valor_barra);
                     intent.putExtra(ShareActivity.KEY_COLOR_CHROMA_4, color_chroma);
                     intent.putExtra(ShareActivity.KEY_VALORS_FORE_4, valors_editables[0]);
@@ -225,7 +221,6 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
                 } catch (Exception e) {
                     Toast.makeText(EditActivity.this, "Error al try", Toast.LENGTH_LONG).show();
                 }
-                bitmap_b.recycle();
                 bitmap_mutable.recycle();
                 bitmap_mutable_b.recycle();
                 b_final.recycle();
@@ -381,7 +376,7 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
             FileChannel channel = randomAccessFile.getChannel();
             MappedByteBuffer map = channel.map(FileChannel.MapMode.READ_WRITE, 0, imgIn.getRowBytes() * height);
             imgIn.copyPixelsToBuffer(map);
-            //imgIn.recycle();
+            imgIn.recycle();
             System.gc();
 
             // Es crea el bitmap que es podra editar i s'hi carrega l'anterior
@@ -413,24 +408,11 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
         b_final = Bitmap.createBitmap(b_final, pos[0], pos[1], ima_mixed.getWidth(), ima_mixed.getHeight());
         try {
         File file_final = new File(getCacheDir(), "Final");
-        // = File.createTempFile("Fore", null, getCacheDir());
         OutputStream outStream = new FileOutputStream(file_final);
-        b_final.compress(Bitmap.CompressFormat.PNG, 85, outStream);
+        b_final.compress(Bitmap.CompressFormat.PNG,compressio, outStream);
         outStream.close();
         } catch (Exception e) {
             e.printStackTrace();
-        }
-    }
-
-    // Convertir String a bitmap
-    public Bitmap StringToBitMap(String encodedString) {
-        try {
-            byte[] encodeByte = Base64.decode(encodedString, Base64.DEFAULT);
-            Bitmap bitmap = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
-            return bitmap;
-        } catch (Exception e) {
-            e.getMessage();
-            return null;
         }
     }
 
@@ -525,7 +507,6 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
     // Funcio que aplica totes les operacions d'edicio
     private Bitmap all_transformations(Bitmap bmap, int EDIT_IMAGE_CODE) {
         Bitmap bitmap = bmap;
-
         double val_contrast = (double) (valors_editables[EDIT_IMAGE_CODE][0]) / 50;
         int val_bright = (valors_editables[EDIT_IMAGE_CODE][1] - 50) * 2;
         int val_warmth = (valors_editables[EDIT_IMAGE_CODE][2] - 50) * 5;

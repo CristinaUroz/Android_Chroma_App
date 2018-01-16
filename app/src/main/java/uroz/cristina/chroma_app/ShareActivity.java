@@ -29,17 +29,14 @@ public class ShareActivity extends AppCompatActivity {
 
     // Variables globals
     private File dir;
-    public static String KEY_IMA_CHROMA = "KEY_IMA_CHROMA";
     public static String KEY_VALOR_BARRA_4 = "KEY_VALOR_BARRA_4";
     public static String KEY_COLOR_CHROMA_4 = "KEY_COLOR_CHROMA_4";
     public static String KEY_VALORS_FORE_4 = "KEY_VALORS_FORE_4";
     public static String KEY_VALORS_BACK_4 = "KEY_VALORS_BACK_4";
     private String image_name = getPhotoName(); // Inclou '.jpg'
     private String image_dir = "/ChromAppPhotos/SavedPhotos/";
-    private String ima_chroma;
     private int valor_barra;
     private int color_chroma;
-
     private int[] valors_fore;
     private int[] valors_back;
 
@@ -51,7 +48,6 @@ public class ShareActivity extends AppCompatActivity {
         outState.putInt("color_chroma", color_chroma);
         outState.putIntArray("fore_val", valors_fore);
         outState.putIntArray("back_val", valors_back);
-        outState.putString("ima_chroma", ima_chroma);
     }
 
     @Override
@@ -72,12 +68,13 @@ public class ShareActivity extends AppCompatActivity {
         color_chroma = getIntent().getExtras().getInt(KEY_COLOR_CHROMA_4);
         valors_fore = getIntent().getExtras().getIntArray(KEY_VALORS_FORE_4);
         valors_back = getIntent().getExtras().getIntArray(KEY_VALORS_BACK_4);
-        ima_chroma = getIntent().getExtras().getString(KEY_IMA_CHROMA);
 
         //Llegim la imatge del cache i la fem visible
         File dir = new File(getCacheDir(), "Final");
         Log.i("Cris",dir.getAbsolutePath());
-        Bitmap b = BitmapFactory.decodeFile(dir.getAbsolutePath());
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inSampleSize = 1;
+        Bitmap b = BitmapFactory.decodeFile(dir.getAbsolutePath(),options);
         ima_final.setImageBitmap(b);
 
         // Recuperacio de dades de quan girem la pantalla
@@ -86,7 +83,6 @@ public class ShareActivity extends AppCompatActivity {
             color_chroma = savedInstanceState.getInt("color_chroma");
             valors_fore = savedInstanceState.getIntArray("fore_val");
             valors_back = savedInstanceState.getIntArray("back_val");
-            ima_chroma = savedInstanceState.getString("ima_chroma");
         }
 
 
@@ -96,7 +92,6 @@ public class ShareActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(ShareActivity.this, EditActivity.class);
-                intent.putExtra(EditActivity.KEY_IMA_CHROMA, ima_chroma);
                 intent.putExtra(EditActivity.KEY_VALOR_BARRA_3, valor_barra);
                 intent.putExtra(EditActivity.KEY_COLOR_CHROMA_3, color_chroma);
                 intent.putExtra(EditActivity.KEY_VALORS_FORE_3, valors_fore);
@@ -189,6 +184,7 @@ public class ShareActivity extends AppCompatActivity {
             guardat_ok = false;
             e.printStackTrace();
         }
+        bitmap.recycle();
         return guardat_ok;
     }
 

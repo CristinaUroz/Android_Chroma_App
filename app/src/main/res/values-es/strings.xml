@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Chroma_App</string>
     <string name="camera">Cámara</string>
     <string name="choose">Escoge la imagen</string>
     <string name="choose_from">¿De donde quieres coger la imagen?</string>
@@ -27,4 +26,12 @@
     <string name="share_to">Comparte con...</string>
     <string name="image_not_saved">La imagen no se ha podido guardar!</string>
     <string name="selected">Color chroma</string>
+    <string name="info_1">Haz click en el icono para escoger las imágenes a utilizar. La imagen principal es la que aparecerá delante y tiene que tener el fondo de un solo color uniforme.</string>
+    <string name="info_3">Selecciona que imagen quieres editar i que efecto le quieres aplicar. Haz click en la imagen i mueve el dedo por la pantalla para cambiar la posicion de la imagen o pellizca para hacer zoom.</string>
+    <string name="info_2">Haz click en la imagen para escoger que color quieres suprimir segun la toleráncia. También puedes escoger el color con los colores de muestra o con el metodo HSL.</string>
+    <string name="ok">Entendido</string>
+    <string name="edit_title">Edita las imágenes</string>
+    <string name="chroma_title">Selecciona el color del chroma</string>
+    <string name="choose_title">Escoge las imágenes</string>
+    <string name="ErrorSomething">Algo ha fallado</string>
 </resources>

@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -28,12 +29,15 @@ import java.io.OutputStream;
 import java.util.Calendar;
 
 public class ChooseActivity extends AppCompatActivity {
+
     // Declaracio de referencies a elements de la pantalla
     private Button btn_next;
     private ImageView fore_ima;
     private ImageView back_ima;
+    private ImageView info_ima;
 
     // Variables globals
+    public static String RETORNAR = "RETORNAR"; //per detectar si vens o no de l'activitat chroma
     private int codi_imatge = 1;
     private Uri fore_uri;
     private Uri back_uri;
@@ -42,10 +46,10 @@ public class ChooseActivity extends AppCompatActivity {
     private String image_dir = "/ChromAppPhotos/data/";
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 0;
     private static final int MY_PERMISSIONS_REQUEST_CAMERA = 1;
-    private boolean fore_guardada=false;
-    private boolean back_guardada=false;
+    private boolean fore_guardada = false;
+    private boolean back_guardada = false;
     private int pix_max = 800;
-    private int compressio=85;
+    private int compressio = 85;
 
     // Guardem les dades quan girem la pantalla
     @Override
@@ -85,28 +89,42 @@ public class ChooseActivity extends AppCompatActivity {
         // Obtencio de referencies a elements de la pantalla
         fore_ima = (ImageView) findViewById(R.id.ima_fore);
         back_ima = (ImageView) findViewById(R.id.ima_back);
+        info_ima = (ImageView) findViewById(R.id.ima_info1);
         btn_next = (Button) findViewById(R.id.next_button_choose);
 
         // Recuperacio de dades de quan tornem d'una altra activitat
-        //if (getIntent() != null && getIntent().getExtras() != null) {
-        if (getIntent() != null) {
+        if (getIntent() != null && getIntent().getExtras() != null) {
+            if (getIntent().getExtras().getBoolean(RETORNAR)) {
                 try {
                     File dir = new File(getCacheDir(), "Fore");
-                    Log.i("Cris",dir.getAbsolutePath());
+                    Log.i("Cris", dir.getAbsolutePath());
                     Bitmap fore = BitmapFactory.decodeFile(dir.getAbsolutePath());
-                    if (fore.getHeight()!=0){
-                    fore_ima.setImageBitmap(fore);
-                    fore_guardada=true;}
+                    if (fore.getHeight() != 0) {
+                        fore_ima.setImageBitmap(fore);
+                        fore_guardada = true;
+                    }
 
                     dir = new File(getCacheDir(), "Back");
-                    Log.i("Cris",dir.getAbsolutePath());
+                    Log.i("Cris", dir.getAbsolutePath());
                     Bitmap back = BitmapFactory.decodeFile(dir.getAbsolutePath());
-                    if (back.getHeight()!=0){
-                    back_ima.setImageBitmap(back);
-                    back_guardada=true;}
+                    if (back.getHeight() != 0) {
+                        back_ima.setImageBitmap(back);
+                        back_guardada = true;
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+            } else {
+                //Si no tornem de l'activitat anterior borrem les imatges que estan guardades
+                File dir2 = new File(getCacheDir(), "Fore");
+                dir2.delete();
+                dir2 = new File(getCacheDir(), "Back");
+                dir2.delete();
+                dir2 = new File(getCacheDir(), "Chroma");
+                dir2.delete();
+                dir2 = new File(getCacheDir(), "Final");
+                dir2.delete();
+            }
         }
 
         // Recuperacio de dades de quan girem la pantalla
@@ -127,16 +145,18 @@ public class ChooseActivity extends AppCompatActivity {
             public void onClick(View view) {
                 // Passar dades entre dues activitats
                 guardarImatgesCache();
+                netejar_fitxers();
                 Intent intent = new Intent(ChooseActivity.this, ChromaActivity.class);
-                if(fore_guardada&&back_guardada){
+                if (fore_guardada && back_guardada) {
                     File dir = new File(getCacheDir(), "Final");
                     dir.delete();
                     dir = new File(getCacheDir(), "Chroma");
                     dir.delete();
                     startActivity(intent);
-                finish();}
-                else {
-                Toast.makeText(ChooseActivity.this, getString(R.string.missing_data), Toast.LENGTH_LONG).show();}
+                    finish();
+                } else {
+                    Toast.makeText(ChooseActivity.this, getString(R.string.missing_data), Toast.LENGTH_LONG).show();
+                }
 
             }
         });
@@ -156,6 +176,23 @@ public class ChooseActivity extends AppCompatActivity {
             public void onClick(View view) {
                 codi_imatge = 0;
                 chooseCameraGallery();
+            }
+        });
+
+        info_ima.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(ChooseActivity.this);
+                builder.setTitle(R.string.choose_title);
+                builder.setMessage(R.string.info_1);
+                builder.setCancelable(true);
+                builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                    }
+                });
+                builder.create().show();
             }
         });
     }
@@ -236,7 +273,7 @@ public class ChooseActivity extends AppCompatActivity {
                         fore_uri = imageReturnedIntent.getData();
                         if (fore_uri != null) {
                             fore_ima.setImageURI(fore_uri);
-                            fore_guardada=false;
+                            fore_guardada = false;
                         }
                     }
 
@@ -245,8 +282,9 @@ public class ChooseActivity extends AppCompatActivity {
                     if (resultCode == RESULT_OK) {
                         Bitmap bMap = BitmapFactory.decodeFile(fileName);
                         fore_ima.setImageBitmap(bMap);
-                        fore_guardada=false;
+                        fore_guardada = false;
                     }
+
                     break;
             }
         } else if (codi_imatge == 0) {
@@ -257,7 +295,7 @@ public class ChooseActivity extends AppCompatActivity {
                         back_uri = imageReturnedIntent.getData();
                         if (back_uri != null) {
                             back_ima.setImageURI(back_uri);
-                            back_guardada=false;
+                            back_guardada = false;
                         }
                     }
 
@@ -266,7 +304,7 @@ public class ChooseActivity extends AppCompatActivity {
                     if (resultCode == RESULT_OK) {
                         Bitmap bMap = BitmapFactory.decodeFile(fileName);
                         back_ima.setImageBitmap(bMap);
-                        back_guardada=false;
+                        back_guardada = false;
                     }
                     break;
             }
@@ -306,17 +344,18 @@ public class ChooseActivity extends AppCompatActivity {
         }
     }
 
+    //Guardem les imatges comprimides i redimensionades al cache per utilitzarles a les altres activitats
     public void guardarImatgesCache() {
-
         try {
-            if (!fore_guardada){
+            if (!fore_guardada) {
                 Bitmap fore = Resize(MediaStore.Images.Media.getBitmap(this.getContentResolver(), fore_uri));
                 File file_fore = new File(this.getCacheDir(), "Fore");
                 OutputStream outStream = new FileOutputStream(file_fore);
                 fore.compress(Bitmap.CompressFormat.PNG, compressio, outStream);
                 outStream.close();
                 fore.recycle();
-                fore_guardada=true;}
+                fore_guardada = true;
+            }
             if (!back_guardada) {
                 Bitmap back = Resize(MediaStore.Images.Media.getBitmap(this.getContentResolver(), back_uri));
                 File file_back = new File(this.getCacheDir(), "Back");
@@ -324,7 +363,7 @@ public class ChooseActivity extends AppCompatActivity {
                 back.compress(Bitmap.CompressFormat.PNG, compressio, outStream);
                 outStream.close();
                 back.recycle();
-                back_guardada=true;
+                back_guardada = true;
             }
 
 
@@ -334,10 +373,9 @@ public class ChooseActivity extends AppCompatActivity {
 
     }
 
-    public Bitmap Resize (Bitmap bitmap) {
+    public Bitmap Resize(Bitmap bitmap) {
         // Es fa un resize de la imatge a un tamany mes petit fent que el costat mes gran de la
         // imatge no sigui superior a pix_max
-
         int H;
         int W;
         Bitmap resizedBitmap;
@@ -348,9 +386,8 @@ public class ChooseActivity extends AppCompatActivity {
                 W = (int) ((double) (bitmap.getWidth()) * ((double) (pix_max) / (double) (bitmap.getHeight())));
                 resizedBitmap = getResizedBitmap(bitmap, W, H);
                 Log.i("Cris", "La imatge ha passat de tenir un tamany de " + bitmap.getWidth() + "x" + bitmap.getHeight() + " a un tamany de" + resizedBitmap.getWidth() + "x" + resizedBitmap.getHeight());
-            }
-            else {
-                resizedBitmap=bitmap;
+            } else {
+                resizedBitmap = bitmap;
             }
         } else {
             if (bitmap.getWidth() > pix_max) {
@@ -358,9 +395,8 @@ public class ChooseActivity extends AppCompatActivity {
                 H = (int) ((double) (bitmap.getHeight()) * ((double) (pix_max) / (double) (bitmap.getWidth())));
                 resizedBitmap = getResizedBitmap(bitmap, W, H);
                 Log.i("Cris", "La imatge ha passat de tenir un tamany de " + bitmap.getWidth() + "x" + bitmap.getHeight() + " a un tamany de" + resizedBitmap.getWidth() + "x" + resizedBitmap.getHeight());
-            }
-            else {
-                resizedBitmap=bitmap;
+            } else {
+                resizedBitmap = bitmap;
             }
         }
         return resizedBitmap;
@@ -381,4 +417,14 @@ public class ChooseActivity extends AppCompatActivity {
         return resizedBitmap;
     }
 
+    public void netejar_fitxers() {
+        File directory = new File(Environment.getExternalStorageDirectory().toString()+image_dir);
+        File[] files = directory.listFiles();
+        Log.d("Files", "Size: " + files.length);
+        for (int i = 0; i < files.length; i++) {
+            if (files[i].length() == 0){
+                files[i].delete();
+            }
+        }
+    }
 }

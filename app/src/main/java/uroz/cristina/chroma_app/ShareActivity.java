@@ -8,8 +8,6 @@ import android.net.Uri;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Base64;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -71,10 +69,9 @@ public class ShareActivity extends AppCompatActivity {
 
         //Llegim la imatge del cache i la fem visible
         File dir = new File(getCacheDir(), "Final");
-        Log.i("Cris",dir.getAbsolutePath());
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inSampleSize = 1;
-        Bitmap b = BitmapFactory.decodeFile(dir.getAbsolutePath(),options);
+        Bitmap b = BitmapFactory.decodeFile(dir.getAbsolutePath(), options);
         ima_final.setImageBitmap(b);
 
         // Recuperacio de dades de quan girem la pantalla
@@ -84,7 +81,6 @@ public class ShareActivity extends AppCompatActivity {
             valors_fore = savedInstanceState.getIntArray("fore_val");
             valors_back = savedInstanceState.getIntArray("back_val");
         }
-
 
 
         // Boto prev
@@ -134,6 +130,8 @@ public class ShareActivity extends AppCompatActivity {
                 dir.delete();
                 dir = new File(getCacheDir(), "Back");
                 dir.delete();
+                dir = new File(getCacheDir(), "Chroma");
+                dir.delete();
                 dir = new File(getCacheDir(), "Final");
                 dir.delete();
                 Intent intent = new Intent(ShareActivity.this, ChooseActivity.class);
@@ -149,6 +147,8 @@ public class ShareActivity extends AppCompatActivity {
                 File dir = new File(getCacheDir(), "Fore");
                 dir.delete();
                 dir = new File(getCacheDir(), "Back");
+                dir.delete();
+                dir = new File(getCacheDir(), "Chroma");
                 dir.delete();
                 dir = new File(getCacheDir(), "Final");
                 dir.delete();
@@ -184,7 +184,6 @@ public class ShareActivity extends AppCompatActivity {
             guardat_ok = false;
             e.printStackTrace();
         }
-        bitmap.recycle();
         return guardat_ok;
     }
 
@@ -205,5 +204,17 @@ public class ShareActivity extends AppCompatActivity {
         second = (second.length() == 1) ? "0" + second : second;
 
         return year + "." + month + "." + day + "_" + hour + "." + minute + "." + second + ".jpg";
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent = new Intent(ShareActivity.this, EditActivity.class);
+        intent.putExtra(EditActivity.KEY_VALOR_BARRA_3, valor_barra);
+        intent.putExtra(EditActivity.KEY_COLOR_CHROMA_3, color_chroma);
+        intent.putExtra(EditActivity.KEY_VALORS_FORE_3, valors_fore);
+        intent.putExtra(EditActivity.KEY_VALORS_BACK_3, valors_back);
+        startActivity(intent);
+        finish();
     }
 }

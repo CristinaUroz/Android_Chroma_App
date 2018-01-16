@@ -20,18 +20,16 @@ android {
 }
 
 dependencies {
-     //?? https://developer.android.com/training/material/palette-colors.html
+    //?? https://developer.android.com/training/material/palette-colors.html
     compile fileTree(include: ['*.jar'], dir: 'libs')
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile 'com.android.support:appcompat-v7:26.+'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'com.android.support:palette-v7:26.+'// com.android.support:palette-v7:24.2.1'
+    compile 'com.android.support:palette-v7:26.+'
+    // com.android.support:palette-v7:24.2.1'
     testCompile 'junit:junit:4.12'
-    compile project(':openCVLibrary331')
-
     //Llibreria triar color
     compile 'com.github.attenzione:android-ColorPickerPreference:ba6d45b9aa'
-
 }

@@ -1,5 +1,6 @@
 package uroz.cristina.chroma_app;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -9,6 +10,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.os.Environment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -40,6 +42,7 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
     private static final int DRAG = 1;
     private static final int ZOOM = 2;
     private int mode = NONE;
+
     // Variables de zoom
     private PointF start = new PointF();
     private PointF mid = new PointF();
@@ -47,7 +50,6 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
     private float d = 0f;
     private float newRot = 0f;
     private float[] lastEvent = null;
-
 
     // Declaracio de referencies a elements de la pantalla
     private Button btn_prev, btn_next, btn_fore, btn_back, btn_contrast, btn_brillo, btn_temp, btn_rot, btn_satu, btn_opac;
@@ -66,17 +68,18 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
     private Bitmap bitmap_mutable; // Bitmap editable
     private Bitmap bitmap_mutable_b; // Bitmap editable background
     private Bitmap b_final; // Bitmap final
-    private int compressio=85;
+    private int compressio = 85;
+    private ImageView info_ima;
 
-  //  private static int pix_max = 500; // Valor maxim de ample/alt de les imatges
+    //  private static int pix_max = 500; // Valor maxim de ample/alt de les imatges
     private int[] ids_effect = {R.id.contrast_button, R.id.brightness_button, R.id.temperature_button, R.id.rotation_button, R.id.saturation_button, R.id.opacity_button};
 
     // On es guarden els valors de la seekbar per cada efecte i imatge (fore i back)
     private int[][] valors_editables = new int[2][6];
 
     // Al acabar les probes, es pot borrar aixo d'aqui sota /////////////////
-    private String[] edit_image = {"Foreground", "Background"};
-    private String[] edit_variable = {"Contrast", "Bright", "Warmth", "Rotation", "Saturation", "Opacity"};
+    private String[] edit_image; // = {getString(R.string.foreground), getString(R.string.background)};
+    private String[] edit_variable;// = {getString(R.string.contrast), getString(R.string.brightness), getString(R.string.warmth), getString(R.string.rotation), getString(R.string.saturation), getString(R.string.opacity)};
     /////////////////////////////////////////////////////////////////////////////////////
 
     // Guardem les dades quan girem la pantalla
@@ -109,11 +112,11 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
         ima_mixed = (ImageView) findViewById(R.id.ima_mixed);
         ima_fons = (ImageView) findViewById(R.id.ima_fons);
         ima_restart = (ImageView) findViewById(R.id.restart);
+        info_ima = (ImageView) findViewById(R.id.ima_info3);
 
         // Recuperacio de dades de quan tornem d'una altra activitat
         valor_barra = getIntent().getExtras().getInt(KEY_VALOR_BARRA_3);
         color_chroma = getIntent().getExtras().getInt(KEY_COLOR_CHROMA_3);
-       // ima_chroma = getIntent().getExtras().getString(KEY_IMA_CHROMA);
 
         // Inicialitzacio del vector dels valors
         if (getIntent().getExtras().get(KEY_VALORS_FORE_3) == null) {
@@ -130,7 +133,6 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
         }
 
         // Recuperacio de dades de quan girem la pantalla
-
         if (savedInstanceState != null) {
             valor_barra = savedInstanceState.getInt("valor_barra");
             color_chroma = savedInstanceState.getInt("color_chroma");
@@ -146,10 +148,9 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inSampleSize = 1;
         File dir = new File(getCacheDir(), "Back");
-        bitmap_mutable_b = convertToMutable(BitmapFactory.decodeFile(dir.getAbsolutePath(),options));
+        bitmap_mutable_b = convertToMutable(BitmapFactory.decodeFile(dir.getAbsolutePath(), options));
         File dir_chroma = new File(getCacheDir(), "Chroma");
-        bitmap_mutable = convertToMutable(BitmapFactory.decodeFile(dir_chroma.getAbsolutePath(),options));
-
+        bitmap_mutable = convertToMutable(BitmapFactory.decodeFile(dir_chroma.getAbsolutePath(), options));
 
         //Habilitar moviment
         ima_mixed.setOnTouchListener(this);
@@ -164,6 +165,27 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
         ima_mixed.setImageBitmap(aux);
         aux = all_transformations(bitmap_mutable_b, 1);
         ima_fons.setImageBitmap(aux);
+
+        edit_image = new String[]{getString(R.string.foreground), getString(R.string.background)};
+        edit_variable = new String[]{getString(R.string.contrast), getString(R.string.brightness), getString(R.string.warmth), getString(R.string.rotation), getString(R.string.saturation), getString(R.string.opacity)};
+
+        //Boto d'informacio
+        info_ima.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(EditActivity.this);
+                builder.setTitle(R.string.edit_title);
+                builder.setMessage(R.string.info_3);
+                builder.setCancelable(true);
+                builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                    }
+                });
+                builder.create().show();
+            }
+        });
 
         // Accions que s'executaran quan es mogui la barra
         barra_edit.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -219,7 +241,7 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
                     finish();
 
                 } catch (Exception e) {
-                    Toast.makeText(EditActivity.this, "Error al try", Toast.LENGTH_LONG).show();
+                    Toast.makeText(EditActivity.this, getString(R.string.ErrorSomething), Toast.LENGTH_LONG).show();
                 }
                 bitmap_mutable.recycle();
                 bitmap_mutable_b.recycle();
@@ -407,10 +429,10 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
         b_final = Bitmap.createBitmap(v1.getDrawingCache());
         b_final = Bitmap.createBitmap(b_final, pos[0], pos[1], ima_mixed.getWidth(), ima_mixed.getHeight());
         try {
-        File file_final = new File(getCacheDir(), "Final");
-        OutputStream outStream = new FileOutputStream(file_final);
-        b_final.compress(Bitmap.CompressFormat.PNG,compressio, outStream);
-        outStream.close();
+            File file_final = new File(getCacheDir(), "Final");
+            OutputStream outStream = new FileOutputStream(file_final);
+            b_final.compress(Bitmap.CompressFormat.PNG, compressio, outStream);
+            outStream.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -585,4 +607,13 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
         return transBitmap;
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent = new Intent(EditActivity.this, ChromaActivity.class);
+        intent.putExtra(ChromaActivity.KEY_VALOR_BARRA_2, valor_barra);
+        intent.putExtra(ChromaActivity.KEY_COLOR_CHROMA_2, color_chroma);
+        startActivity(intent);
+        finish();
+    }
 }

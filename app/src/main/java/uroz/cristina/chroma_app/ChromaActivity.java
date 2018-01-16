@@ -1,5 +1,6 @@
 package uroz.cristina.chroma_app;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -33,17 +34,16 @@ public class ChromaActivity extends AppCompatActivity {
     // Declaracio de referencies a elements de la pantalla
     private Button btn_next, btn_prev, btn_hsl, btn_palete;
     private SeekBar barra_chroma;
-
     private ImageView fore_ima;
     private ImageView color_view;
     private ImageView revert;
+    private ImageView info_ima;
 
     // Variables globals
     public static String KEY_VALOR_BARRA_2 = "KEY_VALOR_BARRA_2";
     public static String KEY_COLOR_CHROMA_2 = "KEY_COLOR_CHROMA_2";
     private int valor_barra = 0;
     private int color_chroma = 0;
-  //  private Bitmap bitmap;
     private Bitmap bitmap_mutable; // Bitmap editable
     private int[] pos = new int[2]; // Posicio del ImageView
     private int[] xy = new int[2]; // Posicio del "click" en el bitmap
@@ -76,6 +76,7 @@ public class ChromaActivity extends AppCompatActivity {
         fore_ima = (ImageView) findViewById(R.id.ima_fore2);
         color_view = (ImageView) findViewById(R.id.color_view);
         revert = (ImageView) findViewById(R.id.revert);
+        info_ima = (ImageView) findViewById(R.id.ima_info2);
 
         // Com a posicio de click inicial posem -1
         xy[0] = -1;
@@ -90,15 +91,16 @@ public class ChromaActivity extends AppCompatActivity {
 
         // Configuracio de la barra
         barra_chroma.setMax(100);
-        if (getIntent()!=null&&getIntent().getExtras()!=null){
-        if (getIntent().getExtras().get(KEY_VALOR_BARRA_2) != null) {
-            valor_barra = getIntent().getExtras().getInt(KEY_VALOR_BARRA_2);
-        }
-        barra_chroma.setProgress(valor_barra);
+        if (getIntent() != null && getIntent().getExtras() != null) {
+            if (getIntent().getExtras().get(KEY_VALOR_BARRA_2) != null) {
+                valor_barra = getIntent().getExtras().getInt(KEY_VALOR_BARRA_2);
+            }
+            barra_chroma.setProgress(valor_barra);
 
-        if (getIntent().getExtras().get(KEY_COLOR_CHROMA_2) != null) {
-            color_chroma = getIntent().getExtras().getInt(KEY_COLOR_CHROMA_2);
-        }}
+            if (getIntent().getExtras().get(KEY_COLOR_CHROMA_2) != null) {
+                color_chroma = getIntent().getExtras().getInt(KEY_COLOR_CHROMA_2);
+            }
+        }
 
         // Creacio del bitmap, el bitmap mutable i display a l'imageview
         dir = new File(getCacheDir(), "Fore");
@@ -137,8 +139,7 @@ public class ChromaActivity extends AppCompatActivity {
                 if (xy[0] != -1 && xy[1] != -1) {
                     iniciar();
                     change_Color();
-                }
-                else {
+                } else {
                     getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                 }
             }
@@ -149,6 +150,7 @@ public class ChromaActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(ChromaActivity.this, ChooseActivity.class);
+                intent.putExtra(ChooseActivity.RETORNAR, true);
                 startActivity(intent);
                 finish();
             }
@@ -167,7 +169,7 @@ public class ChromaActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-               // bitmap.recycle();
+                // bitmap.recycle();
                 bitmap_mutable.recycle();
                 Intent intent = new Intent(ChromaActivity.this, EditActivity.class);
                 try {
@@ -176,8 +178,26 @@ public class ChromaActivity extends AppCompatActivity {
                     startActivity(intent);
                     finish();
                 } catch (Exception e) {
-                    Toast.makeText(ChromaActivity.this, "Error al try", Toast.LENGTH_LONG).show();
+                    Toast.makeText(ChromaActivity.this, getString(R.string.ErrorSomething), Toast.LENGTH_LONG).show();
                 }
+            }
+        });
+
+        //Boto d'informacio
+        info_ima.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(ChromaActivity.this);
+                builder.setTitle(R.string.chroma_title);
+                builder.setMessage(R.string.info_2);
+                builder.setCancelable(true);
+                builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                    }
+                });
+                builder.create().show();
             }
         });
 
@@ -395,12 +415,11 @@ public class ChromaActivity extends AppCompatActivity {
     }
 
     public void iniciar() {
-            final BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inSampleSize = 1;
-            //bitmap = BitmapFactory.decodeFile(dir.getAbsolutePath(),options);
-            //bitmap_mutable = convertToMutable(bitmap);
-            bitmap_mutable = convertToMutable(BitmapFactory.decodeFile(dir.getAbsolutePath(),options));
-            fore_ima.setImageBitmap(bitmap_mutable);
+        //AQUEST CODI ES PER COMPRIMIR EL BITMAP EN CAS DE TENIR PROBLEMES DE MEMORIA
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inSampleSize = 1; //Ha de ser multiple de 2, si es 1 no fa res
+        bitmap_mutable = convertToMutable(BitmapFactory.decodeFile(dir.getAbsolutePath(), options));
+        fore_ima.setImageBitmap(bitmap_mutable);
     }
 
     public void colorPicker() {
@@ -418,5 +437,14 @@ public class ChromaActivity extends AppCompatActivity {
             }
         });
         colorPickerDialog.show();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent = new Intent(ChromaActivity.this, ChooseActivity.class);
+        intent.putExtra(ChooseActivity.RETORNAR, true);
+        startActivity(intent);
+        finish();
     }
 }

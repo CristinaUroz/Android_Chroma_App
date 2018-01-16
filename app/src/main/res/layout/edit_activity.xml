@@ -152,5 +152,14 @@
         android:layout_centerHorizontal="true"
         app:srcCompat="@android:drawable/ic_menu_revert" />
 
+    <ImageView
+        android:id="@+id/ima_info3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/restart"
+        android:layout_alignParentTop="true"
+        android:layout_alignStart="@+id/restart"
+        app:srcCompat="@android:drawable/ic_dialog_info" />
+
 </RelativeLayout>
 

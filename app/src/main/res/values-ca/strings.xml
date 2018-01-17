@@ -4,7 +4,7 @@
     <string name="brightness">Brillantor</string>
     <string name="camera">Càmera</string>
     <string name="choose">Tria l\'imatge</string>
-    <string name="choose_from">D\'on vols agafar la imatge?</string>
+    <string name="choose_from">Des d\'on vols agafar la imatge?</string>
     <string name="contrast">Contrast</string>
     <string name="delete">Esborrar</string>
     <string name="finish">Finalitzar</string>
@@ -26,12 +26,12 @@
     <string name="share_to">Comparteix amb...</string>
     <string name="image_not_saved">La imatge no s\'ha pogut guardar!</string>
     <string name="selected">Color chroma</string>
-    <string name="info_1">Fes click a les icones per triar les imatges que s\'utilitzaran. La imatge principal es la que apareixera davant de tot i ha de tenir un fons d\'un sol color uniforme.</string>
-    <string name="info_2">Fes click en la imatge per triar quin color vols suprimir segons la tolerància. Tambe pots triar el color amb els colors de mostra o el metode HSL.</string>
-    <string name="info_3">Selecciona quina imatge vols editar i quin efecte l\'hi vols aplicar. Fes click a la imatge i mou el dit per la pantalla per cambiar la posicio de l\'imatge o pessiga-la per fer-li zoom.</string>
+    <string name="info_1">Fes click a les icones per triar les imatges que s\'utilitzaran. La imatge principal es la que apareixerà davant de tot i ha de tenir un fons d\'un sol color uniforme.</string>
+    <string name="info_2">Fes click en la imatge per triar quin color vols suprimir segons la tolerància. També pots triar el color amb els colors de mostra o el mètode HSL.</string>
+    <string name="info_3">Selecciona quina imatge vols editar i quin efecte l\'hi vols aplicar. Fes click a la imatge i mou el dit per la pantalla per canviar la posició de la imatge o pessiga-la per fer-li zoom.</string>
     <string name="ok">Entès</string>
     <string name="edit_title">Edita les imatges</string>
     <string name="chroma_title">Selecciona el color del chroma</string>
     <string name="choose_title">Tria les imatges</string>
-    <string name="ErrorSomething">Algo ha anat malament</string>
+    <string name="ErrorSomething">Algo ha anat malament...</string>
 </resources>

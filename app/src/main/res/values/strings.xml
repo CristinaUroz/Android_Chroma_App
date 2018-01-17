@@ -26,12 +26,12 @@
     <string name="share_to">Share to...</string>
     <string name="image_not_saved">The image could not be saved!</string>
     <string name="selected">Chroma color</string>
-    <string name="info_1">Click on the icons to choose the images that will be used. The main image is the one that will appear above the rest, and must have a background of only one uniform color.</string>
-    <string name="info_2">Click on the image to choose which color you want to delete according to the tolerance. You can also choose the color with the sample colors or the HSL method.</string>
-    <string name="info_3">Click on the image to be edited and select the effect to be applied. Click on the image and drag your finger across the screen to change the image position or pinch the image to zoom it.</string>
+    <string name="info_1">Click on the icons to choose the images to use. The foreground image is the one that appears in front and has to have the background of a single uniform color.</string>
+    <string name="info_2">Click on the image to choose which color you want to delete according to tolerance. You can also choose the color with the sample colors or with the HSL method.</string>
+    <string name="info_3">Select which image you want to edit and what effect you want to apply. Click on the image and move your finger across the screen to change the position of the image or pinch to zoom.</string>
     <string name="choose_title">Choose images</string>
     <string name="ok">Ok</string>
-    <string name="chroma_title">Select chroma color</string>
+    <string name="chroma_title">Select the chroma color</string>
     <string name="edit_title">Edit the images</string>
-    <string name="ErrorSomething">Something went wrong</string>
+    <string name="ErrorSomething">Something went wrong...</string>
 </resources>

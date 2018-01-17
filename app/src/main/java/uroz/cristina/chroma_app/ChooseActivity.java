@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -73,9 +72,9 @@ public class ChooseActivity extends AppCompatActivity {
         // Demana permisos de camera
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
-                Log.i("kike", "demana camera opcio 1");
+                Log.i("Bernat", "demana camera opcio 1");
             } else {
-                Log.i("kike", "demana camera opcio 2");
+                Log.i("Bernat", "demana camera opcio 2");
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, MY_PERMISSIONS_REQUEST_CAMERA);
             }
         }
@@ -157,7 +156,6 @@ public class ChooseActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(ChooseActivity.this, getString(R.string.missing_data), Toast.LENGTH_LONG).show();
                 }
-
             }
         });
 
@@ -214,7 +212,7 @@ public class ChooseActivity extends AppCompatActivity {
                     photoFile.createNewFile();
                     if (codi_imatge == 0) {
                         back_uri = Uri.fromFile(photoFile);
-                        Log.i("cris", back_uri.toString());
+                        Log.i("Cris", back_uri.toString());
                         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, back_uri);
                         startActivityForResult(cameraIntent, 1);
@@ -276,7 +274,6 @@ public class ChooseActivity extends AppCompatActivity {
                             fore_guardada = false;
                         }
                     }
-
                     break;
                 case 1:
                     if (resultCode == RESULT_OK) {
@@ -284,7 +281,6 @@ public class ChooseActivity extends AppCompatActivity {
                         fore_ima.setImageBitmap(bMap);
                         fore_guardada = false;
                     }
-
                     break;
             }
         } else if (codi_imatge == 0) {
@@ -298,7 +294,6 @@ public class ChooseActivity extends AppCompatActivity {
                             back_guardada = false;
                         }
                     }
-
                     break;
                 case 1:
                     if (resultCode == RESULT_OK) {
@@ -317,27 +312,27 @@ public class ChooseActivity extends AppCompatActivity {
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_CAMERA: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.i("kike", "permis camera concedit");
+                    Log.i("Bernat", "permis camera concedit");
                     // Demana permisos d'escriptura
                     if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                         if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                            Log.i("kike", "demana escriptura opcio 1");
+                            Log.i("Bernat", "demana escriptura opcio 1");
                         } else {
-                            Log.i("kike", "demana escriptura opcio 2");
+                            Log.i("Bernat", "demana escriptura opcio 2");
                             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
                         }
                     }
                 } else {
-                    Log.i("kike", "permis camera denegat");
+                    Log.i("Bernat", "permis camera denegat");
                 }
                 return;
             }
 
             case MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.i("kike", "permis escriptura concedit");
+                    Log.i("Bernat", "permis escriptura concedit");
                 } else {
-                    Log.i("kike", "permis escriptura denegat");
+                    Log.i("Bernat", "permis escriptura denegat");
                 }
             }
             // Altres permisos, afegir 'case'
@@ -365,12 +360,9 @@ public class ChooseActivity extends AppCompatActivity {
                 back.recycle();
                 back_guardada = true;
             }
-
-
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     public Bitmap Resize(Bitmap bitmap) {
@@ -418,11 +410,11 @@ public class ChooseActivity extends AppCompatActivity {
     }
 
     public void netejar_fitxers() {
-        File directory = new File(Environment.getExternalStorageDirectory().toString()+image_dir);
+        File directory = new File(Environment.getExternalStorageDirectory().toString() + image_dir);
         File[] files = directory.listFiles();
         Log.d("Files", "Size: " + files.length);
         for (int i = 0; i < files.length; i++) {
-            if (files[i].length() == 0){
+            if (files[i].length() == 0) {
                 files[i].delete();
             }
         }

@@ -82,7 +82,6 @@ public class ShareActivity extends AppCompatActivity {
             valors_back = savedInstanceState.getIntArray("back_val");
         }
 
-
         // Boto prev
         btn_prev.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -13,7 +13,6 @@ import android.os.Environment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -71,16 +70,13 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
     private int compressio = 85;
     private ImageView info_ima;
 
-    //  private static int pix_max = 500; // Valor maxim de ample/alt de les imatges
     private int[] ids_effect = {R.id.contrast_button, R.id.brightness_button, R.id.temperature_button, R.id.rotation_button, R.id.saturation_button, R.id.opacity_button};
 
     // On es guarden els valors de la seekbar per cada efecte i imatge (fore i back)
     private int[][] valors_editables = new int[2][6];
 
-    // Al acabar les probes, es pot borrar aixo d'aqui sota /////////////////
-    private String[] edit_image; // = {getString(R.string.foreground), getString(R.string.background)};
-    private String[] edit_variable;// = {getString(R.string.contrast), getString(R.string.brightness), getString(R.string.warmth), getString(R.string.rotation), getString(R.string.saturation), getString(R.string.opacity)};
-    /////////////////////////////////////////////////////////////////////////////////////
+    private String[] edit_image;
+    private String[] edit_variable;
 
     // Guardem les dades quan girem la pantalla
     @Override
@@ -208,7 +204,7 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                edit_image();
+                message_edit_image();
             }
         });
 
@@ -236,7 +232,6 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
                     intent.putExtra(ShareActivity.KEY_COLOR_CHROMA_4, color_chroma);
                     intent.putExtra(ShareActivity.KEY_VALORS_FORE_4, valors_editables[0]);
                     intent.putExtra(ShareActivity.KEY_VALORS_BACK_4, valors_editables[1]);
-
                     startActivity(intent);
                     finish();
 
@@ -372,7 +367,7 @@ public class EditActivity extends AppCompatActivity implements View.OnTouchListe
     }
 
     // Es podra borrar
-    private void edit_image() {
+    private void message_edit_image() {
         String msg = edit_image[EDIT_IMAGE_CODE] + " " + edit_variable[EDIT_VARIABLE_CODE] + " " + valors_editables[EDIT_IMAGE_CODE][EDIT_VARIABLE_CODE];
         Toast t = Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT);
         t.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL, 0, 0);

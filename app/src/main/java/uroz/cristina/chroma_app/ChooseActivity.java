@@ -412,7 +412,13 @@ public class ChooseActivity extends AppCompatActivity {
     public void netejar_fitxers() {
         File directory = new File(Environment.getExternalStorageDirectory().toString() + image_dir);
         File[] files = directory.listFiles();
-        for (int i = 0; i < files.length; i++) {
+        int len;
+        if (files == null) {
+            len = 0;
+        } else {
+            len = files.length;
+        }
+        for (int i = 0; i < len; i++) {
             if (files[i].length() == 0) {
                 files[i].delete();
             }
